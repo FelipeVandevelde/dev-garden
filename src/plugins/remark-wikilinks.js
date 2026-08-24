@@ -12,25 +12,48 @@ function slugify(text) {
     .replace(/-+$/, '');
 }
 
-function buildSlugRegistry() {
+function walk(dir, fileList = []) {
+  if (!fs.existsSync(dir)) return fileList;
+  const files = fs.readdirSync(dir);
+  for (const file of files) {
+    const stat = fs.statSync(path.join(dir, file));
+    if (stat.isDirectory()) {
+      walk(path.join(dir, file), fileList);
+    } else {
+      fileList.push(path.join(dir, file));
+    }
+  }
+  return fileList;
+}
+
+function buildRegistries() {
   const gardenDir = path.join(process.cwd(), 'src/content/garden');
-  const slugs = new Map();
+  const publicSlugs = new Map();
+  const privateSlugs = new Set();
   
   if (fs.existsSync(gardenDir)) {
-    const files = fs.readdirSync(gardenDir);
+    const files = walk(gardenDir);
     for (const file of files) {
-      if (file.endsWith('.md') && !file.startsWith('_')) {
-        const rawContent = fs.readFileSync(path.join(gardenDir, file), 'utf8');
+      if (file.endsWith('.md')) {
+        const relativePath = path.relative(gardenDir, file);
+        const normalizedPath = relativePath.replace(/\\/g, '/');
+        const filename = path.basename(file);
+        
+        const isPrivatePath = normalizedPath.includes('_private/') || normalizedPath.startsWith('_') || filename.startsWith('_');
+        
+        const rawContent = fs.readFileSync(file, 'utf8');
         const parsed = matter(rawContent);
         
-        if (parsed.data.draft !== true) {
-          const slug = slugify(file.replace('.md', ''));
-          
+        const slug = slugify(filename.replace('.md', ''));
+        
+        if (isPrivatePath || parsed.data.draft === true) {
+          privateSlugs.add(slug);
+        } else {
           let body = parsed.content.replace(/\[!.*?\]/g, '').replace(/#+\s/g, '').replace(/\n/g, ' ').trim();
-          body = body.replace(/\[\[(.*?)\]\]/g, '$1'); // Strip wikilinks from excerpt
+          body = body.replace(/\[\[(.*?)\]\]/g, '$1'); 
           const excerpt = body.length > 120 ? body.substring(0, 120) + '...' : body;
 
-          slugs.set(slug, {
+          publicSlugs.set(slug, {
             title: parsed.data.title || slug,
             status: parsed.data.status || 'sprout',
             excerpt: excerpt
@@ -39,10 +62,10 @@ function buildSlugRegistry() {
       }
     }
   }
-  return slugs;
+  return { publicSlugs, privateSlugs };
 }
 
-const registry = buildSlugRegistry();
+const { publicSlugs, privateSlugs } = buildRegistries();
 
 export default function remarkWikilinks() {
   return (tree) => {
@@ -73,10 +96,8 @@ export default function remarkWikilinks() {
 
         const slug = slugify(target);
 
-        if (registry.has(slug)) {
-          const data = registry.get(slug);
-          
-          // Escape HTML attributes just in case
+        if (publicSlugs.has(slug)) {
+          const data = publicSlugs.get(slug);
           const safeTitle = data.title.replace(/"/g, '&quot;');
           const safeExcerpt = data.excerpt.replace(/"/g, '&quot;');
 
@@ -84,10 +105,15 @@ export default function remarkWikilinks() {
             type: 'html',
             value: `<a href="/garden/${slug}" class="wikilink" data-preview-title="${safeTitle}" data-preview-status="${data.status}" data-preview-excerpt="${safeExcerpt}">${label}</a>`
           });
+        } else if (privateSlugs.has(slug)) {
+          newChildren.push({
+            type: 'html',
+            value: `<span class="wikilink-stub wikilink-private" title="Private or work-in-progress note">[🔒 ${label} 🔒]</span>`
+          });
         } else {
           newChildren.push({
             type: 'html',
-            value: `<span class="wikilink-stub" title="Private or work-in-progress note">[🔒 ${label} 🔒]</span>`
+            value: `<span class="wikilink-stub wikilink-missing" title="Note does not exist">[❓ ${label} ❓]</span>`
           });
         }
 
