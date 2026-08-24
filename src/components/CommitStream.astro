@@ -1,0 +1,18 @@
+---
+import { fetchRecentCommits } from '../utils/githubFetcher';
+const commits = await fetchRecentCommits();
+---
+<div class="commit-stream">
+  <div class="commit-header">
+    <h4>Live Commits</h4>
+    <span class="pulse"></span>
+  </div>
+  {commits.map(commit => (
+    <div class="commit-item">
+      <span class="commit-sha">{commit.sha}</span>
+      <span class="commit-repo">[{commit.repo}]</span>
+      <span class="commit-msg">{commit.message}</span>
+      <span class="commit-date">{new Date(commit.date).toLocaleDateString()}</span>
+    </div>
+  ))}
+</div>

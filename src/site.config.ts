@@ -4,6 +4,7 @@ export const siteConfigSchema = z.object({
   author: z.object({
     name: z.string().min(1),
     bio: z.string().optional(),
+    githubUsername: z.string().optional(),
   }),
   siteUrl: z.string().url(),
   social: z.array(z.object({
@@ -32,6 +33,7 @@ const unvalidatedConfig = {
   author: {
     name: 'Your Name',
     bio: 'A passionate developer.',
+    githubUsername: 'octocat',
   },
   siteUrl: 'https://example.com',
   social: [

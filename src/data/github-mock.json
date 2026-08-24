@@ -1,0 +1,20 @@
+[
+  {
+    "sha": "a1b2c3d",
+    "message": "fix: resolve preact hydration error",
+    "date": "2026-08-23T10:00:00Z",
+    "repo": "bmad-first-project"
+  },
+  {
+    "sha": "e5f6g7h",
+    "message": "feat: implement brutalist theme engine",
+    "date": "2026-08-22T14:30:00Z",
+    "repo": "bmad-first-project"
+  },
+  {
+    "sha": "9i8u7y6",
+    "message": "docs: update PRD for Epic 2",
+    "date": "2026-08-21T09:15:00Z",
+    "repo": "bmad-first-project"
+  }
+]
