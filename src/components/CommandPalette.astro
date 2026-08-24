@@ -1,0 +1,221 @@
+---
+---
+<dialog id="command-palette" class="command-palette">
+  <div class="palette-container">
+    <div class="palette-header">
+      <input type="text" id="palette-input" placeholder="Search or type a command... (Cmd+K)" autocomplete="off" spellcheck="false" />
+    </div>
+    <div class="palette-results" id="palette-results">
+      <ul id="palette-list">
+        <!-- Default Actions -->
+        <li class="palette-item action-item" data-action="theme" tabindex="-1">
+          <span class="icon">🌓</span> Toggle Theme
+        </li>
+        <li class="palette-item action-item" data-action="graph" tabindex="-1">
+          <span class="icon">🕸️</span> Open Knowledge Graph
+        </li>
+      </ul>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .command-palette {
+    padding: 0;
+    border: 1px solid var(--text-color);
+    background: var(--bg-color);
+    color: var(--text-color);
+    width: 90%;
+    max-width: 600px;
+    border-radius: 0;
+    box-shadow: 8px 8px 0 rgba(128, 128, 128, 0.2);
+    top: 15vh;
+    margin: 0 auto;
+  }
+
+  .command-palette::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+  }
+
+  .palette-header input {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.2rem;
+    border: none;
+    border-bottom: 1px solid var(--text-color);
+    background: transparent;
+    color: var(--text-color);
+    font-family: monospace;
+    outline: none;
+  }
+
+  .palette-results {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  #palette-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .palette-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-left: 2px solid transparent;
+  }
+
+  .palette-item:hover, .palette-item.selected {
+    background: rgba(128, 128, 128, 0.1);
+    border-left: 2px solid var(--text-color);
+  }
+
+  .palette-item .icon {
+    opacity: 0.7;
+  }
+</style>
+
+<script is:inline>
+  (function() {
+    const dialog = document.getElementById('command-palette');
+    const input = document.getElementById('palette-input');
+    const list = document.getElementById('palette-list');
+    
+    let pagefind = null;
+    let selectedIndex = -1;
+    
+    const defaultActions = `
+      <li class="palette-item action-item" data-action="theme" tabindex="-1">
+        <span class="icon">🌓</span> Toggle Theme
+      </li>
+      <li class="palette-item action-item" data-action="graph" tabindex="-1">
+        <span class="icon">🕸️</span> Open Knowledge Graph
+      </li>
+    `;
+
+    // Toggle Palette
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        if (dialog.open) {
+          dialog.close();
+        } else {
+          dialog.showModal();
+          input.value = '';
+          list.innerHTML = defaultActions;
+          selectedIndex = -1;
+          input.focus();
+        }
+      }
+    });
+
+    // Close on backdrop click
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+
+    function updateSelection() {
+      const items = list.querySelectorAll('.palette-item');
+      items.forEach((item, i) => {
+        if (i === selectedIndex) {
+          item.classList.add('selected');
+          item.scrollIntoView({ block: 'nearest' });
+        } else {
+          item.classList.remove('selected');
+        }
+      });
+    }
+
+    function triggerAction(item) {
+      if (!item) return;
+      if (item.classList.contains('action-item')) {
+        const action = item.getAttribute('data-action');
+        if (action === 'theme') {
+          const current = document.documentElement.getAttribute('data-theme');
+          const next = current === 'dark' ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-theme', next);
+          localStorage.setItem('theme', next);
+        } else if (action === 'graph') {
+          window.location.href = '/graph';
+        }
+        dialog.close();
+      } else {
+        const href = item.getAttribute('data-href');
+        if (href) {
+          window.location.href = href;
+        }
+      }
+    }
+
+    input.addEventListener('keydown', (e) => {
+      const items = list.querySelectorAll('.palette-item');
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+        updateSelection();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedIndex = Math.max(selectedIndex - 1, 0);
+        updateSelection();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (selectedIndex >= 0 && selectedIndex < items.length) {
+          triggerAction(items[selectedIndex]);
+        }
+      }
+    });
+
+    list.addEventListener('click', (e) => {
+      const item = e.target.closest('.palette-item');
+      if (item) triggerAction(item);
+    });
+
+    let debounceTimer;
+    input.addEventListener('input', async (e) => {
+      const query = e.target.value.trim();
+      
+      if (!query) {
+        list.innerHTML = defaultActions;
+        selectedIndex = -1;
+        return;
+      }
+
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(async () => {
+        if (!pagefind) {
+          try {
+            pagefind = await import('/pagefind/pagefind.js');
+          } catch(err) {
+            console.error("Pagefind failed to load:", err);
+            list.innerHTML = `<li class="palette-item" style="opacity:0.5">Search index not found. Run build first.</li>`;
+            return;
+          }
+        }
+
+        const search = await pagefind.search(query);
+        if (search.results.length === 0) {
+          list.innerHTML = `<li class="palette-item" style="opacity:0.5">No results found for "${query}"</li>`;
+        } else {
+          // Resolve top 5 results
+          const topResults = await Promise.all(search.results.slice(0, 5).map(r => r.data()));
+          
+          list.innerHTML = topResults.map(r => `
+            <li class="palette-item" data-href="${r.url}">
+              <span class="icon">📄</span>
+              <div>
+                <strong style="display:block">${r.meta.title || r.url}</strong>
+                <small style="opacity:0.7">${r.excerpt}</small>
+              </div>
+            </li>
+          `).join('');
+        }
+        selectedIndex = -1;
+      }, 200);
+    });
+  })();
+</script>
