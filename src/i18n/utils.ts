@@ -22,4 +22,7 @@ export function getRouteWithLang(url: URL, lang: string) {
     newPath = path.replace(`/${currentLang}`, '');
     if (newPath === '') newPath = '/';
   } else if (currentLang !== defaultLang && lang !== defaultLang) {
-    n
+    newPath = path.replace(`/${currentLang}`, `/${lang}`);
+  }
+  return newPath;
+}
