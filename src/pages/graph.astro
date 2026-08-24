@@ -141,7 +141,7 @@ links.forEach(l => {
           context.scale(currentTransform.k, currentTransform.k);
 
           context.beginPath();
-          links.forEach(d => {
+          links.forEach((d: any) => {
             context.moveTo(d.source.x, d.source.y);
             context.lineTo(d.target.x, d.target.y);
           });
@@ -150,7 +150,7 @@ links.forEach(l => {
           context.stroke();
           context.globalAlpha = 1.0;
 
-          nodes.forEach(d => {
+          nodes.forEach((d: any) => {
             context.beginPath();
             const r = 5 + (degree[d.id] || 0) * 2;
             d.r = r;
@@ -174,7 +174,7 @@ links.forEach(l => {
 
         d3.select(canvas).call(d3.zoom<HTMLCanvasElement, unknown>()
             .scaleExtent([0.1, 4])
-            .on("zoom", (e) => {
+            .on("zoom", (e: any) => {
                currentTransform = e.transform;
                ticked();
             }));
@@ -184,9 +184,9 @@ links.forEach(l => {
           const mx = (e.clientX - rect.left - currentTransform.x) / currentTransform.k;
           const my = (e.clientY - rect.top - currentTransform.y) / currentTransform.k;
           
-          let closest = null;
+          let closest: any = null;
           let minDist = Infinity;
-          nodes.forEach(d => {
+          nodes.forEach((d: any) => {
             const dx = mx - d.x;
             const dy = my - d.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
@@ -207,7 +207,7 @@ links.forEach(l => {
           const my = (e.clientY - rect.top - currentTransform.y) / currentTransform.k;
           
           let found = false;
-          nodes.forEach(d => {
+          nodes.forEach((d: any) => {
             const dx = mx - d.x;
             const dy = my - d.y;
             if (Math.sqrt(dx*dx + dy*dy) < d.r + 5) found = true;
