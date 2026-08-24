@@ -1,19 +1,26 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import FilterBar from '../../components/FilterBar.astro';
 import { getCollection } from 'astro:content';
 
 const allNotes = await getCollection('garden', ({ data, id }) => {
   return data.draft !== true && !id.startsWith('_');
 });
+
+const allStatuses = Array.from(new Set(allNotes.map(n => n.data.status)));
 ---
 <BaseLayout>
   <section>
     <h2>Digital Garden</h2>
     <p style="margin-bottom: 2rem;">A collection of notes and thoughts.</p>
-    <ul class="garden-list">
+    
+    <FilterBar tags={allStatuses} />
+
+    <ul class="garden-list" style="margin-top: 2rem;">
       {allNotes.map(note => (
-        <li>
-          <a href={`/garden/${note.slug}`}>{note.data.title}</a>
+        <li class="filterable-item" data-tags={note.data.status} style="margin-bottom: 1rem;">
+          <a href={`/garden/${note.slug}`} style="font-size: 1.25rem;">{note.data.title}</a>
+          <span class={`badge badge-${note.data.status}`} style="margin-left: 0.5rem;">[{note.data.status.toUpperCase()}]</span>
         </li>
       ))}
     </ul>
