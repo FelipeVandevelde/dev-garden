@@ -1,0 +1,13 @@
+{
+  "title": "BMAD Brutalist Engine",
+  "description": "A high-performance, statically generated portfolio engine enforcing WCAG AAA monochromatic constraints.",
+  "liveUrl": "https://example.com",
+  "githubUrl": "https://github.com/octocat/bmad-first-project",
+  "tags": ["Frontend", "Astro", "Architecture"],
+  "curatorNotes": {
+    "context": "Built to serve as a deeply technical engineering showcase, eliminating runtime bloat in favor of 100% static delivery and native vanilla Web APIs.",
+    "architecture": "Utilizes Astro 5.0 SSG with decoupled data structures via Zod-validated Content Collections. Preact was deliberately excluded to maintain a zero-JS framework footprint.",
+    "tradeOffs": "Sacrificed native client-side SPA routing in favor of absolute zero-runtime footprint. Global state like theme toggles had to be handled via blocking inline head scripts to prevent FOUC.",
+    "lessonsLearned": "Native web standards (like CSS Grid, custom properties, and inline vanilla JS) are more than capable of handling highly interactive requirements without framework overhead."
+  }
+}

@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection, getEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const allProjects = await getCollection('projects');
+  return allProjects.map(p => ({
+    params: { slug: p.id },
+  }));
+}
+
+const { slug } = Astro.params;
+const projectEntry = await getEntry('projects', slug);
+const project = projectEntry.data;
+---
+<BaseLayout>
+  <article class="project-case-study">
+    <header style="border-bottom: 4px solid var(--text-color); padding-bottom: 2rem; margin-bottom: 2rem;">
+      <h1 style="font-size: 3rem; text-transform: uppercase; margin-bottom: 0;">{project.title}</h1>
+      <p class="description" style="font-size: 1.25rem;">{project.description}</p>
+      <div class="links" style="display: flex; gap: 1rem; margin-top: 1rem; font-family: monospace;">
+        {project.liveUrl && <a href={project.liveUrl} target="_blank">Live URL ↗</a>}
+        {project.githubUrl && <a href={project.githubUrl} target="_blank">GitHub ↗</a>}
+      </div>
+    </header>
+    
+    <section class="curator-notes">
+      <h2 style="font-size: 2rem; margin-bottom: 2rem;">Curator Notes</h2>
+      
+      <div class="tier" style="margin-bottom: 2rem;">
+        <h3 style="border-left: 4px solid var(--text-color); padding-left: 1rem;">Context</h3>
+        <p>{project.curatorNotes.context}</p>
+      </div>
+      
+      <div class="tier" style="margin-bottom: 2rem;">
+        <h3 style="border-left: 4px solid var(--text-color); padding-left: 1rem;">Architecture & Choices</h3>
+        <p>{project.curatorNotes.architecture}</p>
+      </div>
+      
+      <div class="tier" style="margin-bottom: 2rem;">
+        <h3 style="border-left: 4px solid var(--text-color); padding-left: 1rem;">Key Trade-offs</h3>
+        <p>{project.curatorNotes.tradeOffs}</p>
+      </div>
+      
+      <div class="tier" style="margin-bottom: 2rem;">
+        <h3 style="border-left: 4px solid var(--text-color); padding-left: 1rem;">Lessons Learned</h3>
+        <p>{project.curatorNotes.lessonsLearned}</p>
+      </div>
+    </section>
+  </article>
+</BaseLayout>
