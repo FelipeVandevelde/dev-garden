@@ -1,10 +1,18 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { siteConfig } from '../site.config';
+import { getEntry } from 'astro:content';
+
+const profile = await getEntry('profile', 'en');
 ---
 <BaseLayout>
-  <section style="padding: 1rem;">
-    <h2>Welcome to {siteConfig.author.name}'s Portfolio</h2>
-    <p>Use keyboard shortcuts (g h, g p, etc.) to navigate.</p>
+  <section class="hero-section">
+    <h1>{profile?.data.name}</h1>
+    <h2>{profile?.data.title}</h2>
+    <p class="bio">{profile?.data.bio}</p>
+    
+    <h3>Core Principles</h3>
+    <ul>
+      {profile?.data.principles.map(p => <li>{p}</li>)}
+    </ul>
   </section>
 </BaseLayout>
