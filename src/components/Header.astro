@@ -1,15 +1,26 @@
 ---
 import { siteConfig } from '../site.config';
+import { getLangFromUrl, useTranslations, getRouteWithLang } from '../i18n/utils';
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const enUrl = getRouteWithLang(Astro.url, 'en');
+const ptUrl = getRouteWithLang(Astro.url, 'pt-br');
 ---
 <header class="global-header">
   <nav class="nav-links">
-    {siteConfig.nav.map((item) => (
-      <a href={item.href} class="nav-link">{item.label}</a>
-    ))}
+    {siteConfig.nav.map((item) => {
+      let href = item.href;
+      if (lang !== 'en') {
+        href = /;
+      }
+      return <a href={href} class="nav-link">{item.label}</a>
+    })}
   </nav>
   <div class="toggles">
     <div class="lang-toggle">
-      <span>PT</span> | <span>EN</span>
+      <a href={ptUrl} style={lang === 'pt-br' ? 'font-weight: bold; text-decoration: underline;' : ''}>PT</a> | 
+      <a href={enUrl} style={lang === 'en' ? 'font-weight: bold; text-decoration: underline;' : ''}>EN</a>
     </div>
     <div class="theme-toggle" id="theme-toggle-ui">
       <span>DARK</span> | <span>LIGHT</span> | <span>HC-DARK</span> | <span>HC-LIGHT</span>
