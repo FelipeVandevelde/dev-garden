@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allNotes = await getCollection('garden', ({ data, id }) => {
+  return data.draft !== true && !id.startsWith('_');
+});
+---
+<BaseLayout>
+  <section>
+    <h2>Digital Garden</h2>
+    <p style="margin-bottom: 2rem;">A collection of notes and thoughts.</p>
+    <ul class="garden-list">
+      {allNotes.map(note => (
+        <li>
+          <a href={`/garden/${note.slug}`}>{note.data.title}</a>
+        </li>
+      ))}
+    </ul>
+  </section>
+</BaseLayout>

@@ -40,8 +40,17 @@ const repositoriesCollection = defineCollection({
   })
 });
 
+const gardenCollection = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    draft: z.boolean().optional().default(false),
+  })
+});
+
 export const collections = {
   'profile': profileCollection,
   'projects': projectsCollection,
   'repositories': repositoriesCollection,
+  'garden': gardenCollection,
 };
