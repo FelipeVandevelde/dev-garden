@@ -1,25 +1,10 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
 import { siteConfig } from '../site.config';
-import ThemeInit from '../components/ThemeInit.astro';
-import '../styles/tokens.css';
 ---
-
-<html lang={siteConfig.locale.default}>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>{siteConfig.author.name}'s Portfolio</title>
-    <ThemeInit />
-  </head>
-  <body style="background-color: var(--bg-color); color: var(--text-color);">
-    <h1>Welcome to {siteConfig.author.name}'s Portfolio</h1>
-    <nav>
-      <ul>
-        {siteConfig.nav.map((item) => (
-          <li><a href={item.href}>{item.label}</a></li>
-        ))}
-      </ul>
-    </nav>
-  </body>
-</html>
+<BaseLayout>
+  <section style="padding: 1rem;">
+    <h2>Welcome to {siteConfig.author.name}'s Portfolio</h2>
+    <p>Use keyboard shortcuts (g h, g p, etc.) to navigate.</p>
+  </section>
+</BaseLayout>

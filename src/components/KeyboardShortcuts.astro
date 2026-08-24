@@ -1,0 +1,60 @@
+---
+---
+<script is:inline>
+  (function() {
+    var lastKey = '';
+    var lastKeyTime = 0;
+
+    document.addEventListener('keydown', function(e) {
+      var active = document.activeElement;
+      if (active) {
+        var tag = active.tagName.toLowerCase();
+        var role = active.getAttribute('role');
+        var isContentEditable = active.isContentEditable;
+        if (tag === 'input' || tag === 'textarea' || isContentEditable || role === 'textbox') {
+          return;
+        }
+      }
+
+      if (e.key === 'Escape') {
+        return;
+      }
+
+      var now = Date.now();
+      if (now - lastKeyTime > 1000) {
+        lastKey = '';
+      }
+
+      var key = e.key.toLowerCase();
+      
+      if (lastKey === 'g') {
+        if (key === 'h') window.location.href = '/';
+        else if (key === 'p') window.location.href = '/projects';
+        else if (key === 'g') window.location.href = '/garden';
+        else if (key === 'r') window.location.href = '/repositories';
+        lastKey = '';
+      } else if (lastKey === 't') {
+        if (key === 't') {
+          var themes = ['Dark', 'Light', 'HC-Dark', 'HC-Light'];
+          var current = document.documentElement.getAttribute('data-theme') || 'Dark';
+          var nextIndex = (themes.indexOf(current) + 1) % themes.length;
+          var nextTheme = themes[nextIndex];
+          document.documentElement.setAttribute('data-theme', nextTheme);
+          try {
+            window.localStorage.setItem('theme', nextTheme);
+          } catch(err) {
+            if (!window.__fallbackStorage) window.__fallbackStorage = {};
+            window.__fallbackStorage['theme'] = nextTheme;
+          }
+        }
+        else if (key === 'l') {
+           // logic for language toggle
+        }
+        lastKey = '';
+      } else {
+        lastKey = key;
+        lastKeyTime = now;
+      }
+    });
+  })();
+</script>

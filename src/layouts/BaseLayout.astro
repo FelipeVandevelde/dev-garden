@@ -1,0 +1,28 @@
+---
+import { siteConfig } from '../site.config';
+import ThemeInit from '../components/ThemeInit.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import KeyboardShortcuts from '../components/KeyboardShortcuts.astro';
+import '../styles/tokens.css';
+---
+
+<html lang={siteConfig.locale.default}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{siteConfig.author.name}'s Portfolio</title>
+    <ThemeInit />
+  </head>
+  <body>
+    <div class="shell-container">
+      <Header />
+      <main class="main-content">
+        <slot />
+      </main>
+      <Footer />
+    </div>
+    <KeyboardShortcuts />
+  </body>
+</html>

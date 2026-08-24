@@ -1,0 +1,18 @@
+---
+import { siteConfig } from '../site.config';
+---
+<header class="global-header">
+  <nav class="nav-links">
+    {siteConfig.nav.map((item) => (
+      <a href={item.href} class="nav-link">{item.label}</a>
+    ))}
+  </nav>
+  <div class="toggles">
+    <div class="lang-toggle">
+      <span>PT</span> | <span>EN</span>
+    </div>
+    <div class="theme-toggle" id="theme-toggle-ui">
+      <span>DARK</span> | <span>LIGHT</span> | <span>HC-DARK</span> | <span>HC-LIGHT</span>
+    </div>
+  </div>
+</header>

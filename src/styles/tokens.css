@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   --bg-color: #F4F4F6;
   --text-color: #000000;
   --focus-color: #0056B3;
@@ -31,4 +31,53 @@
   --text-color: #000000;
   --focus-color: #000000;
   color-scheme: light;
+}
+
+/* Brutalist base styles */
+body {
+  margin: 0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: monospace;
+}
+.shell-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  border-left: 1px solid var(--text-color);
+  border-right: 1px solid var(--text-color);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.global-header, .global-footer {
+  border-bottom: 1px solid var(--text-color);
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.global-footer {
+  border-bottom: none;
+  border-top: 1px solid var(--text-color);
+  margin-top: auto;
+}
+a {
+  color: var(--text-color);
+  text-decoration: none;
+}
+a:hover, .nav-link:hover, .rss-link:hover {
+  background-color: var(--text-color);
+  color: var(--bg-color);
+}
+.nav-link {
+  padding: 0.5rem;
+  border: 1px solid transparent;
+}
+* {
+  box-shadow: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
 }
