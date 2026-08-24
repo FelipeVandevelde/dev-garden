@@ -255,9 +255,9 @@ a:hover, .nav-link:hover, .rss-link:hover {
   margin-bottom: 0.5rem;
   text-transform: uppercase;
 }
-.callout-note .callout-title::before { content: "â„¹ "; }
-.callout-warning .callout-title::before { content: "âš  "; }
-.callout-tip .callout-title::before { content: "ðŸ’¡ "; }
+.callout-note .callout-title::before { content: "Ã¢â€žÂ¹ "; }
+.callout-warning .callout-title::before { content: "Ã¢Å¡Â  "; }
+.callout-tip .callout-title::before { content: "Ã°Å¸â€™Â¡ "; }
 /* Hover Popover */
 .hover-popover {
   position: absolute;
@@ -272,4 +272,24 @@ a:hover, .nav-link:hover, .rss-link:hover {
   transition: opacity 0.2s ease;
   pointer-events: none;
   box-shadow: 4px 4px 0 rgba(128, 128, 128, 0.2);
+}
+/* Graph Container */
+.graph-container {
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--text-color);
+  margin: 2rem 0;
+  display: block; /* Desktop visible */
+}
+.graph-fallback {
+  display: none; /* Desktop hidden */
+}
+
+@media (max-width: 768px) {
+  .graph-container {
+    display: none; /* Hide complex graph on mobile */
+  }
+  .graph-fallback {
+    display: block; /* Show accessible list on mobile */
+  }
 }
