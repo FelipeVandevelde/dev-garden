@@ -1,0 +1,10 @@
+{
+  "name": "Jane Doe",
+  "title": "Senior Software Engineer",
+  "bio": "I am a builder specializing in highly available, accessible, and heavily tested architectures. I prefer simple, brutalist systems that scale cleanly.",
+  "principles": [
+    "Simplicity over complexity",
+    "Accessibility is non-negotiable",
+    "Ship static by default"
+  ]
+}

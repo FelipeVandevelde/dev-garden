@@ -1,0 +1,10 @@
+{
+  "name": "Jane Doe",
+  "title": "Engenheira de Software Sênior",
+  "bio": "Sou uma construtora especializada em arquiteturas altamente disponíveis, acessíveis e intensamente testadas. Prefiro sistemas simples e brutalistas que escalem de forma limpa.",
+  "principles": [
+    "Simplicidade sobre complexidade",
+    "Acessibilidade não é negociável",
+    "Entregue estático por padrão"
+  ]
+}
