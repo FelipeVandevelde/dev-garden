@@ -1,0 +1,144 @@
+---
+import { nodes, links } from '../data/skills';
+---
+
+<div class="constellation-wrapper" style="width: 100%; max-width: 600px; margin: 2rem auto; position: relative;">
+  <svg viewBox="0 0 100 100" style="width: 100%; height: auto; display: block; overflow: visible;">
+    {/* Draw Links */}
+    {links.map(link => {
+      const sourceNode = nodes.find(n => n.id === link.source);
+      const targetNode = nodes.find(n => n.id === link.target);
+      if (!sourceNode || !targetNode) return null;
+
+      return (
+        <line
+          x1={sourceNode.x}
+          y1={sourceNode.y}
+          x2={targetNode.x}
+          y2={targetNode.y}
+          stroke="var(--text-color)"
+          stroke-width="0.2"
+          class="constellation-link"
+          data-source={link.source}
+          data-target={link.target}
+          style="transition: all 0.3s ease"
+        />
+      );
+    })}
+
+    {/* Draw Nodes */}
+    {nodes.map(node => (
+      <g 
+        transform={`translate(${node.x}, ${node.y})`}
+        style="transition: all 0.3s ease; cursor: pointer;"
+        tabindex="0"
+        role="button"
+        aria-pressed="false"
+        aria-label={node.label}
+        class="constellation-node"
+        data-id={node.id}
+      >
+        <circle
+          r="3"
+          fill="var(--bg-color)"
+          stroke="var(--text-color)"
+          stroke-width="0.5"
+          class="node-circle"
+        />
+        <text
+          x="0"
+          y="6"
+          font-size="3"
+          fill="var(--text-color)"
+          text-anchor="middle"
+          style="pointer-events: none;"
+          class="node-text"
+        >
+          {node.label}
+        </text>
+      </g>
+    ))}
+  </svg>
+</div>
+
+<script>
+  (function() {
+    const nodes = document.querySelectorAll('.constellation-node');
+    const links = document.querySelectorAll('.constellation-link');
+    let activeNode = null;
+
+    function resetGraph() {
+      activeNode = null;
+      nodes.forEach(n => {
+        n.style.opacity = '1';
+        n.setAttribute('aria-pressed', 'false');
+        const circle = n.querySelector('.node-circle');
+        if (circle) circle.setAttribute('fill', 'var(--bg-color)');
+      });
+      links.forEach(l => {
+        l.style.opacity = '1';
+        l.setAttribute('stroke-width', '0.2');
+      });
+    }
+
+    function highlightNode(id) {
+      if (activeNode === id) {
+        resetGraph();
+        return;
+      }
+      activeNode = id;
+
+      const connectedNodeIds = new Set();
+      links.forEach(l => {
+        const source = l.getAttribute('data-source');
+        const target = l.getAttribute('data-target');
+        if (source === id || target === id) {
+          l.style.opacity = '1';
+          l.setAttribute('stroke-width', '0.8');
+          connectedNodeIds.add(source);
+          connectedNodeIds.add(target);
+        } else {
+          l.style.opacity = '0.25';
+          l.setAttribute('stroke-width', '0.2');
+        }
+      });
+
+      nodes.forEach(n => {
+        const nid = n.getAttribute('data-id');
+        const circle = n.querySelector('.node-circle');
+        
+        if (nid === id) {
+          n.style.opacity = '1';
+          n.setAttribute('aria-pressed', 'true');
+          if (circle) circle.setAttribute('fill', 'var(--text-color)');
+        } else if (connectedNodeIds.has(nid)) {
+          n.style.opacity = '1';
+          n.setAttribute('aria-pressed', 'false');
+          if (circle) circle.setAttribute('fill', 'var(--bg-color)');
+        } else {
+          n.style.opacity = '0.25';
+          n.setAttribute('aria-pressed', 'false');
+          if (circle) circle.setAttribute('fill', 'var(--bg-color)');
+        }
+      });
+    }
+
+    nodes.forEach(n => {
+      n.addEventListener('click', () => {
+        highlightNode(n.getAttribute('data-id'));
+      });
+      n.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          highlightNode(n.getAttribute('data-id'));
+        }
+      });
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && activeNode) {
+        resetGraph();
+      }
+    });
+  })();
+</script>
