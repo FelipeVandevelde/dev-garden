@@ -1,5 +1,7 @@
-﻿---
+---
 import { siteConfig } from '../site.config';
+import ThemeInit from '../components/ThemeInit.astro';
+import '../styles/tokens.css';
 ---
 
 <html lang={siteConfig.locale.default}>
@@ -8,8 +10,9 @@ import { siteConfig } from '../site.config';
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <title>{siteConfig.author.name}'s Portfolio</title>
+    <ThemeInit />
   </head>
-  <body>
+  <body style="background-color: var(--bg-color); color: var(--text-color);">
     <h1>Welcome to {siteConfig.author.name}'s Portfolio</h1>
     <nav>
       <ul>

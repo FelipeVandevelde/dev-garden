@@ -1,0 +1,25 @@
+﻿---
+// ThemeInit.astro
+import { siteConfig } from '../site.config';
+---
+<script is:inline define:vars={{ defaultTheme: siteConfig.theme.default }}>
+  (function() {
+    var validThemes = ['Dark', 'Light', 'HC-Dark', 'HC-Light'];
+    var theme = defaultTheme;
+    try {
+      var stored = window.localStorage.getItem('theme');
+      if (stored && validThemes.includes(stored)) {
+        theme = stored;
+      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        theme = 'Dark';
+      } else {
+        theme = 'Light';
+      }
+    } catch (e) {
+      if (window.__fallbackStorage && validThemes.includes(window.__fallbackStorage['theme'])) {
+        theme = window.__fallbackStorage['theme'];
+      }
+    }
+    document.documentElement.setAttribute('data-theme', theme);
+  })();
+</script>
