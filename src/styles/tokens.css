@@ -1,27 +1,29 @@
 :root {
   --bg-color: #F4F4F6;
   --text-color: #000000;
-  --focus-color: #0056B3;
+  --focus-color: #000000;
   color-scheme: light;
 }
 
 [data-theme="Dark"] {
-  --bg-color: #121212;
+  --bg-color: #000000;
+  --surface-color: #121212;
   --text-color: #FFFFFF;
-  --focus-color: #007BFF;
+  --focus-color: #FFFFFF;
   color-scheme: dark;
 }
 
 [data-theme="Light"] {
-  --bg-color: #F4F4F6;
+  --bg-color: #FFFFFF;
+  --surface-color: #F4F4F6;
   --text-color: #000000;
-  --focus-color: #0056B3;
+  --focus-color: #000000;
   color-scheme: light;
 }
 
 [data-theme="HC-Dark"] {
   --bg-color: #000000;
-  --text-color: #FFFF00;
+  --text-color: #FFFFFF;
   --focus-color: #FFFF00;
   color-scheme: dark;
 }
@@ -38,7 +40,7 @@ body {
   margin: 0;
   background-color: var(--bg-color);
   color: var(--text-color);
-  font-family: monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 .shell-container {
   max-width: 1200px;
@@ -292,4 +294,4 @@ a:hover, .nav-link:hover, .rss-link:hover {
   .graph-fallback {
     display: block; /* Show accessible list on mobile */
   }
-}
+}\n.wikilink { text-decoration: underline; font-family: monospace; }\n\n[data-theme^="HC-"] .shell-container, [data-theme^="HC-"] .global-header, [data-theme^="HC-"] .global-footer { border-width: 2px !important; }\n

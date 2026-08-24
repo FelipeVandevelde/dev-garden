@@ -33,7 +33,8 @@ export default function remarkCallouts() {
             node.data = node.data || {};
             node.data.hName = 'div';
             node.data.hProperties = {
-              className: ['callout', `callout-${calloutType}`]
+              className: ['callout', `callout-${calloutType}`],
+              role: calloutType === 'warning' ? 'alert' : 'note',
             };
           }
         }

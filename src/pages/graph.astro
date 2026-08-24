@@ -197,7 +197,8 @@ links.forEach(l => {
           });
 
           if (closest) {
-            window.location.href = `/garden/${closest.id}`;
+            const langPrefix = document.documentElement.lang === 'pt-br' ? '/pt-br' : '';
+            window.location.href = `${langPrefix}/garden/${closest.id}`;
           }
         });
         

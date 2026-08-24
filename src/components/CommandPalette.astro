@@ -123,10 +123,10 @@
       const items = list.querySelectorAll('.palette-item');
       items.forEach((item, i) => {
         if (i === selectedIndex) {
-          item.classList.add('selected');
+          item.classList.add('selected'); item.setAttribute('aria-selected', 'true');
           item.scrollIntoView({ block: 'nearest' });
         } else {
-          item.classList.remove('selected');
+          item.classList.remove('selected'); item.setAttribute('aria-selected', 'false');
         }
       });
     }
@@ -137,9 +137,9 @@
         const action = item.getAttribute('data-action');
         if (action === 'theme') {
           const current = document.documentElement.getAttribute('data-theme');
-          const next = current === 'dark' ? 'light' : 'dark';
+          const next = current === 'Dark' ? 'Light' : 'Dark';
           document.documentElement.setAttribute('data-theme', next);
-          localStorage.setItem('theme', next);
+          try { window.localStorage.setItem('theme', next); } catch(err) { window.__fallbackStorage = window.__fallbackStorage || {}; window.__fallbackStorage['theme'] = next; }
         } else if (action === 'graph') {
           window.location.href = '/graph';
         }
@@ -197,7 +197,7 @@
           }
         }
 
-        const search = await pagefind.search(query);
+        const search = await pagefind.search(query).catch(() => null); if(!search) return;
         if (search.results.length === 0) {
           list.innerHTML = `<li class="palette-item" style="opacity:0.5">No results found for "${query}"</li>`;
         } else {
