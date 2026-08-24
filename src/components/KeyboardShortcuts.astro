@@ -1,6 +1,10 @@
 ---
+import { getLangFromUrl, getRouteWithLang } from '../i18n/utils';
+const lang = getLangFromUrl(Astro.url);
+const nextLang = lang === 'en' ? 'pt-br' : 'en';
+const nextLangUrl = getRouteWithLang(Astro.url, nextLang);
 ---
-<script is:inline>
+<script is:inline define:vars={{ nextLangUrl }}>
   (function() {
     var lastKey = '';
     var lastKeyTime = 0;
@@ -48,7 +52,7 @@
           }
         }
         else if (key === 'l') {
-           // logic for language toggle
+           window.location.href = nextLangUrl;
         }
         lastKey = '';
       } else {

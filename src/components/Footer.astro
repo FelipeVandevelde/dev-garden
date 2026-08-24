@@ -1,9 +1,12 @@
 ---
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
 ---
 <footer class="global-footer">
   <div class="footer-status">
-    <span>BUILD: {import.meta.env.GIT_HASH || 'NO_VCS'}</span>
-    <span>TIME: {new Date().toISOString()}</span>
+    <span>{t('footer.build')} {import.meta.env.GIT_HASH || 'NO_VCS'}</span>
+    <span>{t('footer.time')} {new Date().toISOString()}</span>
   </div>
   <a href="/rss.xml" class="rss-link">RSS</a>
 </footer>
