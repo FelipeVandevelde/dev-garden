@@ -1,0 +1,15 @@
+{
+  "nodes": [
+    {
+      "id": "growing-note",
+      "title": "A Growing Concept",
+      "status": "growing"
+    },
+    {
+      "id": "public-note",
+      "title": "A Public Garden Note",
+      "status": "evergreen"
+    }
+  ],
+  "links": []
+}
