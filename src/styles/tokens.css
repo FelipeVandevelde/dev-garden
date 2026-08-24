@@ -214,3 +214,11 @@ a:hover, .nav-link:hover, .rss-link:hover {
   background: var(--text-color);
   color: var(--bg-color);
 }
+/* Wikilink Stubs */
+.wikilink-stub {
+  color: var(--text-color);
+  opacity: 0.6;
+  font-family: monospace;
+  text-decoration: line-through;
+  cursor: help;
+}
