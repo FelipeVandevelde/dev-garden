@@ -1,12 +1,28 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
-// Load graph data statically at build time
+interface GraphNode {
+  id: string;
+  title: string;
+  status: string;
+}
+
+interface GraphLink {
+  source: string;
+  target: string;
+}
+
+interface AdjacencyRecord {
+  node: GraphNode;
+  in: GraphNode[];
+  out: GraphNode[];
+}
+
 const graphPath = path.join(process.cwd(), 'public', 'graph-data.json');
-let nodes = [];
-let links = [];
+let nodes: GraphNode[] = [];
+let links: GraphLink[] = [];
 
 if (fs.existsSync(graphPath)) {
   const data = JSON.parse(fs.readFileSync(graphPath, 'utf8'));
@@ -14,8 +30,7 @@ if (fs.existsSync(graphPath)) {
   links = data.links;
 }
 
-// Compute incoming and outgoing for semantic fallback list
-const adjacency = {};
+const adjacency: Record<string, AdjacencyRecord> = {};
 nodes.forEach(n => {
   adjacency[n.id] = { node: n, in: [], out: [] };
 });
@@ -31,12 +46,10 @@ links.forEach(l => {
     <h2>Knowledge Graph</h2>
     <p>Visual map of relationships across the digital garden.</p>
 
-    <!-- Desktop Island Placeholder (Story 5.2) -->
     <div id="graph-container" class="graph-container">
       <p style="text-align: center; padding: 2rem; border: 1px dashed var(--text-color);">Interactive Graph loading...</p>
     </div>
 
-    <!-- Mobile Semantic Fallback -->
     <nav class="graph-fallback" aria-label="Graph Fallback Navigation">
       {nodes.map(n => (
         <div class="node-list-item" style="margin-bottom: 2rem; border-bottom: 1px dotted var(--text-color); padding-bottom: 1rem;">
