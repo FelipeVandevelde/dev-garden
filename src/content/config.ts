@@ -27,7 +27,21 @@ const projectsCollection = defineCollection({
   })
 });
 
+const repositoriesCollection = defineCollection({
+  type: 'data',
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    url: z.string().url(),
+    language: z.string(),
+    tags: z.array(z.string()),
+    stars: z.number().default(0),
+    forks: z.number().default(0),
+  })
+});
+
 export const collections = {
   'profile': profileCollection,
   'projects': projectsCollection,
+  'repositories': repositoriesCollection,
 };

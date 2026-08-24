@@ -1,0 +1,17 @@
+---
+export interface Props {
+  slug: string;
+  repo: any;
+}
+const { slug, repo } = Astro.props;
+---
+<a href={repo.url} target="_blank" class="project-card filterable-item" data-tags={repo.tags.join(',')}>
+  <h3>{repo.title} ↗</h3>
+  <p>{repo.description}</p>
+  <div class="tags">
+    <span class="tag">[{repo.language}]</span>
+    <span class="tag">★ {repo.stars}</span>
+    <span class="tag">⑂ {repo.forks}</span>
+    {repo.tags.map((t: string) => <span class="tag">#{t}</span>)}
+  </div>
+</a>

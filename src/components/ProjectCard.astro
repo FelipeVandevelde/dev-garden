@@ -5,7 +5,7 @@ export interface Props {
 }
 const { slug, project } = Astro.props;
 ---
-<a href={`/projects/${slug}`} class="project-card">
+<a href={`/projects/${slug}`} class="project-card filterable-item" data-tags={project.tags.join(',')}>
   <h3>{project.title}</h3>
   <p>{project.description}</p>
   <div class="tags">

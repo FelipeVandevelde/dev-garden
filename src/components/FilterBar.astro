@@ -1,0 +1,51 @@
+---
+export interface Props {
+  tags: string[];
+}
+const { tags } = Astro.props;
+---
+<div class="filter-bar" style="margin-bottom: 2rem;">
+  <strong>Filter: </strong>
+  <div class="filter-tags" style="display: inline-flex; gap: 0.5rem; flex-wrap: wrap;">
+    <button class="filter-btn active" data-tag="all" aria-pressed="true">All</button>
+    {tags.map((t: string) => (
+      <button class="filter-btn" data-tag={t} aria-pressed="false">#{t}</button>
+    ))}
+  </div>
+</div>
+
+<script is:inline>
+  (function() {
+    const filterContainer = document.querySelector('.filter-tags');
+    if (!filterContainer) return;
+    
+    const btns = filterContainer.querySelectorAll('.filter-btn');
+    const items = document.querySelectorAll('.filterable-item');
+    
+    btns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const tag = e.currentTarget.getAttribute('data-tag');
+        
+        btns.forEach(b => {
+          b.setAttribute('aria-pressed', 'false');
+          b.classList.remove('active');
+        });
+        e.currentTarget.setAttribute('aria-pressed', 'true');
+        e.currentTarget.classList.add('active');
+        
+        items.forEach(item => {
+          if (tag === 'all') {
+            item.style.display = 'block';
+          } else {
+            const itemTags = item.getAttribute('data-tags') || '';
+            if (itemTags.split(',').includes(tag)) {
+              item.style.display = 'block';
+            } else {
+              item.style.display = 'none';
+            }
+          }
+        });
+      });
+    });
+  })();
+</script>
