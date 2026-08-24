@@ -1,10 +1,11 @@
 import { defineConfig } from 'astro/config';
 import remarkWikilinks from './src/plugins/remark-wikilinks.js';
+import remarkCallouts from './src/plugins/remark-callouts.js';
 
 export default defineConfig({
   output: 'static',
   markdown: {
-    remarkPlugins: [remarkWikilinks],
+    remarkPlugins: [remarkWikilinks, remarkCallouts],
   },
   i18n: {
     defaultLocale: 'en',
