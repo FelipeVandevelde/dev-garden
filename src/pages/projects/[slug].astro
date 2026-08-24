@@ -10,7 +10,9 @@ export async function getStaticPaths() {
 }
 
 const { slug } = Astro.params;
+if (!slug) throw new Error("Slug is required");
 const projectEntry = await getEntry('projects', slug);
+if (!projectEntry) throw new Error(`Project ${slug} not found`);
 const project = projectEntry.data;
 ---
 <BaseLayout>
