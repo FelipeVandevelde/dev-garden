@@ -45,6 +45,7 @@ const gardenCollection = defineCollection({
   schema: z.object({
     title: z.string(),
     draft: z.boolean().optional().default(false),
+    status: z.enum(['sprout', 'growing', 'evergreen']).default('sprout'),
   })
 });
 
