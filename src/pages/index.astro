@@ -1,0 +1,22 @@
+﻿---
+import { siteConfig } from '../site.config';
+---
+
+<html lang={siteConfig.locale.default}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{siteConfig.author.name}'s Portfolio</title>
+  </head>
+  <body>
+    <h1>Welcome to {siteConfig.author.name}'s Portfolio</h1>
+    <nav>
+      <ul>
+        {siteConfig.nav.map((item) => (
+          <li><a href={item.href}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+  </body>
+</html>
