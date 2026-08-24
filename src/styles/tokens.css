@@ -1,0 +1,34 @@
+﻿:root {
+  --bg-color: #F4F4F6;
+  --text-color: #000000;
+  --focus-color: #0056B3;
+  color-scheme: light;
+}
+
+[data-theme="Dark"] {
+  --bg-color: #121212;
+  --text-color: #FFFFFF;
+  --focus-color: #007BFF;
+  color-scheme: dark;
+}
+
+[data-theme="Light"] {
+  --bg-color: #F4F4F6;
+  --text-color: #000000;
+  --focus-color: #0056B3;
+  color-scheme: light;
+}
+
+[data-theme="HC-Dark"] {
+  --bg-color: #000000;
+  --text-color: #FFFF00;
+  --focus-color: #FFFF00;
+  color-scheme: dark;
+}
+
+[data-theme="HC-Light"] {
+  --bg-color: #FFFFFF;
+  --text-color: #000000;
+  --focus-color: #000000;
+  color-scheme: light;
+}
