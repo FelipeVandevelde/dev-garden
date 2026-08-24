@@ -255,6 +255,21 @@ a:hover, .nav-link:hover, .rss-link:hover {
   margin-bottom: 0.5rem;
   text-transform: uppercase;
 }
-.callout-note .callout-title::before { content: "ℹ "; }
-.callout-warning .callout-title::before { content: "⚠ "; }
-.callout-tip .callout-title::before { content: "💡 "; }
+.callout-note .callout-title::before { content: "â„¹ "; }
+.callout-warning .callout-title::before { content: "âš  "; }
+.callout-tip .callout-title::before { content: "ðŸ’¡ "; }
+/* Hover Popover */
+.hover-popover {
+  position: absolute;
+  width: 300px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--text-color);
+  padding: 1rem;
+  z-index: 1000;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  box-shadow: 4px 4px 0 rgba(128, 128, 128, 0.2);
+}

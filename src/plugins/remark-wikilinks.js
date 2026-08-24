@@ -1,8 +1,8 @@
 import { visit } from 'unist-util-visit';
 import fs from 'fs';
 import path from 'path';
+import matter from 'gray-matter';
 
-// Slugify function mirroring Astro's default behavior
 function slugify(text) {
   return text.toString().toLowerCase()
     .replace(/\s+/g, '-')
@@ -12,27 +12,37 @@ function slugify(text) {
     .replace(/-+$/, '');
 }
 
-// Build a static registry of valid public slugs
 function buildSlugRegistry() {
   const gardenDir = path.join(process.cwd(), 'src/content/garden');
-  const validSlugs = new Set();
+  const slugs = new Map();
   
   if (fs.existsSync(gardenDir)) {
     const files = fs.readdirSync(gardenDir);
     for (const file of files) {
       if (file.endsWith('.md') && !file.startsWith('_')) {
-        const content = fs.readFileSync(path.join(gardenDir, file), 'utf8');
-        // Simple frontmatter check for draft: true
-        if (!content.includes('draft: true')) {
-          validSlugs.add(slugify(file.replace('.md', '')));
+        const rawContent = fs.readFileSync(path.join(gardenDir, file), 'utf8');
+        const parsed = matter(rawContent);
+        
+        if (parsed.data.draft !== true) {
+          const slug = slugify(file.replace('.md', ''));
+          
+          let body = parsed.content.replace(/\[!.*?\]/g, '').replace(/#+\s/g, '').replace(/\n/g, ' ').trim();
+          body = body.replace(/\[\[(.*?)\]\]/g, '$1'); // Strip wikilinks from excerpt
+          const excerpt = body.length > 120 ? body.substring(0, 120) + '...' : body;
+
+          slugs.set(slug, {
+            title: parsed.data.title || slug,
+            status: parsed.data.status || 'sprout',
+            excerpt: excerpt
+          });
         }
       }
     }
   }
-  return validSlugs;
+  return slugs;
 }
 
-const validSlugsCache = buildSlugRegistry();
+const registry = buildSlugRegistry();
 
 export default function remarkWikilinks() {
   return (tree) => {
@@ -63,11 +73,16 @@ export default function remarkWikilinks() {
 
         const slug = slugify(target);
 
-        if (validSlugsCache.has(slug)) {
+        if (registry.has(slug)) {
+          const data = registry.get(slug);
+          
+          // Escape HTML attributes just in case
+          const safeTitle = data.title.replace(/"/g, '&quot;');
+          const safeExcerpt = data.excerpt.replace(/"/g, '&quot;');
+
           newChildren.push({
-            type: 'link',
-            url: `/garden/${slug}`,
-            children: [{ type: 'text', value: label }]
+            type: 'html',
+            value: `<a href="/garden/${slug}" class="wikilink" data-preview-title="${safeTitle}" data-preview-status="${data.status}" data-preview-excerpt="${safeExcerpt}">${label}</a>`
           });
         } else {
           newChildren.push({
