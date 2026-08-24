@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RepositoryCard from '../../components/RepositoryCard.astro';
+import FilterBar from '../../components/FilterBar.astro';
+import { getCollection } from 'astro:content';
+
+const allRepos = await getCollection('repositories');
+const allTags = Array.from(new Set(allRepos.flatMap(r => r.data.tags)));
+---
+<BaseLayout>
+  <section>
+    <h2>Repositories</h2>
+    <p style="margin-bottom: 2rem;">A catalogue of sandbox environments, scripts, and open-source contributions.</p>
+    <FilterBar tags={allTags} />
+    <div class="project-grid">
+      {allRepos.map(r => <RepositoryCard slug={r.id} repo={r.data} />)}
+    </div>
+  </section>
+</BaseLayout>

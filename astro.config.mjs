@@ -6,6 +6,9 @@ export default defineConfig({
   output: 'static',
   markdown: {
     remarkPlugins: [remarkWikilinks, remarkCallouts],
+    shikiConfig: {
+      theme: 'css-variables',
+    }
   },
   i18n: {
     defaultLocale: 'en',

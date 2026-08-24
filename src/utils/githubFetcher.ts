@@ -38,7 +38,7 @@ export async function fetchRecentCommits(): Promise<Commit[]> {
     const commits: Commit[] = [];
     for (const event of pushEvents) {
       const repoName = event.repo.name.split('/')[1] || event.repo.name;
-      for (const commit of event.payload.commits) {
+      for (const commit of event.payload.commits || []) {
         commits.push({
           sha: commit.sha.substring(0, 7),
           message: commit.message.split('\n')[0],

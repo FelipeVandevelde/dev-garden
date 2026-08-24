@@ -40,7 +40,7 @@
           let left = rect.left + window.scrollX;
           
           if (left + 300 > window.innerWidth) {
-            left = window.innerWidth - 320;
+            left = Math.max(0, window.innerWidth - 320);
           }
           
           popover.style.top = top + 'px';

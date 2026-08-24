@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const gardenEntries = await getCollection('garden', ({ data, id }) => {
+    return data.draft !== true && !id.startsWith('_');
+  });
+  return gardenEntries.map(entry => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+---
+<BaseLayout>
+  <article class="garden-note">
+    <header style="border-bottom: 4px solid var(--text-color); padding-bottom: 2rem; margin-bottom: 2rem;">
+      <h1 style="font-size: 3rem; text-transform: uppercase; margin-bottom: 0.5rem;">{entry.data.title}</h1>
+      <span class={`badge badge-${entry.data.status}`}>[{entry.data.status.toUpperCase()}]</span>
+    </header>
+    
+    <div class="content">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>

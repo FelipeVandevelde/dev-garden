@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import FilterBar from '../../components/FilterBar.astro';
+import { getCollection } from 'astro:content';
+
+const allProjects = await getCollection('projects');
+const allTags = Array.from(new Set(allProjects.flatMap(p => p.data.tags)));
+---
+<BaseLayout>
+  <section>
+    <h2>Engineering Showcase</h2>
+    <p style="margin-bottom: 2rem;">A catalogue of production-grade case studies and architecture breakdowns.</p>
+    <FilterBar tags={allTags} />
+    <div class="project-grid">
+      {allProjects.map(p => <ProjectCard slug={p.id} project={p.data} />)}
+    </div>
+  </section>
+</BaseLayout>

@@ -12,13 +12,13 @@ const profile = await getEntry('profile', 'pt-br');
     <h2>{profile?.data.title}</h2>
     <p class="bio">{profile?.data.bio}</p>
     
-    <h3>PrincÃƒÆ’Ã‚Â­pios Centrais</h3>
+    <h3>Princípios Centrais</h3>
     <ul>
       {profile?.data.principles.map(p => <li>{p}</li>)}
     </ul>
   </section>
   <section>
-    <h3>ConstelaÃƒÂ§ÃƒÂ£o de Habilidades</h3>
+    <h3>Constelação de Habilidades</h3>
     <Constellation />
   </section>
   <section>
