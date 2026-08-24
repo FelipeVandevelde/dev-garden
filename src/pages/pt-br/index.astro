@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getEntry } from 'astro:content';
+import Constellation from '../../components/Constellation.tsx';
 
 const profile = await getEntry('profile', 'pt-br');
 ---
@@ -10,9 +11,13 @@ const profile = await getEntry('profile', 'pt-br');
     <h2>{profile?.data.title}</h2>
     <p class="bio">{profile?.data.bio}</p>
     
-    <h3>Princípios Centrais</h3>
+    <h3>PrincÃ­pios Centrais</h3>
     <ul>
       {profile?.data.principles.map(p => <li>{p}</li>)}
     </ul>
+  </section>
+  <section>
+    <h3>Constelação de Habilidades</h3>
+    <Constellation client:visible />
   </section>
 </BaseLayout>

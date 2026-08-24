@@ -112,3 +112,13 @@ a:hover, .nav-link:hover, .rss-link:hover {
 .hero-section li {
   margin-bottom: 0.5rem;
 }
+/* Constellation Overrides */
+@media (prefers-reduced-motion: reduce) {
+  .constellation-node, .constellation-link {
+    transition: none !important;
+  }
+}
+.constellation-node:focus {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 4px;
+}
