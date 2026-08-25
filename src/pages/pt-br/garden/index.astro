@@ -20,7 +20,7 @@ const allStatuses = Array.from(new Set(allNotes.map(n => n.data.status)));
       {allNotes.map(note => (
         <li class="filterable-item" data-tags={note.data.status} style="margin-bottom: 1rem;">
           <a href={`/garden/${note.slug}`} style="font-size: 1.25rem;">{note.data.title}</a>
-          <span class={`badge badge-${note.data.status}`} style="margin-left: 0.5rem;">[{note.data.status.toUpperCase()}] {note.data.status === "sprout" ? "◇" : note.data.status === "growing" ? "◐" : "●"}</span>
+          <span class={`badge badge-${note.data.status}`} style="margin-left: 0.5rem;">[{note.data.status.toUpperCase()} // {note.data.status === "sprout" ? "SEED" : note.data.status === "growing" ? "EXPANDING" : "PRODUCTION"}] {note.data.status === "sprout" ? "◇" : note.data.status === "growing" ? "◐" : "●"}</span>
         </li>
       ))}
     </ul>
