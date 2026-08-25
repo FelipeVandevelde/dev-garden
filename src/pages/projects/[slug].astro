@@ -31,25 +31,25 @@ const project = projectEntry.data;
       
       {project.curatorNotes?.context && (
         <div class="tier" style="margin-bottom: 2rem;">
-          <h3 style="border-left: 3px solid var(--text-color); padding-left: 1rem; font-family: monospace;">// [CONTEXT] Context</h3>
+          <h3>// [CONTEXT] Context</h3>
           <p>{project.curatorNotes.context}</p>
         </div>
       )}
       {project.curatorNotes?.architecture && (
         <div class="tier" style="margin-bottom: 2rem;">
-          <h3 style="border-left: 3px solid var(--text-color); padding-left: 1rem; font-family: monospace;">// [SYS_ARCH] Architecture & Choices</h3>
+          <h3>// [SYS_ARCH] Architecture & Choices</h3>
           <p>{project.curatorNotes.architecture}</p>
         </div>
       )}
       {project.curatorNotes?.tradeOffs && (
         <div class="tier" style="margin-bottom: 2rem;">
-          <h3 style="border-left: 3px double var(--text-color); padding-left: 1rem; font-family: monospace;">// [TRADE_OFF] Key Trade-offs</h3>
+          <h3>// [TRADE_OFF] Key Trade-offs</h3>
           <p>{project.curatorNotes.tradeOffs}</p>
         </div>
       )}
       {project.curatorNotes?.lessonsLearned && (
         <div class="tier" style="margin-bottom: 2rem;">
-          <h3 style="border-left: 3px dashed var(--text-color); padding-left: 1rem; font-family: monospace;">// [LESSONS] Lessons Learned</h3>
+          <h3>// [LESSONS] Lessons Learned</h3>
           <p>{project.curatorNotes.lessonsLearned}</p>
         </div>
       )}

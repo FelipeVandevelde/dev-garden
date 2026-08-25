@@ -31,20 +31,28 @@ const project = projectEntry.data;
       
       <div class="tier" style="margin-bottom: 2rem;">
       {project.curatorNotes?.context && (
-        <h3 style="border-left: 3px solid var(--text-color); padding-left: 1rem; font-family: monospace;">// [CONTEXT] Context</h3>
+      <div style="border-left: 3px solid var(--text-primary-dark, var(--text-color)); padding-left: 1rem; margin-bottom: 1rem;">
+        <h3 style="font-family: monospace; font-size: 14px;">// [CONTEXT] Context</h3>
         <p>{project.curatorNotes.context}</p>
+      </div>
       )}
       {project.curatorNotes?.architecture && (
-        <h3 style="border-left: 3px solid var(--text-color); padding-left: 1rem; font-family: monospace;">// [SYS_ARCH] Architecture & Choices</h3>
+      <div style="border-left: 3px double var(--text-primary-dark, var(--text-color)); padding-left: 1rem; margin-bottom: 1rem;">
+        <h3 style="font-family: monospace; font-size: 14px;">// [SYS_ARCH] Architecture & Choices</h3>
         <p>{project.curatorNotes.architecture}</p>
+      </div>
       )}
       {project.curatorNotes?.tradeOffs && (
-        <h3 style="border-left: 3px double var(--text-color); padding-left: 1rem; font-family: monospace;">// [TRADE_OFF] Key Trade-offs</h3>
+      <div style="border-left: 3px dashed var(--text-secondary-dark, var(--text-color)); padding-left: 1rem; margin-bottom: 1rem;">
+        <h3 style="font-family: monospace; font-size: 14px;">// [TRADE_OFF] Key Trade-offs</h3>
         <p>{project.curatorNotes.tradeOffs}</p>
+      </div>
       )}
       {project.curatorNotes?.lessonsLearned && (
-        <h3 style="border-left: 3px dashed var(--text-color); padding-left: 1rem; font-family: monospace;">// [LESSONS] Lessons Learned</h3>
+      <div style="border-left: 3px dotted var(--text-muted-dark, var(--text-color)); padding-left: 1rem; margin-bottom: 1rem;">
+        <h3 style="font-family: monospace; font-size: 14px;">// [LESSONS] Lessons Learned</h3>
         <p>{project.curatorNotes.lessonsLearned}</p>
+      </div>
       )}</div>
     </section>
   </article>

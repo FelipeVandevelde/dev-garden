@@ -26,16 +26,16 @@
     background: var(--bg-color);
     color: var(--text-color);
     width: 90%;
-    max-width: 600px;
-    border-radius: 0;
-    box-shadow: 8px 8px 0 rgba(128, 128, 128, 0.2);
+    max-width: 640px;
+    border-radius: 4px;
+    
     top: 15vh;
     margin: 0 auto;
   }
 
   .command-palette::backdrop {
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(2px);
+    background: transparent;
+    
   }
 
   .palette-header input {
@@ -71,7 +71,7 @@
   }
 
   .palette-item:hover, .palette-item.selected {
-    background: rgba(128, 128, 128, 0.1);
+    background: var(--text-color); color: var(--bg-color);
     border-left: 2px solid var(--text-color);
   }
 
@@ -137,7 +137,8 @@
         const action = item.getAttribute('data-action');
         if (action === 'theme') {
           const current = document.documentElement.getAttribute('data-theme');
-          const next = current === 'Dark' ? 'Light' : 'Dark';
+          const themes = ["Light", "Dark", "HC-Light", "HC-Dark"];
+      const next = themes[(themes.indexOf(current) + 1) % themes.length];
           document.documentElement.setAttribute('data-theme', next);
           try { window.localStorage.setItem('theme', next); } catch(err) { window.__fallbackStorage = window.__fallbackStorage || {}; window.__fallbackStorage['theme'] = next; }
         } else if (action === 'graph') {
@@ -202,7 +203,7 @@
           list.innerHTML = `<li class="palette-item" style="opacity:0.5">No results found for "${query}"</li>`;
         } else {
           // Resolve top 5 results
-          const topResults = await Promise.all(search.results.slice(0, 5).map(r => r.data()));
+          const topResults = await Promise.all(search.results.slice(0, 5).map(r => r.data().catch(() => null)));
           
           list.innerHTML = topResults.map(r => `
             <li class="palette-item" data-href="${r.url}">

@@ -6,7 +6,7 @@ import matter from 'gray-matter';
 function slugify(text) {
   return text.toString().toLowerCase()
     .replace(/\s+/g, '-')
-    .replace(/[^\w\-]+/g, '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w\-]+/g, '')
     .replace(/\-\-+/g, '-')
     .replace(/^-+/, '')
     .replace(/-+$/, '');
@@ -108,7 +108,7 @@ export default function remarkWikilinks() {
         } else if (privateSlugs.has(slug)) {
           newChildren.push({
             type: 'html',
-            value: `<span class="wikilink-stub wikilink-private" title="Private or work-in-progress note">[🔒 ${label} 🔒]</span>`
+            value: `<span class="wikilink-stub wikilink-private" title="Private or work-in-progress note">[? ${label} ?]</span>`
           });
         } else {
           newChildren.push({
