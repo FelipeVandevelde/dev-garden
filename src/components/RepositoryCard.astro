@@ -5,13 +5,12 @@ export interface Props {
 }
 const { slug, repo } = Astro.props;
 ---
-<a href={repo.url} target="_blank" class="project-card filterable-item" data-tags={repo.tags.join(',')}>
-  <h3>{repo.title} ↗</h3>
-  <p>{repo.description}</p>
-  <div class="tags">
-    <span class="tag">[{repo.language}]</span>
-    <span class="tag">★ {repo.stars}</span>
-    <span class="tag">⑂ {repo.forks}</span>
-    {repo.tags.map((t: string) => <span class="tag">#{t}</span>)}
+<a href={repo.url} target="_blank" class="case-card filterable-item" data-tags={repo.tags.join(',')}>
+  <div class="card-header">
+    <div>
+      <h2 class="proj-title">{repo.title} &nearr;</h2>
+      <div class="proj-meta">[{repo.language}] &bull; &starf; {repo.stars} &bull; &#9083; {repo.forks} &bull; {repo.tags.join(' \u2022 ').toUpperCase()}</div>
+    </div>
   </div>
+  <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">{repo.description}</p>
 </a>

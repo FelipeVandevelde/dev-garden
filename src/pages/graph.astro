@@ -42,17 +42,18 @@ links.forEach(l => {
 });
 ---
 <BaseLayout>
-  <section>
-    <h2>Knowledge Graph</h2>
-    <p>Visual map of relationships across the digital garden.</p>
+  <div class="container">
+    <div style="font-family: var(--font-mono); font-size: 12px; color: var(--text-color); margin-bottom: 20px;">
+      &gt; KNOWLEDGE GRAPH // 2D VISUAL MAP (MONOCHROME)
+    </div>
 
     <div id="graph-container" class="graph-container" style="position: relative; overflow: hidden; touch-action: none;">
-      <p style="text-align: center; padding: 2rem; border: 1px dashed var(--text-color);">Interactive Graph loading...</p>
+      <p style="text-align: center; padding: 2rem; border: var(--border-width) dashed var(--text-color); font-family: var(--font-mono); font-size: 12px;">[ INITIALIZING GRAPH... ]</p>
     </div>
 
     <nav class="graph-fallback" aria-label="Graph Fallback Navigation">
       {nodes.map(n => (
-        <div class="node-list-item" style="margin-bottom: 2rem; border-bottom: 1px dotted var(--text-color); padding-bottom: 1rem;">
+        <div class="node-list-item" style="margin-bottom: 2rem; border-bottom: var(--border-width) dotted var(--text-color); padding-bottom: 1rem;">
           <h3><a href={`/garden/${n.id}`}>{n.title}</a> <span class={`badge badge-${n.status}`}>[{n.status.toUpperCase()}]</span></h3>
           
           <div style="margin-top: 1rem;">
@@ -79,7 +80,7 @@ links.forEach(l => {
         </div>
       ))}
     </nav>
-  </section>
+  </div>
 
   <script>
     import * as d3 from 'd3';

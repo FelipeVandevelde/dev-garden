@@ -16,14 +16,27 @@ const { entry } = Astro.props;
 const { Content } = await entry.render();
 ---
 <BaseLayout>
-  <article class="garden-note">
-    <header style="border-bottom: 4px solid var(--text-color); padding-bottom: 2rem; margin-bottom: 2rem;">
-      <h1 style="font-size: 3rem; text-transform: uppercase; margin-bottom: 0.5rem;">{entry.data.title}</h1>
-      <span class={`badge badge-${entry.data.status}`}>[{entry.data.status.toUpperCase()}]</span>
-    </header>
-    
-    <div class="content">
-      <Content />
+  <div class="container">
+    <div class="hero-grid" style="grid-template-columns: 2fr 1fr; gap: 32px;">
+      <div class="article-card" style="background: var(--surface-color); border: var(--border-width) solid var(--border); padding: 32px; border-radius: 2px;">
+        <div class="badge-row" style="display: flex; gap: 8px; margin-bottom: 24px;">
+          <span class={`badge badge-${entry.data.status}`} style="font-family: var(--font-mono); font-size: 10px; font-weight: bold; padding: 2px 6px;">[{entry.data.status.toUpperCase()}]</span>
+        </div>
+        <h1 class="note-title" style="font-family: var(--font-mono); font-size: 22px; margin: 0 0 12px 0;">[[{entry.slug}]]</h1>
+        <div class="prose" style="font-size: 14px; line-height: 1.7; color: var(--text-secondary);">
+          <Content />
+        </div>
+      </div>
+      <div>
+        <div class="sidebar-box" style="background: var(--surface-color); border: var(--border-width) solid var(--border); padding: 20px; border-radius: 2px;">
+          <div style="font-family:var(--font-mono); font-size:12px; margin-bottom:12px;">
+            &gt; 2D KNOWLEDGE GRAPH (MONOCHROME)
+          </div>
+          <div class="graph-placeholder" style="height: 180px; background: var(--bg-color); border: var(--border-width) dashed var(--border); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); text-align: center; padding: 12px;">
+            [ Graph Placeholder ]
+          </div>
+        </div>
+      </div>
     </div>
-  </article>
+  </div>
 </BaseLayout>

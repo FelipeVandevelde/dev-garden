@@ -41,8 +41,10 @@ const unvalidatedConfig = {
     { name: 'Twitter', url: 'https://twitter.com' }
   ],
   nav: [
-    { label: 'Home', href: '/' },
-    { label: 'About', href: '/about' }
+    { label: 'About', href: '/' },
+    { label: 'Projects', href: '/projects' },
+    { label: 'Digital Garden', href: '/garden' },
+    { label: 'Repos', href: '/repositories' }
   ],
   locale: {
     default: 'en',
