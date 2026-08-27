@@ -1,19 +1,21 @@
 ---
+import BaseCard from './BaseCard.astro';
+
 export interface Props {
   slug: string;
   project: any;
 }
 const { slug, project } = Astro.props;
 ---
-<a href={`/projects/${slug}`} class="case-card filterable-item" data-tags={project.tags.join(',')}>
+<BaseCard href={`/projects/${slug}`} class="case-card filterable-item" data-tags={project?.tags?.join(',') || ''}>
   <div class="card-header">
     <div>
       <h2 class="proj-title">{project.title}</h2>
-      <div class="proj-meta">{project.tags.join(' \u2022 ').toUpperCase()}</div>
+      <div class="proj-meta">{project?.tags?.join(' \u2022 ')?.toUpperCase() || ''}</div>
     </div>
     <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-color); border:var(--border-width) solid var(--text-color); padding:2px 8px; align-self: flex-start;">
       [PRODUCTION_VERIFIED]
     </div>
   </div>
   <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">{project.description}</p>
-</a>
+</BaseCard>

@@ -85,13 +85,19 @@ a {
   color: var(--text-color);
   text-decoration: none;
 }
-a:hover, .nav-link:hover, .rss-link:hover {
-  background-color: var(--focus-color);
-  color: var(--bg-color);
+a:hover {
+  color: var(--focus-color);
 }
 .nav-link {
   padding: 0.5rem;
   border: var(--border-width) solid transparent;
+}
+.nav-link:hover, .rss-link:hover {
+  border-color: var(--focus-color);
+}
+[data-theme^="HC-"] .nav-link:hover, [data-theme^="HC-"] .rss-link:hover {
+  background-color: var(--focus-color);
+  color: var(--bg-color);
 }
 * {
   box-shadow: none !important;
@@ -195,7 +201,21 @@ a:hover, .nav-link:hover, .rss-link:hover {
   margin-left: auto;
   opacity: 0.8;
 }
-/* Projects */
+/* Projects & Cards */
+.base-card {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.base-card:hover {
+  border-color: var(--focus-color);
+}
+[data-theme^="HC-"] .base-card:hover {
+  background-color: var(--focus-color);
+  color: var(--bg-color);
+}
+[data-theme^="HC-"] .base-card:hover .note-link {
+  color: var(--bg-color);
+}
+
 .project-card {
   display: block;
   border: var(--border-width) solid var(--text-color);
@@ -204,10 +224,6 @@ a:hover, .nav-link:hover, .rss-link:hover {
   text-decoration: none;
   transition: background-color 0.2s ease, color 0.2s ease;
   color: var(--text-color);
-}
-.project-card:hover {
-  background-color: var(--focus-color);
-  color: var(--bg-color);
 }
 .project-card h3 {
   margin-top: 0;
