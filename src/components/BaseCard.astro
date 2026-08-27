@@ -1,0 +1,7 @@
+---
+export interface Props extends astroHTML.JSX.AnchorHTMLAttributes {}
+const { class: className, ...props } = Astro.props;
+---
+<a class:list={['base-card', className]} {...props}>
+  <slot />
+</a>

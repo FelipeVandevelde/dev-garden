@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import FilterBar from '../../components/FilterBar.astro';
+import GardenCard from '../../components/GardenCard.astro';
 import { getCollection } from 'astro:content';
 
 const allNotes = await getCollection('garden', ({ data, id }) => {
@@ -16,35 +17,19 @@ const allStatuses = Array.from(new Set(allNotes.map(n => n.data.status)));
     
     <FilterBar tags={allStatuses} />
 
-    <ul class="garden-list" style="margin-top: 2rem; list-style: none; padding: 0;">
+    <div class="garden-list" style="margin-top: 2rem;">
       {allNotes.map(note => {
-        const borderStyle = note.data.status === 'evergreen' ? 'solid var(--text-color)' : (note.data.status === 'growing' ? 'double var(--text-muted)' : 'dashed var(--border)');
         const translatedStatus = note.data.status === "sprout" ? "SEED" : note.data.status === "growing" ? "EXPANDING" : "PRODUCTION";
         const icon = note.data.status === "sprout" ? "◇" : note.data.status === "growing" ? "◐" : "●";
         return (
-          <li class="filterable-item" data-tags={note.data.status} style="margin-bottom: 16px;">
-            <a href={`/garden/${note.slug}`} class="curator-box" style={`display: block; text-decoration: none; background: var(--surface-color); border: var(--border-width) solid var(--border); border-left: 3px ${borderStyle}; border-radius: 2px; padding: 18px; transition: background-color 0.2s, border-color 0.2s;`}>
-              <div class="curator-tag" style="font-family: var(--font-mono); font-size: 11px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; color: var(--text-color);">
-                // NOTA DO JARDIM: [{note.data.status.toUpperCase()} // {translatedStatus}] {icon}
-              </div>
-              <div class="callout-body" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
-                <span class="note-link" style="font-family: var(--font-mono); font-weight: bold; font-size: 1.1rem; color: var(--text-color); text-decoration: underline;">[[{note.slug}]]</span>
-                <span style="font-size: 1.1rem; margin-left: 0.5rem; color: var(--text-secondary);">&mdash; {note.data.title}</span>
-              </div>
-            </a>
-          </li>
+          <GardenCard 
+            note={note} 
+            prefix="NOTA DO JARDIM"
+            translatedStatus={translatedStatus}
+            icon={icon}
+          />
         );
       })}
-    </ul>
+    </div>
   </section>
 </BaseLayout>
-
-<style>
-  .curator-box:hover {
-    background: var(--bg-color) !important;
-    border-color: var(--text-color) !important;
-  }
-  .curator-box:hover .note-link {
-    color: var(--text-muted) !important;
-  }
-</style>

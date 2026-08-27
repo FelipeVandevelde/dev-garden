@@ -1,11 +1,12 @@
 ---
+import BaseCard from './BaseCard.astro';
+
 export interface Props {
-  slug: string;
   repo: any;
 }
-const { slug, repo } = Astro.props;
+const { repo } = Astro.props;
 ---
-<a href={repo.url} target="_blank" class="case-card filterable-item" data-tags={repo.tags.join(',')}>
+<BaseCard href={repo.url} target="_blank" rel="noopener noreferrer" class="case-card filterable-item" data-tags={repo?.tags?.join(',') || ''}>
   <div class="card-header">
     <div>
       <h2 class="proj-title">{repo.title} &nearr;</h2>
@@ -13,4 +14,4 @@ const { slug, repo } = Astro.props;
     </div>
   </div>
   <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">{repo.description}</p>
-</a>
+</BaseCard>

@@ -14,7 +14,7 @@ const allTags = Array.from(new Set(allRepos.flatMap(r => r.data.tags)));
     </div>
     <FilterBar tags={allTags} />
     <div class="project-grid" style="margin-top: 24px;">
-      {allRepos.map(r => <RepositoryCard slug={r.id} repo={r.data} />)}
+      {allRepos.map(r => <RepositoryCard repo={r.data} />)}
     </div>
   </div>
 </BaseLayout>
