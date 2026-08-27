@@ -22,7 +22,7 @@
 <style>
   .command-palette {
     padding: 0;
-    border: 1px solid var(--text-color);
+    border: var(--border-width) solid var(--text-color);
     background: var(--bg-color);
     color: var(--text-color);
     width: 90%;
@@ -43,7 +43,7 @@
     padding: 1rem;
     font-size: 1.2rem;
     border: none;
-    border-bottom: 1px solid var(--text-color);
+    border-bottom: var(--border-width) solid var(--text-color);
     background: transparent;
     color: var(--text-color);
     font-family: monospace;
@@ -71,8 +71,8 @@
   }
 
   .palette-item:hover, .palette-item.selected {
-    background: var(--text-color); color: var(--bg-color);
-    border-left: 2px solid var(--text-color);
+    background: var(--focus-color); color: var(--bg-color);
+    border-left: 2px solid var(--focus-color);
   }
 
   .palette-item .icon {

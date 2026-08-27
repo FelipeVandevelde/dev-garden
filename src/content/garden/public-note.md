@@ -12,7 +12,7 @@ This is a public thought. It should be published.
 > [!WARNING]
 > Do not touch the red button.
 
-Here is a link to another [[A Public Garden Note|public note]] which exists.
+Here is a link to another [[growing-note|growing note]] which exists.
 
 Here is a link to a [[Draft Note]] which shouldn't resolve.
 

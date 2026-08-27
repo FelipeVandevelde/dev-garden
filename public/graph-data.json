@@ -11,5 +11,14 @@
       "status": "evergreen"
     }
   ],
-  "links": []
+  "links": [
+    {
+      "source": "growing-note",
+      "target": "public-note"
+    },
+    {
+      "source": "public-note",
+      "target": "growing-note"
+    }
+  ]
 }

@@ -27,33 +27,51 @@ const project = projectEntry.data;
     </header>
     
     <section class="curator-notes">
-      <h2 style="font-size: 2rem; margin-bottom: 2rem;">Curator Notes</h2>
+      <div class="section-header" style="margin-top: 2rem; margin-bottom: 1rem;">&gt; NOTAS DO CURADOR (MONOCROMÁTICO)</div>
       
-      <div class="tier" style="margin-bottom: 2rem;">
       {project.curatorNotes?.context && (
-      <div style="border-left: 3px solid var(--text-primary-dark, var(--text-color)); padding-left: 1rem; margin-bottom: 1rem;">
-        <h3 style="font-family: monospace; font-size: 14px;">// [CONTEXT] Context</h3>
-        <p>{project.curatorNotes.context}</p>
-      </div>
+        <div class="curator-box" style="background: var(--surface-color); border: var(--border-width) solid var(--border); border-left: 3px solid var(--text-color); border-radius: 2px; padding: 18px; margin-top: 16px;">
+          <div class="curator-tag" style="font-family: var(--font-mono); font-size: 11px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; color: var(--text-color);">
+            // [CONTEXTO] Contexto [BORDA_SÓLIDA]
+          </div>
+          <div class="callout-body" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
+            {project.curatorNotes.context}
+          </div>
+        </div>
       )}
+      
       {project.curatorNotes?.architecture && (
-      <div style="border-left: 3px double var(--text-primary-dark, var(--text-color)); padding-left: 1rem; margin-bottom: 1rem;">
-        <h3 style="font-family: monospace; font-size: 14px;">// [SYS_ARCH] Architecture & Choices</h3>
-        <p>{project.curatorNotes.architecture}</p>
-      </div>
+        <div class="curator-box" style="background: var(--surface-color); border: var(--border-width) solid var(--border); border-left: 3px double var(--text-muted); border-radius: 2px; padding: 18px; margin-top: 16px;">
+          <div class="curator-tag" style="font-family: var(--font-mono); font-size: 11px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; color: var(--text-color);">
+            // [ARQ_SIS] Arquitetura & Escolhas [BORDA_DUPLA]
+          </div>
+          <div class="callout-body" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
+            {project.curatorNotes.architecture}
+          </div>
+        </div>
       )}
+      
       {project.curatorNotes?.tradeOffs && (
-      <div style="border-left: 3px dashed var(--text-secondary-dark, var(--text-color)); padding-left: 1rem; margin-bottom: 1rem;">
-        <h3 style="font-family: monospace; font-size: 14px;">// [TRADE_OFF] Key Trade-offs</h3>
-        <p>{project.curatorNotes.tradeOffs}</p>
-      </div>
+        <div class="curator-box" style="background: var(--surface-color); border: var(--border-width) solid var(--border); border-left: 3px dashed var(--border); border-radius: 2px; padding: 18px; margin-top: 16px;">
+          <div class="curator-tag" style="font-family: var(--font-mono); font-size: 11px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; color: var(--text-color);">
+            // [COMPROMISSOS] Principais Compromissos [BORDA_TRACEJADA]
+          </div>
+          <div class="callout-body" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
+            {project.curatorNotes.tradeOffs}
+          </div>
+        </div>
       )}
+      
       {project.curatorNotes?.lessonsLearned && (
-      <div style="border-left: 3px dotted var(--text-muted-dark, var(--text-color)); padding-left: 1rem; margin-bottom: 1rem;">
-        <h3 style="font-family: monospace; font-size: 14px;">// [LESSONS] Lessons Learned</h3>
-        <p>{project.curatorNotes.lessonsLearned}</p>
-      </div>
-      )}</div>
+        <div class="curator-box" style="background: var(--surface-color); border: var(--border-width) solid var(--border); border-left: 3px dotted var(--text-muted); border-radius: 2px; padding: 18px; margin-top: 16px;">
+          <div class="curator-tag" style="font-family: var(--font-mono); font-size: 11px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; color: var(--text-color);">
+            // [LIÇÕES] Lições Aprendidas [BORDA_PONTILHADA]
+          </div>
+          <div class="callout-body" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
+            {project.curatorNotes.lessonsLearned}
+          </div>
+        </div>
+      )}
     </section>
   </article>
 </BaseLayout>

@@ -8,12 +8,13 @@ const allRepos = await getCollection('repositories');
 const allTags = Array.from(new Set(allRepos.flatMap(r => r.data.tags)));
 ---
 <BaseLayout>
-  <section>
-    <h2>Repositories</h2>
-    <p style="margin-bottom: 2rem;">A catalogue of sandbox environments, scripts, and open-source contributions.</p>
+  <div class="container">
+    <div style="font-family: var(--font-mono); font-size: 12px; color: var(--text-color); margin-bottom: 20px;">
+      &gt; REPOSITÓRIOS // AMBIENTES SANDBOX &amp; SCRIPTS
+    </div>
     <FilterBar tags={allTags} />
-    <div class="project-grid">
+    <div class="project-grid" style="margin-top: 24px;">
       {allRepos.map(r => <RepositoryCard slug={r.id} repo={r.data} />)}
     </div>
-  </section>
+  </div>
 </BaseLayout>

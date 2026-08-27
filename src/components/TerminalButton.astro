@@ -6,7 +6,7 @@ const { href, label } = Astro.props;
 .button-terminal {
   display: inline-block;
   font-family: 'JetBrains Mono', monospace;
-  border: 1px solid var(--text-color);
+  border: var(--border-width) solid var(--text-color);
   border-radius: 2px;
   padding: 8px 16px;
   text-decoration: none;
@@ -17,7 +17,7 @@ const { href, label } = Astro.props;
   font-size: 12px;
 }
 .button-terminal:hover {
-  background: var(--text-color);
+  background: var(--focus-color);
   color: var(--bg-color);
 }
 </style>

@@ -2,8 +2,8 @@
 import { nodes, links } from '../data/skills';
 ---
 
-<div class="constellation-wrapper" style="width: 100%; max-width: 600px; margin: 2rem auto; position: relative;">
-  <svg viewBox="0 0 100 100" style="width: 100%; height: auto; display: block; overflow: visible;">
+<div class="constellation-frame">
+  <svg class="constellation-svg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;">
     {/* Draw Links */}
     {links.map(link => {
       const sourceNode = nodes.find(n => n.id === link.source);
@@ -12,53 +12,36 @@ import { nodes, links } from '../data/skills';
 
       return (
         <line
-          x1={sourceNode.x}
-          y1={sourceNode.y}
-          x2={targetNode.x}
-          y2={targetNode.y}
-          stroke="var(--text-color)"
-          stroke-width="0.2"
+          x1={`${sourceNode.x}%`}
+          y1={`${sourceNode.y}%`}
+          x2={`${targetNode.x}%`}
+          y2={`${targetNode.y}%`}
+          stroke="var(--border)"
           class="constellation-link"
           data-source={link.source}
           data-target={link.target}
-          style="transition: all 0.3s ease"
+          style="stroke-width: var(--border-width); transition: all 0.3s ease"
         />
       );
     })}
-
+  </svg>
+  
+  <div class="nodes-layer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2;">
     {/* Draw Nodes */}
     {nodes.map(node => (
-      <g 
-        transform={`translate(${node.x}, ${node.y})`}
-        style="transition: all 0.3s ease; cursor: pointer;"
-        tabindex="0"
-        role="button"
-        aria-pressed="false"
-        aria-label={node.label}
-        class="constellation-node"
+      <button 
+        class="node constellation-node"
         data-id={node.id}
+        style={`position: absolute; left: ${node.x}%; top: ${node.y}%; transform: translate(-50%, -50%);`}
       >
-        <circle
-          r="3"
-          fill="var(--bg-color)"
-          stroke="var(--text-color)"
-          stroke-width="0.5"
-          class="node-circle"
-        />
-        <text
-          x="0"
-          y="6"
-          font-size="3"
-          fill="var(--text-color)"
-          text-anchor="middle"
-          style="pointer-events: none;"
-          class="node-text"
-        >
-          {node.label}
-        </text>
-      </g>
+        <span class="node-dot"></span>{node.label}
+      </button>
     ))}
-  </svg>
+  </div>
+  
+  <div class="constellation-status">
+    [Active Filter] -&gt; <span id="constellation-filter-text">Select a node to filter content</span>
+  </div>
 </div>
 
 <script is:inline>
@@ -66,22 +49,23 @@ import { nodes, links } from '../data/skills';
     const nodes = document.querySelectorAll('.constellation-node');
     const links = document.querySelectorAll('.constellation-link');
     let activeNode = null;
+    const filterText = document.getElementById('constellation-filter-text');
 
     function resetGraph() {
       activeNode = null;
       nodes.forEach(n => {
+        n.classList.remove('selected');
         n.style.opacity = '1';
         n.setAttribute('aria-pressed', 'false');
-        const circle = n.querySelector('.node-circle');
-        if (circle) circle.setAttribute('fill', 'var(--bg-color)');
       });
       links.forEach(l => {
         l.style.opacity = '1';
-        l.setAttribute('stroke-width', '0.2');
+        l.style.strokeWidth = 'var(--border-width)';
       });
+      if (filterText) filterText.innerHTML = 'Select a node to filter content';
     }
 
-    function highlightNode(id) {
+    function highlightNode(id, label) {
       if (activeNode === id) {
         resetGraph();
         return;
@@ -94,43 +78,44 @@ import { nodes, links } from '../data/skills';
         const target = l.getAttribute('data-target');
         if (source === id || target === id) {
           l.style.opacity = '1';
-          l.setAttribute('stroke-width', '0.8');
+          l.style.strokeWidth = 'calc(var(--border-width) * 2)';
           connectedNodeIds.add(source);
           connectedNodeIds.add(target);
         } else {
-          l.style.opacity = '0.25';
-          l.setAttribute('stroke-width', '0.2');
+          l.style.opacity = '0.15';
+          l.style.strokeWidth = 'var(--border-width)';
         }
       });
 
       nodes.forEach(n => {
         const nid = n.getAttribute('data-id');
-        const circle = n.querySelector('.node-circle');
         
         if (nid === id) {
+          n.classList.add('selected');
           n.style.opacity = '1';
           n.setAttribute('aria-pressed', 'true');
-          if (circle) circle.setAttribute('fill', 'var(--text-color)');
         } else if (connectedNodeIds.has(nid)) {
+          n.classList.remove('selected');
           n.style.opacity = '1';
           n.setAttribute('aria-pressed', 'false');
-          if (circle) circle.setAttribute('fill', 'var(--bg-color)');
         } else {
-          n.style.opacity = '0.25';
+          n.classList.remove('selected');
+          n.style.opacity = '0.35';
           n.setAttribute('aria-pressed', 'false');
-          if (circle) circle.setAttribute('fill', 'var(--bg-color)');
         }
       });
+      
+      if (filterText) filterText.innerHTML = `Viewing details for <b>${label}</b>`;
     }
 
     nodes.forEach(n => {
       n.addEventListener('click', () => {
-        highlightNode(n.getAttribute('data-id'));
+        highlightNode(n.getAttribute('data-id'), n.innerText.trim());
       });
       n.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          highlightNode(n.getAttribute('data-id'));
+          highlightNode(n.getAttribute('data-id'), n.innerText.trim());
         }
       });
     });

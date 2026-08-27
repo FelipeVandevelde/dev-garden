@@ -7,6 +7,8 @@ import KeyboardShortcuts from '../components/KeyboardShortcuts.astro';
 import HoverPopover from '../components/HoverPopover.astro';
 import CommandPalette from '../components/CommandPalette.astro';
 import '../styles/tokens.css';
+
+const siteTitle = `${siteConfig.author.name}'s Portfolio`;
 ---
 
 <html lang={siteConfig.locale.default}>
@@ -14,7 +16,7 @@ import '../styles/tokens.css';
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <title>{siteConfig.author.name}'s Portfolio</title>
+    <title>{siteTitle}</title>
     <ThemeInit />
   </head>
   <body>
