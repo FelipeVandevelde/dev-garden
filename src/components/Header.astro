@@ -1,6 +1,6 @@
 ---
-import { siteConfig } from '../site.config';
 import { getLangFromUrl, useTranslations, getRouteWithLang } from '../i18n/utils';
+import { siteConfig } from '../site.config';
 
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
@@ -10,15 +10,19 @@ const ptUrl = getRouteWithLang(Astro.url, 'pt-br');
 <header class="terminal-nav">
   <div class="nav-brand">~/felipe-dev [MONOCHROME_TERMINAL]</div>
   <nav class="nav-links">
-    {siteConfig.nav.map((item, i) => {
+    {[
+      { label: t('nav.projects'), href: `/projects` },
+      { label: t('nav.digital_garden'), href: `/garden` },
+      { label: t('nav.repos'), href: `/repositories` },
+      { label: t('nav.graph'), href: `/graph` }
+    ].map((item, i) => {
       let href = item.href;
       if (lang !== 'en') {
         href = `/${lang}${href === '/' ? '' : href}`;
       }
       const isActive = Astro.url.pathname === href || Astro.url.pathname === href + '/' || (href !== '/' && Astro.url.pathname.startsWith(href));
-      const transKey = 'nav.' + item.label.toLowerCase().replace(' ', '_');
       return <a href={href} class={isActive ? 'active' : ''}>
-        {`0${i + 1} // ${t(transKey as any) || item.label}`.toUpperCase()}
+        {`0${i + 1} // ${item.label}`.toUpperCase()}
       </a>
     })}
   </nav>

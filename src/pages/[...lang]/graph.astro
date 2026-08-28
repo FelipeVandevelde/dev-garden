@@ -1,5 +1,13 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import { siteConfig } from '../../site.config';
+import { useTranslations } from '../../i18n/utils';
+
+export async function getStaticPaths() {
+  return siteConfig.locale.supported.map(lang => ({
+    params: { lang: lang === siteConfig.locale.default ? undefined : lang }
+  }));
+}
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -20,14 +28,16 @@ interface AdjacencyRecord {
   out: GraphNode[];
 }
 
+const lang = Astro.params.lang || siteConfig.locale.default;
+const t = useTranslations(lang as 'en' | 'pt-br');
 const graphPath = path.join(process.cwd(), 'public', 'graph-data.json');
 let nodes: GraphNode[] = [];
 let links: GraphLink[] = [];
 
 if (fs.existsSync(graphPath)) {
   const data = JSON.parse(fs.readFileSync(graphPath, 'utf8'));
-  nodes = data.nodes;
-  links = data.links;
+  nodes = data.nodes.filter((n: any) => n.id.startsWith(lang + "/"));
+  links = data.links.filter((l: any) => l.source.startsWith(lang + "/") && l.target.startsWith(lang + "/"));
 }
 
 const adjacency: Record<string, AdjacencyRecord> = {};
@@ -44,38 +54,38 @@ links.forEach(l => {
 <BaseLayout>
   <div class="container">
     <div style="font-family: var(--font-mono); font-size: 12px; color: var(--text-color); margin-bottom: 20px;">
-      &gt; GRAFO DE CONHECIMENTO // MAPA VISUAL 2D (MONOCROMÁTICO)
+      {t('graph.title')}
     </div>
 
     <div id="graph-container" class="graph-container" style="position: relative; overflow: hidden; touch-action: none;">
-      <p style="text-align: center; padding: 2rem; border: var(--border-width) dashed var(--text-color); font-family: var(--font-mono); font-size: 12px;">[ INICIALIZANDO GRAFO... ]</p>
+      <p style="text-align: center; padding: 2rem; border: var(--border-width) dashed var(--text-color); font-family: var(--font-mono); font-size: 12px;">{t('graph.initializing')}</p>
     </div>
 
     <nav class="graph-fallback" aria-label="Graph Fallback Navigation">
       {nodes.map(n => (
         <div class="node-list-item" style="margin-bottom: 2rem; border-bottom: var(--border-width) dotted var(--text-color); padding-bottom: 1rem;">
-          <h3><a href={`/garden/${n.id}`}>{n.title}</a> <span class={`badge badge-${n.status}`}>[{n.status.toUpperCase()}]</span></h3>
+          <h3><a href={`${lang === "pt-br" ? "/pt-br" : ""}/garden/${n.id.split("/").slice(1).join("/")}`}>{n.title}</a> <span class={`badge badge-${n.status}`}>[{n.status.toUpperCase()}]</span></h3>
           
           <div style="margin-top: 1rem;">
-            <strong>Mentions (Outgoing):</strong>
+            <strong>{t('graph.mentions')}</strong>
             {adjacency[n.id].out.length > 0 ? (
               <ul style="list-style: circle; margin-left: 2rem;">
                 {adjacency[n.id].out.map(outNode => (
-                  <li><a href={`/garden/${outNode.id}`}>{outNode.title}</a></li>
+                  <li><a href={`${lang === "pt-br" ? "/pt-br" : ""}/garden/${outNode.id.split("/").slice(1).join("/")}`}>{outNode.title}</a></li>
                 ))}
               </ul>
-            ) : <span style="opacity: 0.6; margin-left: 0.5rem;">None</span>}
+            ) : <span style="opacity: 0.6; margin-left: 0.5rem;">{t('graph.none')}</span>}
           </div>
 
           <div style="margin-top: 1rem;">
-            <strong>Referenced by (Incoming):</strong>
+            <strong>{t('graph.referenced')}</strong>
             {adjacency[n.id].in.length > 0 ? (
               <ul style="list-style: square; margin-left: 2rem;">
                 {adjacency[n.id].in.map(inNode => (
-                  <li><a href={`/garden/${inNode.id}`}>{inNode.title}</a></li>
+                  <li><a href={`${lang === "pt-br" ? "/pt-br" : ""}/garden/${inNode.id.split("/").slice(1).join("/")}`}>{inNode.title}</a></li>
                 ))}
               </ul>
-            ) : <span style="opacity: 0.6; margin-left: 0.5rem;">None</span>}
+            ) : <span style="opacity: 0.6; margin-left: 0.5rem;">{t('graph.none')}</span>}
           </div>
         </div>
       ))}
@@ -93,7 +103,7 @@ links.forEach(l => {
 
       if (window.innerWidth < 768) {
         container.innerHTML = '';
-        if (window.graphSimulation) window.graphSimulation.stop();
+        
         return;
       }
 
@@ -199,7 +209,7 @@ links.forEach(l => {
 
           if (closest) {
             const langPrefix = document.documentElement.lang === 'pt-br' ? '/pt-br' : '';
-            window.location.href = `${langPrefix}/garden/${closest.id}`;
+            window.location.href = `${langPrefix}/garden/${closest.id.split("/").slice(1).join("/")}`;
           }
         });
         

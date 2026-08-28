@@ -1,6 +1,8 @@
 ---
-import { getLangFromUrl, getRouteWithLang } from '../i18n/utils';
-const lang = getLangFromUrl(Astro.url);
+import { getLangFromUrl, useTranslations, getRouteWithLang } from '../i18n/utils';
+
+const lang = getLangFromUrl(Astro.url) as 'en' | 'pt-br';
+const t = useTranslations(lang || 'en');
 const nextLang = lang === 'en' ? 'pt-br' : 'en';
 const nextLangUrl = getRouteWithLang(Astro.url, nextLang);
 ---
@@ -32,10 +34,11 @@ const nextLangUrl = getRouteWithLang(Astro.url, nextLang);
       var key = e.key.toLowerCase();
       
       if (lastKey === 'g') {
-        if (key === 'h') window.location.href = '/';
-        else if (key === 'p') window.location.href = '/projects';
-        else if (key === 'g') window.location.href = '/garden';
-        else if (key === 'r') window.location.href = '/repositories';
+        const prefix = document.documentElement.lang === 'pt-br' ? '/pt-br' : '';
+        if (key === 'h') window.location.href = prefix || '/';
+        else if (key === 'p') window.location.href = prefix + '/projects';
+        else if (key === 'g') window.location.href = prefix + '/garden';
+        else if (key === 'r') window.location.href = prefix + '/repositories';
         lastKey = '';
       } else if (lastKey === 't') {
         if (key === 't') {

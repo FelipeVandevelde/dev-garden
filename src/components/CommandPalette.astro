@@ -1,4 +1,7 @@
 ---
+import { useTranslations } from '../i18n/utils';
+const lang = Astro.params.lang || 'en';
+const t = useTranslations((lang as 'en' | 'pt-br') || 'en');
 ---
 <dialog id="command-palette" class="command-palette">
   <div class="palette-container">
@@ -142,7 +145,7 @@
           document.documentElement.setAttribute('data-theme', next);
           try { window.localStorage.setItem('theme', next); } catch(err) { window.__fallbackStorage = window.__fallbackStorage || {}; window.__fallbackStorage['theme'] = next; }
         } else if (action === 'graph') {
-          window.location.href = '/graph';
+          window.location.href = document.documentElement.lang === 'pt-br' ? '/pt-br/graph' : '/graph';
         }
         dialog.close();
       } else {

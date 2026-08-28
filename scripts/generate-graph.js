@@ -37,16 +37,21 @@ function generateGraph() {
         const relativePath = path.relative(gardenDir, file);
         const normalizedPath = relativePath.replace(/\\/g, '/');
         const filename = path.basename(file);
+        const langDir = normalizedPath.split('/')[0];
+        const slugParts = normalizedPath.split('/').slice(1);
         
-        const isPrivatePath = normalizedPath.includes('_private/') || normalizedPath.startsWith('_') || filename.startsWith('_');
+        const isPrivatePath = slugParts.join('/').includes('_private/') || normalizedPath.startsWith('_') || filename.startsWith('_');
         
         const rawContent = fs.readFileSync(file, 'utf8');
         const parsed = matter(rawContent);
         
-        const slug = slugify(filename.replace('.md', ''));
+        const baseSlug = slugParts.join('/').replace(/\.md$/, '');
+        const slug = `${langDir}/${baseSlug}`;
         
         if (!isPrivatePath && parsed.data.draft !== true) {
           publicSlugs.set(slug, {
+            lang: langDir,
+            baseSlug: baseSlug,
             id: slug,
             title: parsed.data.title || slug,
             status: parsed.data.status || 'sprout',
@@ -66,11 +71,13 @@ function generateGraph() {
     nodes.push({ id: data.id, title: data.title, status: data.status });
     
     const regex = /\[\[(.*?)\]\]/g;
+    const langDir = data.lang;
     let match;
     while ((match = regex.exec(data.content)) !== null) {
       const fullMatch = match[1];
       const targetStr = fullMatch.includes('|') ? fullMatch.split('|')[0] : fullMatch;
-      const targetSlug = slugify(targetStr);
+      const targetBase = slugify(targetStr);
+      const targetSlug = `${langDir}/${targetBase}`;
       
       // Only create edge if target is a valid public node
       if (publicSlugs.has(targetSlug)) {

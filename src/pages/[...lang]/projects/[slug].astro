@@ -1,19 +1,28 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getCollection, getEntry } from 'astro:content';
 
+import { siteConfig } from '../../../site.config';
+import { useTranslations } from '../../../i18n/utils';
+
 export async function getStaticPaths() {
-  const allProjects = await getCollection('projects');
-  return allProjects.map(p => ({
-    params: { slug: p.id },
-  }));
+  const allProjects = await getCollection('projects', ({ id }) => !id.includes('/_'));
+  return allProjects.map(p => {
+    const parts = p.id.split('/');
+    const langDir = parts[0];
+    const slugParts = parts.slice(1);
+    return {
+      params: { 
+        lang: langDir === siteConfig.locale.default ? undefined : langDir, 
+        slug: slugParts.join('/').replace(/\.json$/, '') 
+      },
+      props: { project: p.data }
+    };
+  });
 }
 
-const { slug } = Astro.params;
-if (!slug) throw new Error("Slug is required");
-const projectEntry = await getEntry('projects', slug);
-if (!projectEntry) throw new Error(`Project ${slug} not found`);
-const project = projectEntry.data;
+const { project } = Astro.props;
+const t = useTranslations((Astro.params.lang as 'en' | 'pt-br') || 'en');
 ---
 <BaseLayout>
   <article class="project-case-study">
@@ -27,12 +36,12 @@ const project = projectEntry.data;
     </header>
     
     <section class="curator-notes">
-      <div class="section-header" style="margin-top: 2rem; margin-bottom: 1rem;">&gt; NOTAS DO CURADOR (MONOCROMÁTICO)</div>
+      <div class="section-header" style="margin-top: 2rem; margin-bottom: 1rem;">{t("curator.tag")} (MONOCHROME)</div>
       
       {project.curatorNotes?.context && (
         <div class="curator-box" style="background: var(--surface-color); border: var(--border-width) solid var(--border); border-left: 3px solid var(--text-color); border-radius: 2px; padding: 18px; margin-top: 16px;">
           <div class="curator-tag" style="font-family: var(--font-mono); font-size: 11px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; color: var(--text-color);">
-            // [CONTEXTO] Contexto [BORDA_SÓLIDA]
+            {t("curator.context")}
           </div>
           <div class="callout-body" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
             {project.curatorNotes.context}
@@ -43,7 +52,7 @@ const project = projectEntry.data;
       {project.curatorNotes?.architecture && (
         <div class="curator-box" style="background: var(--surface-color); border: var(--border-width) solid var(--border); border-left: 3px double var(--text-muted); border-radius: 2px; padding: 18px; margin-top: 16px;">
           <div class="curator-tag" style="font-family: var(--font-mono); font-size: 11px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; color: var(--text-color);">
-            // [ARQ_SIS] Arquitetura & Escolhas [BORDA_DUPLA]
+            {t("curator.architecture")}
           </div>
           <div class="callout-body" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
             {project.curatorNotes.architecture}
@@ -54,7 +63,7 @@ const project = projectEntry.data;
       {project.curatorNotes?.tradeOffs && (
         <div class="curator-box" style="background: var(--surface-color); border: var(--border-width) solid var(--border); border-left: 3px dashed var(--border); border-radius: 2px; padding: 18px; margin-top: 16px;">
           <div class="curator-tag" style="font-family: var(--font-mono); font-size: 11px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; color: var(--text-color);">
-            // [COMPROMISSOS] Principais Compromissos [BORDA_TRACEJADA]
+            {t("curator.tradeOffs")}
           </div>
           <div class="callout-body" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
             {project.curatorNotes.tradeOffs}
@@ -65,7 +74,7 @@ const project = projectEntry.data;
       {project.curatorNotes?.lessonsLearned && (
         <div class="curator-box" style="background: var(--surface-color); border: var(--border-width) solid var(--border); border-left: 3px dotted var(--text-muted); border-radius: 2px; padding: 18px; margin-top: 16px;">
           <div class="curator-tag" style="font-family: var(--font-mono); font-size: 11px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; color: var(--text-color);">
-            // [LIÇÕES] Lições Aprendidas [BORDA_PONTILHADA]
+            {t("curator.lessons")}
           </div>
           <div class="callout-body" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
             {project.curatorNotes.lessonsLearned}

@@ -38,13 +38,16 @@ function buildRegistries() {
         const relativePath = path.relative(gardenDir, file);
         const normalizedPath = relativePath.replace(/\\/g, '/');
         const filename = path.basename(file);
+        const langDir = normalizedPath.split('/')[0];
+        const slugParts = normalizedPath.split('/').slice(1);
         
-        const isPrivatePath = normalizedPath.includes('_private/') || normalizedPath.startsWith('_') || filename.startsWith('_');
+        const isPrivatePath = slugParts.join('/').includes('_private/') || normalizedPath.startsWith('_') || filename.startsWith('_');
         
         const rawContent = fs.readFileSync(file, 'utf8');
         const parsed = matter(rawContent);
         
-        const slug = slugify(filename.replace('.md', ''));
+        const baseSlug = slugParts.join('/').replace(/\.md$/, '');
+        const slug = `${langDir}/${baseSlug}`;
         
         if (isPrivatePath || parsed.data.draft === true) {
           privateSlugs.add(slug);
@@ -68,7 +71,10 @@ function buildRegistries() {
 const { publicSlugs, privateSlugs } = buildRegistries();
 
 export default function remarkWikilinks() {
-  return (tree) => {
+  return (tree, file) => {
+    const filePath = file.history[0] ? file.history[0].replace(/\\/g, '/') : '';
+    const matchLang = filePath.match(/content\/garden\/([^\/]+)/);
+    const currentLang = matchLang ? matchLang[1] : 'en';
     visit(tree, 'text', (node, index, parent) => {
       const regex = /\[\[(.*?)\]\]/g;
       const text = node.value;
@@ -94,7 +100,8 @@ export default function remarkWikilinks() {
           label = fullMatch;
         }
 
-        const slug = slugify(target);
+        const baseSlug = slugify(target);
+        const slug = `${currentLang}/${baseSlug}`;
 
         if (publicSlugs.has(slug)) {
           const data = publicSlugs.get(slug);
@@ -103,7 +110,7 @@ export default function remarkWikilinks() {
 
           newChildren.push({
             type: 'html',
-            value: `<a href="/garden/${slug}" class="wikilink" data-preview-title="${safeTitle}" data-preview-status="${data.status}" data-preview-excerpt="${safeExcerpt}">${label}</a>`
+            value: `<a href="${currentLang === 'en' ? '' : '/' + currentLang}/garden/${baseSlug}" class="wikilink" data-preview-title="${safeTitle}" data-preview-status="${data.status}" data-preview-excerpt="${safeExcerpt}">${label}</a>`
           });
         } else if (privateSlugs.has(slug)) {
           newChildren.push({
