@@ -1,0 +1,45 @@
+---
+import { siteConfig } from '../../site.config';
+import { useTranslations } from '../../i18n/utils';
+
+export async function getStaticPaths() {
+  return siteConfig.locale.supported.map(lang => ({
+    params: { lang: lang === siteConfig.locale.default ? undefined : lang }
+  }));
+}
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getEntry } from 'astro:content';
+import Constellation from '../../components/Constellation.astro';
+import CommitStream from '../../components/CommitStream.astro';
+
+const lang = Astro.params.lang || siteConfig.locale.default;
+const t = useTranslations(lang as 'en' | 'pt-br');
+const profile = await getEntry('profile', lang === 'pt-br' ? 'pt-br' : 'en');
+---
+<BaseLayout>
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-bio">
+        <h1 class="display-title">{profile?.data.name} &mdash; {profile?.data.title}</h1>
+        <p class="bio-p">{profile?.data.bio}</p>
+        <div class="system-status">
+          &gt; SYSTEM_STATUS: OPERATIONAL &mdash; MONOCHROME_PURE &mdash; WCAG_AAA_COMPLIANT
+        </div>
+      </div>
+      <div class="metrics-card">
+        <div class="metric-item"><span>{t('metrics.depth')}</span><span class="metric-val">10+ YEARS</span></div>
+        <div class="metric-item"><span>{t('metrics.production')}</span><span class="metric-val">14 DEPLOYED</span></div>
+        <div class="metric-item"><span>{t('metrics.garden')}</span><span class="metric-val">42 NOTES</span></div>
+        <div class="metric-item"><span>{t('metrics.lighthouse')}</span><span class="metric-val">100 / 100</span></div>
+      </div>
+    </div>
+
+    <div class="section-header">&gt; INTERACTIVE RPG TECH SKILL CONSTELLATION (CLICK NODE TO FILTER)</div>
+    <Constellation />
+
+    <div class="activity-stream">
+      <div class="section-header">&gt; LIVE GITHUB REVISION STREAM</div>
+      <CommitStream />
+    </div>
+  </div>
+</BaseLayout>

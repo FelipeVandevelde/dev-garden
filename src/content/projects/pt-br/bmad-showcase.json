@@ -1,0 +1,17 @@
+{
+  "title": "Sistema de Agentes BMad",
+  "description": "Um pipeline de IA gerador de código que simula ciclos de vida inteiros de desenvolvimento através de papéis de agentes conversacionais.",
+  "liveUrl": "https://example.com",
+  "githubUrl": "https://github.com/octocat/bmad-first-project",
+  "tags": [
+    "Frontend",
+    "Astro",
+    "Architecture"
+  ],
+  "curatorNotes": {
+    "context": "Desenvolvido para provar que LLMs podem construir de forma confiável arquiteturas complexas sem supervisão humana constante se estruturados corretamente.",
+    "architecture": "Usa uma abordagem multi-agente e dirigida por especificações. Arquivos em markdown servem como o único banco de dados.",
+    "tradeOffs": "Alta latência para revisões abrangentes versus iterações rápidas de rascunhos. Omitiu banco de dados em favor de Git.",
+    "lessonsLearned": "LLMs perdem o contexto se a especificação for muito flexível. Regras rigorosas de sintaxe evitam código espaguete."
+  }
+}

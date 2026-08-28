@@ -48,7 +48,7 @@ const unvalidatedConfig = {
   ],
   locale: {
     default: 'en',
-    supported: ['en', 'pt-BR'],
+    supported: ['en', 'pt-br'],
   },
   theme: {
     default: 'Dark',

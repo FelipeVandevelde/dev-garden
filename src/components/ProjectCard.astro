@@ -1,13 +1,10 @@
 ---
 import BaseCard from './BaseCard.astro';
-
-export interface Props {
-  slug: string;
-  project: any;
-}
-const { slug, project } = Astro.props;
+const { project, id, prefix } = Astro.props;
+const rawSlug = id.split('/').slice(1).join('/').replace(/\.json$/, '');
+const url = `${prefix}/projects/${rawSlug}`;
 ---
-<BaseCard href={`/projects/${slug}`} class="case-card filterable-item" data-tags={project?.tags?.join(',') || ''}>
+<BaseCard href={url} class="case-card filterable-item" data-tags={project?.tags?.join(',') || ''}>
   <div class="card-header">
     <div>
       <h2 class="proj-title">{project.title}</h2>

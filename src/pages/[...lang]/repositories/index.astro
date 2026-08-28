@@ -1,0 +1,30 @@
+---
+import { siteConfig } from '../../../site.config';
+import { useTranslations } from '../../../i18n/utils';
+
+export async function getStaticPaths() {
+  return siteConfig.locale.supported.map(lang => ({
+    params: { lang: lang === siteConfig.locale.default ? undefined : lang }
+  }));
+}
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import RepositoryCard from '../../../components/RepositoryCard.astro';
+import FilterBar from '../../../components/FilterBar.astro';
+import { getCollection } from 'astro:content';
+
+const langDir = Astro.params.lang === 'pt-br' ? 'pt-br' : 'en';
+const t = useTranslations((Astro.params.lang as 'en' | 'pt-br') || 'en');
+const allRepos = await getCollection('repositories', ({ id }) => id.startsWith(langDir + '/') && !id.includes('/_'));
+const allTags = Array.from(new Set(allRepos.flatMap(r => r.data.tags || [])));
+---
+<BaseLayout>
+  <div class="container">
+    <div style="font-family: var(--font-mono); font-size: 12px; color: var(--text-color); margin-bottom: 20px;">
+      {t('nav.repos')}
+    </div>
+    <FilterBar tags={allTags} />
+    <div class="project-grid" style="margin-top: 24px;">
+      {allRepos.map(r => <RepositoryCard repo={r.data} />)}
+    </div>
+  </div>
+</BaseLayout>

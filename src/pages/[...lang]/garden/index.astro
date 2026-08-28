@@ -1,0 +1,37 @@
+---
+import { siteConfig } from '../../../site.config';
+import { useTranslations } from '../../../i18n/utils';
+
+export async function getStaticPaths() {
+  return siteConfig.locale.supported.map(lang => ({
+    params: { lang: lang === siteConfig.locale.default ? undefined : lang }
+  }));
+}
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import FilterBar from '../../../components/FilterBar.astro';
+import GardenCard from '../../../components/GardenCard.astro';
+import { getCollection } from 'astro:content';
+
+const langDir = Astro.params.lang === 'pt-br' ? 'pt-br' : 'en';
+const t = useTranslations((Astro.params.lang as 'en' | 'pt-br') || 'en');
+const allNotes = await getCollection('garden', ({ data, id }) => {
+  if (!id.startsWith(langDir + '/')) return false;
+  return data.draft !== true && !id.includes('/_');
+});
+
+const allStatuses = Array.from(new Set(allNotes.map(n => n.data.status)));
+---
+<BaseLayout>
+  <div class="container">
+    <div style="font-family: var(--font-mono); font-size: 12px; color: var(--text-color); margin-bottom: 20px;">
+      {t('garden.title')}
+    </div>
+    <FilterBar tags={allStatuses} />
+
+    <div class="garden-list" style="margin-top: 2rem;">
+      {allNotes.map(note => (
+        <GardenCard note={note} lang={Astro.params.lang || 'en'} t={t} prefix={langDir === 'pt-br' ? '/pt-br' : ''} />
+      ))}
+    </div>
+  </div>
+</BaseLayout>
