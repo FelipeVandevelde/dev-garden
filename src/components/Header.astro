@@ -11,6 +11,7 @@ const ptUrl = getRouteWithLang(Astro.url, 'pt-br');
   <div class="nav-brand">~/felipe-dev [MONOCHROME_TERMINAL]</div>
   <nav class="nav-links">
     {[
+      { label: t('nav.home'), href: '/' },
       { label: t('nav.projects'), href: `/projects` },
       { label: t('nav.digital_garden'), href: `/garden` },
       { label: t('nav.repos'), href: `/repositories` },
