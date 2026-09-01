@@ -1,6 +1,26 @@
-﻿node_modules/
+# Dependencies
+node_modules/
+
+# Build Output
 dist/
 .astro/
+
+# Environment Variables
+.env
+.env.*
+!.env.example
+
+# OS Generated Files
 .DS_Store
-diff.txt
-diff_clean.txt
+Thumbs.db
+
+# Tooling & Agent Workspaces
+.claude/
+.agents/
+_bmad/
+_bmad-output/
+scratch/
+
+# Temporary & Diff Files
+diff*.txt
+project-*.txt
