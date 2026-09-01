@@ -2,7 +2,7 @@
   "title": "BMAD Brutalist Engine",
   "description": "A high-performance, statically generated portfolio engine enforcing WCAG AAA monochromatic constraints.",
   "liveUrl": "https://example.com",
-  "githubUrl": "https://github.com/octocat/bmad-first-project",
+  "githubUrl": "https://github.com/octocat/dev-garden",
   "tags": ["Frontend", "Astro", "Architecture"],
   "curatorNotes": {
     "context": "Built to serve as a deeply technical engineering showcase, eliminating runtime bloat in favor of 100% static delivery and native vanilla Web APIs.",

@@ -2,7 +2,7 @@
   "title": "Sistema de Agentes BMad",
   "description": "Um pipeline de IA gerador de código que simula ciclos de vida inteiros de desenvolvimento através de papéis de agentes conversacionais.",
   "liveUrl": "https://example.com",
-  "githubUrl": "https://github.com/octocat/bmad-first-project",
+  "githubUrl": "https://github.com/octocat/dev-garden",
   "tags": [
     "Frontend",
     "Astro",
