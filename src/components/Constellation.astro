@@ -105,7 +105,10 @@ import { nodes, links } from '../data/skills';
         }
       });
       
-      if (filterText) filterText.innerHTML = `Viewing details for <b>${label}</b>`;
+      if (filterText) {
+        filterText.innerHTML = 'Viewing details for <b></b>';
+        filterText.querySelector('b').textContent = label;
+      }
     }
 
     nodes.forEach(n => {
