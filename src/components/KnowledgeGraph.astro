@@ -26,7 +26,9 @@ const { localNodeId, height } = Astro.props;
     }
 
     try {
-      const res = await fetch('/graph-data.json');
+      const baseUrl = import.meta.env.BASE_URL.replace(/\/+$/, '');
+      const res = await fetch(baseUrl + '/graph-data.json');
+      if (!res.ok) throw new Error('Failed to fetch graph data');
       const data = await res.json();
       
       const width = container.clientWidth;
@@ -47,8 +49,8 @@ const { localNodeId, height } = Astro.props;
       const focusColor = style.getPropertyValue('--focus-color').trim() || textColor;
 
       const lang = document.documentElement.lang || 'en';
-      let graphNodes = data.nodes.filter((n: any) => n.id.startsWith(lang + "/"));
-      let graphLinks = data.links.filter((l: any) => l.source.startsWith(lang + "/") && l.target.startsWith(lang + "/"));
+      let graphNodes = (data?.nodes || []).filter((n: any) => typeof n?.id === 'string' && n.id.startsWith(lang + "/"));
+      let graphLinks = (data?.links || []).filter((l: any) => typeof l?.source === 'string' && typeof l?.target === 'string' && l.source.startsWith(lang + "/") && l.target.startsWith(lang + "/"));
 
       const localNodeId = container.getAttribute('data-local-node-id');
 
