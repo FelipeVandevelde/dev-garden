@@ -32,6 +32,7 @@ import { nodes, links } from '../data/skills';
       <button 
         class="node constellation-node"
         data-id={node.id}
+        aria-label={`Filter by ${node.label || 'node'}`}
         style={`position: absolute; left: ${node.x}%; top: ${node.y}%; transform: translate(-50%, -50%);`}
       >
         <span class="node-dot"></span>{node.label}
@@ -63,6 +64,9 @@ import { nodes, links } from '../data/skills';
         l.style.strokeWidth = 'var(--border-width)';
       });
       if (filterText) filterText.innerHTML = 'Select a node to filter content';
+
+      const items = document.querySelectorAll('.filterable-item');
+      items.forEach(item => item.style.display = 'block');
     }
 
     function highlightNode(id, label) {
@@ -109,6 +113,17 @@ import { nodes, links } from '../data/skills';
         filterText.innerHTML = 'Viewing details for <b></b>';
         filterText.querySelector('b').textContent = label;
       }
+
+      const items = document.querySelectorAll('.filterable-item');
+      items.forEach(item => {
+        const itemTags = item.getAttribute('data-tags') || '';
+        const tagsArray = itemTags.split(',').map(t => t.trim().toLowerCase());
+        if (tagsArray.includes(label?.toLowerCase()) || tagsArray.includes(id?.toLowerCase())) {
+          item.style.display = 'block';
+        } else {
+          item.style.display = 'none';
+        }
+      });
     }
 
     nodes.forEach(n => {
