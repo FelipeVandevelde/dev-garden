@@ -17,6 +17,11 @@ const { localNodeId, height } = Astro.props;
   let simulation: any = null;
 
   async function initGraph() {
+    if (simulation && typeof simulation.stop === 'function') {
+      simulation.stop();
+      simulation = null;
+    }
+    
     const container = document.getElementById('graph-container');
     if (!container) return;
 
