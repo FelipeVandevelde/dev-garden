@@ -1,9 +1,0 @@
-{
-  "title": "dotfiles",
-  "description": "My personal brutalist terminal and editor configs.",
-  "url": "https://github.com/octocat/dotfiles",
-  "language": "Shell",
-  "tags": ["DevOps", "Linux"],
-  "stars": 42,
-  "forks": 5
-}
