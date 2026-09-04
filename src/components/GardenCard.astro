@@ -1,6 +1,6 @@
 ---
 import BaseCard from './BaseCard.astro';
-const { note, lang, t, prefix } = Astro.props;
+const { note, t, prefix } = Astro.props;
 const rawSlug = note.id.split('/').slice(1).join('/').replace(/\.(md|mdx)$/, '');
 const url = `${prefix}/garden/${rawSlug}`;
 const status = note.data.status || 'seedling';
