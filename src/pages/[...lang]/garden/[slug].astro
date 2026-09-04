@@ -3,7 +3,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getCollection, render } from 'astro:content';
 
 import { siteConfig } from '../../../site.config';
-import { useTranslations } from '../../../i18n/utils';
+
 import KnowledgeGraph from '../../../components/KnowledgeGraph.astro';
 
 export async function getStaticPaths() {
@@ -25,7 +25,6 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-const t = useTranslations((Astro.params.lang as 'en' | 'pt-br') || 'en');
 const { Content } = await render(entry);
 ---
 <BaseLayout>

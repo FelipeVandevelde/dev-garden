@@ -1,7 +1,5 @@
 ---
-import { useTranslations } from '../i18n/utils';
-const lang = Astro.params.lang || 'en';
-const t = useTranslations((lang as 'en' | 'pt-br') || 'en');
+// Command Palette logic is client-side.
 ---
 <dialog id="command-palette" class="command-palette">
   <div class="palette-container">
