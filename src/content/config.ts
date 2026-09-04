@@ -68,6 +68,10 @@ function githubGardenLoader({ repo, basePath }: { repo: string, basePath: string
         if (res.status === 403) {
            throw new Error("GitHub API rate limit exceeded or access forbidden (403).");
         }
+        if (res.status === 404) {
+           logger.warn(`GitHub path not found: ${path}. The repository or folder might be empty.`);
+           return;
+        }
         if (!res.ok) {
            throw new Error(`Failed to fetch from GitHub: ${res.statusText}`);
         }
@@ -92,7 +96,7 @@ function githubGardenLoader({ repo, basePath }: { repo: string, basePath: string
              const rawMarkdown = await fileRes.text();
              
              let id = item.path;
-             if (id.startsWith(basePath + '/')) {
+             if (basePath && id.startsWith(basePath + '/')) {
                id = id.substring(basePath.length + 1);
              }
              id = id.replace(/\.md$/i, '');
@@ -137,7 +141,7 @@ function githubGardenLoader({ repo, basePath }: { repo: string, basePath: string
 }
 
 const gardenCollection = defineCollection({
-  loader: githubGardenLoader({ repo: 'FelipeVandevelde/vault-obsidian', basePath: 'notes' }),
+  loader: githubGardenLoader({ repo: 'FelipeVandevelde/vault-obsidian', basePath: '' }),
   schema: z.object({
     title: z.string(),
     draft: z.boolean().optional().default(false),
