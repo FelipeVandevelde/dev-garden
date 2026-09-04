@@ -20,6 +20,8 @@ Thumbs.db
 _bmad/
 _bmad-output/
 scratch/
+.mcp.json
+AGENTS.md
 
 # Temporary & Diff Files
 diff*.txt
