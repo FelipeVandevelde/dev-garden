@@ -4,9 +4,9 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "node scripts/generate-graph.js && astro dev",
+        "dev": "astro dev",
         "start": "astro dev",
-        "build": "node scripts/generate-graph.js && astro check && astro build && pagefind --site dist",
+        "build": "astro check && astro build && pagefind --site dist",
         "preview": "astro preview",
         "astro": "astro"
     },
