@@ -19,6 +19,7 @@ export const siteConfigSchema = z.object({
     default: z.string().min(1),
     supported: z.array(z.string().min(1)).min(1),
   }),
+  githubRepositories: z.array(z.string()).default([]),
   theme: z.object({
     default: z.enum(['Dark', 'Light', 'HC-Dark', 'HC-Light']),
   }),
@@ -50,6 +51,11 @@ const unvalidatedConfig = {
     default: 'en',
     supported: ['en', 'pt-br'],
   },
+  githubRepositories: [
+    'withastro/astro',
+    'preactjs/preact',
+    'FelipeVandevelde/dev-garden'
+  ],
   theme: {
     default: 'Dark',
   },
