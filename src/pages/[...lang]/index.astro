@@ -10,7 +10,7 @@ export async function getStaticPaths() {
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getEntry } from 'astro:content';
 import Constellation from '../../components/Constellation.astro';
-import CommitStream from '../../components/CommitStream.tsx';
+import CommitStream from '../../components/CommitStream';
 
 const lang = Astro.params.lang || siteConfig.locale.default;
 const t = useTranslations(lang as 'en' | 'pt-br');
