@@ -10,7 +10,7 @@ const { repo } = Astro.props;
   <div class="card-header">
     <div>
       <h2 class="proj-title">{repo.title} &nearr;</h2>
-      <div class="proj-meta">[{repo.language}] &bull; &starf; {repo.stars} &bull; &#9083; {repo.forks} &bull; {repo.tags.join(' \u2022 ').toUpperCase()}</div>
+      <div class="proj-meta">[{repo.language}] &bull; &starf; {repo.stars} &bull; &#9083; {repo.forks} &bull; &#9888; {repo.open_issues} &bull; {repo.tags.join(' \u2022 ').toUpperCase()}</div>
     </div>
   </div>
   <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">{repo.description}</p>

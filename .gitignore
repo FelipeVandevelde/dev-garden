@@ -26,3 +26,6 @@ AGENTS.md
 # Temporary & Diff Files
 diff*.txt
 project-*.txt
+.mcp.json
+AGENTS.md
+  
