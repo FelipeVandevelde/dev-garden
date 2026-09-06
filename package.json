@@ -11,9 +11,11 @@
         "astro": "astro"
     },
     "dependencies": {
+        "@types/marked": "^5.0.2",
         "astro": "^5.3.0",
         "d3": "^7.9.0",
         "gray-matter": "^4.0.3",
+        "marked": "^18.0.11",
         "preact-render-to-string": "^6.7.0",
         "unist-util-visit": "^5.1.0",
         "zod": "^3.24.1"

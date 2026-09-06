@@ -6,7 +6,7 @@ export interface Props {
 }
 const { repo } = Astro.props;
 ---
-<BaseCard href={repo.url} target="_blank" rel="noopener noreferrer" class="case-card filterable-item" data-tags={repo?.tags?.join(',') || ''}>
+<BaseCard href={repo.url} target="_blank" rel="noopener noreferrer" class="case-card filterable-item" data-tags={repo?.tags?.join('|') || ''}>
   <div class="card-header">
     <div>
       <h2 class="proj-title">{repo.title} &nearr;</h2>

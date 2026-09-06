@@ -1,21 +1,21 @@
 ---
-title: "A Public Garden Note"
+title: "Uma Nota Pública"
 draft: false
 status: "evergreen"
 ---
 
-This is a public thought. It should be published.
+Este é um pensamento público. Deve ser publicado.
 
-> [!NOTE] Essential Context
-> This is an Obsidian callout natively parsed into a styled div.
+> [!NOTE] Contexto Essencial
+> Este é um callout do Obsidian analisado nativamente em uma div estilizada.
 
-> [!WARNING]
-> Do not touch the red button.
+> [!WARNING] Cuidado
+> Não toque no botão vermelho.
 
-Here is a link to another [[growing-note|growing note]] which exists.
+Aqui está um link para outra [[growing-note|nota em crescimento]] que existe.
 
-Here is a link to a [[Draft Note]] which shouldn't resolve.
+Aqui está um link para uma [[Draft Note|nota de rascunho]] que não deve resolver.
 
-And a link to a [[Secret Note]] which is private.
+E um link para uma [[Secret Note|nota secreta]] que é privada.
 
-And a link to a [[Completely Missing Note]] which doesn't exist.
+E um link para uma [[Completely Missing Note|nota totalmente inexistente]] que não existe.

@@ -12,8 +12,9 @@ export async function getStaticPaths() {
   });
   return gardenEntries.map(entry => {
     const parts = entry.id.split('/');
-    const langDir = parts[0];
-    const slugParts = parts.slice(1);
+    const isLang = siteConfig.locale.supported.includes(parts[0]);
+    const langDir = isLang ? parts[0] : siteConfig.locale.default;
+    const slugParts = isLang ? parts.slice(1) : parts;
     return {
       params: { 
         lang: langDir === siteConfig.locale.default ? undefined : langDir, 
