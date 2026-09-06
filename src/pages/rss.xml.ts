@@ -9,14 +9,14 @@ export const GET: APIRoute = async (context) => {
   
   const gardenItems = garden.map((post) => ({
     title: post.id,
-    pubDate: post.data.lastUpdatedAt || new Date(),
+    pubDate: post.data.updated || post.data.date || new Date(),
     description: post.data.status || 'Garden Note',
     link: `/en/garden/${post.id.replace(/\.mdx?$/, '')}/`,
   }));
 
   const projectItems = projects.map((post) => ({
     title: post.data.title,
-    pubDate: post.data.date || new Date(),
+    pubDate: new Date(),
     description: post.data.description,
     link: `/en/projects/${post.id.split('/').slice(1).join('/').replace(/\.json$/, '')}/`,
   }));
