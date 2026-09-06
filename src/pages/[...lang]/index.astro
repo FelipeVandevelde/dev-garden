@@ -23,7 +23,7 @@ const profile = await getEntry('profile', lang === 'pt-br' ? 'pt-br' : 'en');
         <h1 class="display-title">{profile?.data.name} &mdash; {profile?.data.title}</h1>
         <p class="bio-p">{profile?.data.bio}</p>
         <div class="system-status">
-          &gt; SYSTEM_STATUS: OPERATIONAL &mdash; MONOCHROME_PURE &mdash; WCAG_AAA_COMPLIANT
+          {t('system.status')}
         </div>
       </div>
       <div class="metrics-card">
@@ -34,11 +34,11 @@ const profile = await getEntry('profile', lang === 'pt-br' ? 'pt-br' : 'en');
       </div>
     </div>
 
-    <div class="section-header">&gt; INTERACTIVE RPG TECH SKILL CONSTELLATION (CLICK NODE TO FILTER)</div>
+    <div class="section-header">{t('home.constellation')}</div>
     <Constellation />
 
     <div class="activity-stream">
-      <div class="section-header">&gt; LIVE GITHUB REVISION STREAM</div>
+      <div class="section-header">{t('home.stream')}</div>
       <CommitStream client:load />
     </div>
   </div>

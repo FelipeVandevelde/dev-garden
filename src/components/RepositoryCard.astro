@@ -1,10 +1,11 @@
 ---
 import BaseCard from './BaseCard.astro';
+import type { CollectionEntry } from 'astro:content';
 
 export interface Props {
-  repo: any;
+  repo: CollectionEntry<'repositories'>['data'];
 }
-const { repo } = Astro.props;
+const { repo } = Astro.props as Props;
 ---
 <BaseCard href={repo.url} target="_blank" rel="noopener noreferrer" class="case-card filterable-item" data-tags={repo?.tags?.join('|') || ''}>
   <div class="card-header">
