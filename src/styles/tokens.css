@@ -5,7 +5,7 @@
   --status-border-evergreen: #18181B;
   --bg-color: #F4F4F6;
   --text-color: #000000;
-  --focus-color: #000000;
+  --focus-color: #0000FF;
   --border-width: 1px;
   
   --surface-panel-light: #E5E5EA;
@@ -33,7 +33,7 @@
   --bg-color: #FFFFFF;
   --surface-color: #F4F4F6;
   --text-color: #000000;
-  --focus-color: #000000;
+  --focus-color: #0000FF;
   --border-width: 1px;
   color-scheme: light;
 }
@@ -476,3 +476,18 @@ h1.display-title { font-family: var(--font-mono); font-size: 26px; margin: 0 0 1
 .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; border-bottom: var(--border-width) dashed var(--border); padding-bottom: 16px; }
 .proj-title { font-family: var(--font-mono); font-size: 20px; color: var(--text-color); margin: 0 0 6px 0; }
 .proj-meta { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+
+/* Shiki CSS Variables */
+:root {
+  --shiki-color-text: var(--text-color);
+  --shiki-color-background: var(--bg-color);
+  --shiki-token-constant: var(--text-color);
+  --shiki-token-string: var(--text-color);
+  --shiki-token-comment: var(--text-muted);
+  --shiki-token-keyword: var(--text-color);
+  --shiki-token-parameter: var(--text-color);
+  --shiki-token-function: var(--text-color);
+  --shiki-token-string-expression: var(--text-color);
+  --shiki-token-punctuation: var(--text-secondary);
+  --shiki-token-link: var(--text-color);
+}

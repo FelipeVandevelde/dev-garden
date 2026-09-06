@@ -13,6 +13,7 @@
   (function() {
     let hoverTimer;
     let leaveTimer;
+    let activeTarget = null;
     const popover = document.getElementById('hover-popover');
     const titleEl = document.getElementById('popover-title');
     const badgeEl = document.getElementById('popover-badge');
@@ -20,44 +21,49 @@
 
     if (!popover) return;
 
-    document.addEventListener('mouseover', (e) => {
-      const target = e.target.closest('a.wikilink');
-      if (target) {
-        clearTimeout(leaveTimer);
-        hoverTimer = setTimeout(() => {
-          const title = target.getAttribute('data-preview-title');
-          const status = target.getAttribute('data-preview-status');
-          const excerpt = target.getAttribute('data-preview-excerpt');
-          
-          titleEl.textContent = title;
-          badgeEl.textContent = `[${status.toUpperCase()}]`;
-          badgeEl.className = `badge badge-${status}`;
-          excerptEl.textContent = excerpt;
+    const showPopover = (target) => {
+      clearTimeout(leaveTimer);
+      activeTarget = target;
+      hoverTimer = setTimeout(() => {
+        if (activeTarget !== target) return;
+        
+        const title = target.getAttribute('data-preview-title') || 'Unknown';
+        const status = target.getAttribute('data-preview-status') || '';
+        const excerpt = target.getAttribute('data-preview-excerpt') || '';
+        
+        titleEl.textContent = title;
+        badgeEl.textContent = status ? `[${status.toUpperCase()}]` : '';
+        badgeEl.className = status ? `badge badge-${status}` : 'badge';
+        excerptEl.textContent = excerpt;
 
-          const rect = target.getBoundingClientRect();
-          popover.style.display = 'block';
-          
-          let top = rect.bottom + window.scrollY + 5;
-          let left = rect.left + window.scrollX;
-          
-          if (left + 300 > window.innerWidth) {
-            left = Math.max(0, window.innerWidth - 320);
-          }
-          
-          popover.style.top = top + 'px';
-          popover.style.left = left + 'px';
-          popover.setAttribute('aria-hidden', 'false');
-          popover.style.opacity = '1';
+        popover.style.display = 'block';
+        
+        const rect = target.getBoundingClientRect();
+        const popoverRect = popover.getBoundingClientRect();
+        
+        let top = rect.bottom + window.scrollY + 5;
+        let left = rect.left + window.scrollX;
+        
+        if (left + popoverRect.width > window.innerWidth) {
+          left = Math.max(0, window.innerWidth - popoverRect.width - 20);
+        }
+        
+        if (rect.bottom + popoverRect.height + 20 > window.innerHeight) {
+          top = rect.top + window.scrollY - popoverRect.height - 5;
+        }
+        
+        popover.style.top = top + 'px';
+        popover.style.left = left + 'px';
+        popover.setAttribute('aria-hidden', 'false');
+        popover.style.opacity = '1';
+      }, 200);
+    };
 
-        }, 200);
-      }
-    });
-
-    document.addEventListener('mouseout', (e) => {
-      const target = e.target.closest('a.wikilink');
-      if (target) {
-        clearTimeout(hoverTimer);
-        leaveTimer = setTimeout(() => {
+    const hidePopover = (target) => {
+      clearTimeout(hoverTimer);
+      if (activeTarget === target) activeTarget = null;
+      leaveTimer = setTimeout(() => {
+        if (!activeTarget) {
           popover.style.opacity = '0';
           popover.setAttribute('aria-hidden', 'true');
           setTimeout(() => {
@@ -65,8 +71,26 @@
               popover.style.display = 'none';
             }
           }, 200);
-        }, 150);
-      }
+        }
+      }, 150);
+    };
+
+    document.addEventListener('mouseover', (e) => {
+      const target = e.target.closest('a.wikilink');
+      if (target) showPopover(target);
+    });
+    document.addEventListener('focusin', (e) => {
+      const target = e.target.closest('a.wikilink');
+      if (target) showPopover(target);
+    });
+
+    document.addEventListener('mouseout', (e) => {
+      const target = e.target.closest('a.wikilink');
+      if (target) hidePopover(target);
+    });
+    document.addEventListener('focusout', (e) => {
+      const target = e.target.closest('a.wikilink');
+      if (target) hidePopover(target);
     });
   })();
 </script>

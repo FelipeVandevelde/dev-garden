@@ -1,9 +1,10 @@
 ---
-title: "A Growing Concept"
+title: "Um Conceito em Crescimento"
 status: "growing"
+draft: false
 ---
 
-This is an expanding thought. It connects well with [[public-note]].
+Este é um pensamento em expansão. Ele se conecta bem com a [[public-note|nota pública]].
 
-> [!TIP] Pro Tip
-> Keep watering your garden.
+> [!TIP] Dica de Ouro
+> Continue regando seu jardim.

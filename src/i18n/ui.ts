@@ -51,6 +51,7 @@ export const ui = {
     'curator.tradeOffs': '// [TRADE_OFF] Key Trade-offs [DASHED_BORDER]',
     'curator.lessons': '// [LESSONS] Lessons Learned [DOTTED_BORDER]',
     'cmd.toggleTheme': 'Toggle Theme',
+    'cmd.toggleHighContrast': 'Toggle High Contrast',
     'cmd.graph': 'Open Knowledge Graph',
   },
   'pt-br': {
@@ -98,6 +99,7 @@ export const ui = {
     'curator.tradeOffs': '// [COMPROMISSOS] Principais Compromissos [BORDA_TRACEJADA]',
     'curator.lessons': '// [LIÇÕES] Lições Aprendidas [BORDA_PONTILHADA]',
     'cmd.toggleTheme': 'Alternar Tema',
+    'cmd.toggleHighContrast': 'Alternar Alto Contraste',
     'cmd.graph': 'Abrir Grafo de Conhecimento',
   },
 } as const;
