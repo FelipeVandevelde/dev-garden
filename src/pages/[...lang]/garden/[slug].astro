@@ -1,9 +1,9 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 
 import { siteConfig } from '../../../site.config';
-import { useTranslations } from '../../../i18n/utils';
+
 import KnowledgeGraph from '../../../components/KnowledgeGraph.astro';
 
 export async function getStaticPaths() {
@@ -25,8 +25,7 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-const t = useTranslations((Astro.params.lang as 'en' | 'pt-br') || 'en');
-const { Content } = await entry.render();
+const { Content } = await render(entry);
 ---
 <BaseLayout>
   <div class="container">
@@ -35,7 +34,7 @@ const { Content } = await entry.render();
         <div class="badge-row" style="display: flex; gap: 8px; margin-bottom: 24px;">
           <span class={`badge badge-${entry.data.status}`} style="font-family: var(--font-mono); font-size: 10px; font-weight: bold; padding: 2px 6px;">[{entry.data.status.toUpperCase()}]</span>
         </div>
-        <h1 class="note-title" style="font-family: var(--font-mono); font-size: 22px; margin: 0 0 12px 0;">[[{entry.slug}]]</h1>
+        <h1 class="note-title" style="font-family: var(--font-mono); font-size: 22px; margin: 0 0 12px 0;">[[{entry.id}]]</h1>
         <div class="prose" style="font-size: 14px; line-height: 1.7; color: var(--text-secondary);">
           <Content />
         </div>

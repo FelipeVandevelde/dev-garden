@@ -9,8 +9,6 @@ export async function getStaticPaths() {
 }
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import KnowledgeGraph from '../../components/KnowledgeGraph.astro';
-import fs from 'node:fs';
-import path from 'node:path';
 
 interface GraphNode {
   id: string;
@@ -31,15 +29,12 @@ interface AdjacencyRecord {
 
 const lang = Astro.params.lang || siteConfig.locale.default;
 const t = useTranslations(lang as 'en' | 'pt-br');
-const graphPath = path.join(process.cwd(), 'public', 'graph-data.json');
-let nodes: GraphNode[] = [];
-let links: GraphLink[] = [];
 
-if (fs.existsSync(graphPath)) {
-  const data = JSON.parse(fs.readFileSync(graphPath, 'utf8'));
-  nodes = data.nodes.filter((n: any) => n.id.startsWith(lang + "/"));
-  links = data.links.filter((l: any) => l.source.startsWith(lang + "/") && l.target.startsWith(lang + "/"));
-}
+import { generateGraphData } from '../../utils/graph';
+const data = await generateGraphData();
+
+const nodes: GraphNode[] = data.nodes.filter((n: any) => n.id.startsWith(lang + "/"));
+const links: GraphLink[] = data.links.filter((l: any) => l.source.startsWith(lang + "/") && l.target.startsWith(lang + "/"));
 
 const adjacency: Record<string, AdjacencyRecord> = {};
 nodes.forEach(n => {

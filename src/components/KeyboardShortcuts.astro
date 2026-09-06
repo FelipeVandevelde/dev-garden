@@ -1,8 +1,7 @@
 ---
-import { getLangFromUrl, useTranslations, getRouteWithLang } from '../i18n/utils';
+import { getLangFromUrl, getRouteWithLang } from '../i18n/utils';
 
 const lang = getLangFromUrl(Astro.url) as 'en' | 'pt-br';
-const t = useTranslations(lang || 'en');
 const nextLang = lang === 'en' ? 'pt-br' : 'en';
 const nextLangUrl = getRouteWithLang(Astro.url, nextLang);
 ---

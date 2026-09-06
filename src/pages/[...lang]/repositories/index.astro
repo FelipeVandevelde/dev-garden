@@ -12,9 +12,8 @@ import RepositoryCard from '../../../components/RepositoryCard.astro';
 import FilterBar from '../../../components/FilterBar.astro';
 import { getCollection } from 'astro:content';
 
-const langDir = Astro.params.lang === 'pt-br' ? 'pt-br' : 'en';
 const t = useTranslations((Astro.params.lang as 'en' | 'pt-br') || 'en');
-const allRepos = await getCollection('repositories', ({ id }) => id.startsWith(langDir + '/') && !id.includes('/_'));
+const allRepos = await getCollection('repositories');
 const allTags = Array.from(new Set(allRepos.flatMap(r => r.data.tags || [])));
 ---
 <BaseLayout>
