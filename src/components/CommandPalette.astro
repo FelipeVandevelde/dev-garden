@@ -1,24 +1,29 @@
 ---
-// Command Palette logic is client-side.
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const baseUrl = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL;
 ---
-<dialog id="command-palette" class="command-palette">
+<dialog id="command-palette" class="command-palette" role="dialog" aria-label="Command Palette">
   <div class="palette-container">
     <div class="palette-header">
-      <input type="text" id="palette-input" placeholder="Search or type a command... (Cmd+K)" autocomplete="off" spellcheck="false" />
+      <input type="text" id="palette-input" role="combobox" aria-autocomplete="list" aria-controls="palette-list" aria-expanded="true" placeholder={t('command.placeholder') || "Search or type a command... (Cmd+K)"} autocomplete="off" spellcheck="false" />
     </div>
     <div class="palette-results" id="palette-results">
-      <ul id="palette-list">
-        <!-- Default Actions -->
-        <li class="palette-item action-item" data-action="theme" tabindex="-1">
-          <span class="icon">🌓</span> Toggle Theme
-        </li>
-        <li class="palette-item action-item" data-action="graph" tabindex="-1">
-          <span class="icon">🕸️</span> Open Knowledge Graph
-        </li>
+      <ul id="palette-list" role="listbox">
+        <!-- Default Actions rendered dynamically -->
       </ul>
     </div>
   </div>
 </dialog>
+<template id="palette-default-actions">
+  <li class="palette-item action-item" data-action="theme" tabindex="-1" role="option">
+    <span class="icon">🌓</span> {t('cmd.toggleTheme') || 'Toggle Theme'}
+  </li>
+  <li class="palette-item action-item" data-action="graph" tabindex="-1" role="option">
+    <span class="icon">🕸️</span> {t('cmd.graph') || 'Open Knowledge Graph'}
+  </li>
+</template>
 
 <style>
   .command-palette {
@@ -29,77 +34,51 @@
     width: 90%;
     max-width: 640px;
     border-radius: 4px;
-    
     top: 15vh;
     margin: 0 auto;
   }
-
-  .command-palette::backdrop {
-    background: transparent;
-    
-  }
-
+  .command-palette::backdrop { background: transparent; }
   .palette-header input {
-    width: 100%;
-    padding: 1rem;
-    font-size: 1.2rem;
-    border: none;
+    width: 100%; padding: 1rem; font-size: 1.2rem; border: none;
     border-bottom: var(--border-width) solid var(--text-color);
-    background: transparent;
-    color: var(--text-color);
-    font-family: monospace;
-    outline: none;
+    background: transparent; color: var(--text-color);
+    font-family: monospace; outline: none;
   }
-
-  .palette-results {
-    max-height: 400px;
-    overflow-y: auto;
-  }
-
-  #palette-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
+  .palette-results { max-height: 400px; overflow-y: auto; }
+  #palette-list { list-style: none; margin: 0; padding: 0; }
   .palette-item {
-    padding: 0.75rem 1rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    border-left: 2px solid transparent;
+    padding: 0.75rem 1rem; cursor: pointer; display: flex;
+    align-items: center; gap: 0.5rem; border-left: 2px solid transparent;
   }
-
   .palette-item:hover, .palette-item.selected {
     background: var(--focus-color); color: var(--bg-color);
     border-left: 2px solid var(--focus-color);
   }
-
-  .palette-item .icon {
-    opacity: 0.7;
-  }
+  .palette-item .icon { opacity: 0.7; }
 </style>
 
-<script is:inline>
+<script is:inline define:vars={{ baseUrl, noResultsText: "No results found for", errorText: "Search failed." }}>
   (function() {
     const dialog = document.getElementById('command-palette');
     const input = document.getElementById('palette-input');
     const list = document.getElementById('palette-list');
+    const defaultActionsHtml = document.getElementById('palette-default-actions').innerHTML;
     
     let pagefind = null;
-    let selectedIndex = -1;
+    let selectedIndex = 0;
+    let searchCounter = 0;
     
-    const defaultActions = `
-      <li class="palette-item action-item" data-action="theme" tabindex="-1">
-        <span class="icon">🌓</span> Toggle Theme
-      </li>
-      <li class="palette-item action-item" data-action="graph" tabindex="-1">
-        <span class="icon">🕸️</span> Open Knowledge Graph
-      </li>
-    `;
+    function resetToDefault() {
+      list.innerHTML = defaultActionsHtml;
+      selectedIndex = 0;
+      updateSelection();
+    }
 
-    // Toggle Palette
+    function escapeHtml(unsafe) {
+      if (!unsafe) return '';
+      return unsafe.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
     document.addEventListener('keydown', (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
@@ -108,14 +87,12 @@
         } else {
           dialog.showModal();
           input.value = '';
-          list.innerHTML = defaultActions;
-          selectedIndex = -1;
+          resetToDefault();
           input.focus();
         }
       }
     });
 
-    // Close on backdrop click
     dialog.addEventListener('click', (e) => {
       if (e.target === dialog) dialog.close();
     });
@@ -124,10 +101,12 @@
       const items = list.querySelectorAll('.palette-item');
       items.forEach((item, i) => {
         if (i === selectedIndex) {
-          item.classList.add('selected'); item.setAttribute('aria-selected', 'true');
+          item.classList.add('selected'); 
+          item.setAttribute('aria-selected', 'true');
           item.scrollIntoView({ block: 'nearest' });
         } else {
-          item.classList.remove('selected'); item.setAttribute('aria-selected', 'false');
+          item.classList.remove('selected'); 
+          item.setAttribute('aria-selected', 'false');
         }
       });
     }
@@ -137,13 +116,14 @@
       if (item.classList.contains('action-item')) {
         const action = item.getAttribute('data-action');
         if (action === 'theme') {
-          const current = document.documentElement.getAttribute('data-theme');
+          const current = document.documentElement.getAttribute('data-theme') || 'Dark';
           const themes = ["Light", "Dark", "HC-Light", "HC-Dark"];
-      const next = themes[(themes.indexOf(current) + 1) % themes.length];
+          const next = themes[(themes.indexOf(current) + 1) % themes.length];
           document.documentElement.setAttribute('data-theme', next);
           try { window.localStorage.setItem('theme', next); } catch(err) { window.__fallbackStorage = window.__fallbackStorage || {}; window.__fallbackStorage['theme'] = next; }
         } else if (action === 'graph') {
-          window.location.href = document.documentElement.lang === 'pt-br' ? '/pt-br/graph' : '/graph';
+          const lang = document.documentElement.lang;
+          window.location.href = lang === 'pt-br' ? '/pt-br/graph' : '/graph';
         }
         dialog.close();
       } else {
@@ -166,8 +146,9 @@
         updateSelection();
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        if (selectedIndex >= 0 && selectedIndex < items.length) {
-          triggerAction(items[selectedIndex]);
+        const idx = selectedIndex >= 0 ? selectedIndex : 0;
+        if (idx >= 0 && idx < items.length) {
+          triggerAction(items[idx]);
         }
       }
     });
@@ -180,43 +161,61 @@
     let debounceTimer;
     input.addEventListener('input', async (e) => {
       const query = e.target.value.trim();
+      selectedIndex = 0;
       
       if (!query) {
-        list.innerHTML = defaultActions;
-        selectedIndex = -1;
+        resetToDefault();
         return;
       }
 
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(async () => {
+        const currentSearch = ++searchCounter;
+        
         if (!pagefind) {
           try {
-            pagefind = await import('/pagefind/pagefind.js');
+            pagefind = await import(baseUrl + '/pagefind/pagefind.js');
           } catch(err) {
             console.error("Pagefind failed to load:", err);
-            list.innerHTML = `<li class="palette-item" style="opacity:0.5">Search index not found. Run build first.</li>`;
+            if (currentSearch === searchCounter) {
+              list.innerHTML = `<li class="palette-item" style="opacity:0.5" role="option">Search index not found. Run build first.</li>`;
+            }
             return;
           }
         }
 
-        const search = await pagefind.search(query).catch(() => null); if(!search) return;
-        if (search.results.length === 0) {
-          list.innerHTML = `<li class="palette-item" style="opacity:0.5">No results found for "${query}"</li>`;
+        let search;
+        try {
+          search = await pagefind.search(query);
+        } catch(err) {
+          if (currentSearch === searchCounter) {
+            list.innerHTML = `<li class="palette-item" style="opacity:0.5; color:red" role="option">${escapeHtml(errorText)}</li>`;
+          }
+          return;
+        }
+        
+        if (currentSearch !== searchCounter) return;
+        
+        if (!search || !search.results || search.results.length === 0) {
+          list.innerHTML = `<li class="palette-item" style="opacity:0.5" role="option">${escapeHtml(noResultsText)} "${escapeHtml(query)}"</li>`;
         } else {
-          // Resolve top 5 results
           const topResults = await Promise.all(search.results.slice(0, 5).map(r => r.data().catch(() => null)));
+          if (currentSearch !== searchCounter) return;
           
-          list.innerHTML = topResults.map(r => `
-            <li class="palette-item" data-href="${r.url}">
+          const validResults = topResults.filter(Boolean);
+          
+          list.innerHTML = validResults.map(r => `
+            <li class="palette-item" data-href="${escapeHtml(r.url)}" role="option">
               <span class="icon">📄</span>
               <div>
-                <strong style="display:block">${r.meta.title || r.url}</strong>
-                <small style="opacity:0.7">${r.excerpt}</small>
+                <strong style="display:block">${escapeHtml(r.meta?.title || r.url)}</strong>
+                <small style="opacity:0.7">${escapeHtml(r.excerpt)}</small>
               </div>
             </li>
           `).join('');
         }
-        selectedIndex = -1;
+        selectedIndex = 0;
+        updateSelection();
       }, 200);
     });
   })();

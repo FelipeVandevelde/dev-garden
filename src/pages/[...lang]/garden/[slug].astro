@@ -12,8 +12,9 @@ export async function getStaticPaths() {
   });
   return gardenEntries.map(entry => {
     const parts = entry.id.split('/');
-    const langDir = parts[0];
-    const slugParts = parts.slice(1);
+    const isLang = siteConfig.locale.supported.includes(parts[0]);
+    const langDir = isLang ? parts[0] : siteConfig.locale.default;
+    const slugParts = isLang ? parts.slice(1) : parts;
     return {
       params: { 
         lang: langDir === siteConfig.locale.default ? undefined : langDir, 
@@ -24,8 +25,12 @@ export async function getStaticPaths() {
   });
 }
 
+import { getLangFromUrl, useTranslations } from '../../../i18n/utils';
+
 const { entry } = Astro.props;
 const { Content } = await render(entry);
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang as any);
 ---
 <BaseLayout>
   <div class="container">
@@ -42,7 +47,7 @@ const { Content } = await render(entry);
       <div>
         <div class="sidebar-box" style="background: var(--surface-color); border: var(--border-width) solid var(--border); padding: 20px; border-radius: 2px;">
           <div style="font-family:var(--font-mono); font-size:12px; margin-bottom:12px;">
-            &gt; 2D KNOWLEDGE GRAPH (MONOCHROME)
+            {t('graph.title')}
           </div>
           <KnowledgeGraph localNodeId={entry.id} height="240px" />
         </div>

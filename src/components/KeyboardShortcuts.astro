@@ -1,27 +1,114 @@
 ---
-import { getLangFromUrl, getRouteWithLang } from '../i18n/utils';
+import { getLangFromUrl, getRouteWithLang, useTranslations } from '../i18n/utils';
+import { defaultLang } from '../i18n/ui';
 
-const lang = getLangFromUrl(Astro.url) as 'en' | 'pt-br';
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
 const nextLang = lang === 'en' ? 'pt-br' : 'en';
 const nextLangUrl = getRouteWithLang(Astro.url, nextLang);
+
+const getLocalUrl = (path: string) => {
+  if (lang === defaultLang) return path;
+  return `/${lang}${path === '/' ? '' : path}`;
+};
+
+const routes = {
+  home: getLocalUrl('/'),
+  projects: getLocalUrl('/projects'),
+  garden: getLocalUrl('/garden'),
+  repos: getLocalUrl('/repositories')
+};
 ---
-<script is:inline define:vars={{ nextLangUrl }}>
+<dialog id="keyboard-legend" class="keyboard-legend" aria-label={t('keyboard.title')}>
+  <div class="legend-content">
+    <h2>{t('keyboard.title')}</h2>
+    <ul>
+      <li><kbd>?</kbd> - Show this menu</li>
+      <li><kbd>g</kbd> then <kbd>h</kbd> - {t('keyboard.nav.home')}</li>
+      <li><kbd>g</kbd> then <kbd>p</kbd> - {t('keyboard.nav.projects')}</li>
+      <li><kbd>g</kbd> then <kbd>g</kbd> - {t('keyboard.nav.garden')}</li>
+      <li><kbd>g</kbd> then <kbd>r</kbd> - Repositories</li>
+      <li><kbd>t</kbd> then <kbd>t</kbd> - Toggle Theme</li>
+      <li><kbd>Cmd/Ctrl</kbd> + <kbd>K</kbd> - {t('keyboard.cmd.k')}</li>
+      <li><kbd>Esc</kbd> - {t('keyboard.esc')}</li>
+    </ul>
+    <button id="close-legend">{t('keyboard.close')}</button>
+  </div>
+</dialog>
+
+<style>
+  .keyboard-legend {
+    background: var(--bg-color);
+    color: var(--text-color);
+    border: var(--border-width) solid var(--text-color);
+    padding: 2rem;
+    max-width: 500px;
+    border-radius: 4px;
+    margin: 15vh auto;
+  }
+  .keyboard-legend::backdrop { background: rgba(0, 0, 0, 0.5); }
+  .keyboard-legend ul { list-style: none; padding: 0; margin-top: 1rem; }
+  .keyboard-legend li { margin-bottom: 0.8rem; }
+  .keyboard-legend kbd {
+    background: var(--text-color);
+    color: var(--bg-color);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 0.9em;
+  }
+  .keyboard-legend h2 {
+    margin: 0 0 1rem 0;
+    border-bottom: 1px solid var(--text-color);
+    padding-bottom: 0.5rem;
+  }
+  .keyboard-legend button {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background: transparent;
+    color: var(--text-color);
+    border: 1px dashed var(--text-color);
+    cursor: pointer;
+    width: 100%;
+  }
+  .keyboard-legend button:hover {
+    background: var(--text-color);
+    color: var(--bg-color);
+  }
+</style>
+
+<script is:inline define:vars={{ nextLangUrl, routes }}>
   (function() {
     var lastKey = '';
     var lastKeyTime = 0;
+    var legend = document.getElementById('keyboard-legend');
+    var closeLegend = document.getElementById('close-legend');
+
+    if (closeLegend && legend) {
+      closeLegend.addEventListener('click', () => legend.close());
+    }
 
     document.addEventListener('keydown', function(e) {
+      // Ignore native browser shortcuts
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
       var active = document.activeElement;
       if (active) {
         var tag = active.tagName.toLowerCase();
         var role = active.getAttribute('role');
         var isContentEditable = active.isContentEditable;
-        if (tag === 'input' || tag === 'textarea' || isContentEditable || role === 'textbox') {
+        if (tag === 'input' || tag === 'textarea' || tag === 'select' || isContentEditable || role === 'textbox' || role === 'combobox' || role === 'listbox') {
           return;
         }
       }
 
       if (e.key === 'Escape') {
+        return;
+      }
+
+      if (e.key === '?') {
+        e.preventDefault();
+        if (legend && !legend.open) legend.showModal();
         return;
       }
 
@@ -33,11 +120,10 @@ const nextLangUrl = getRouteWithLang(Astro.url, nextLang);
       var key = e.key.toLowerCase();
       
       if (lastKey === 'g') {
-        const prefix = document.documentElement.lang === 'pt-br' ? '/pt-br' : '';
-        if (key === 'h') window.location.href = prefix || '/';
-        else if (key === 'p') window.location.href = prefix + '/projects';
-        else if (key === 'g') window.location.href = prefix + '/garden';
-        else if (key === 'r') window.location.href = prefix + '/repositories';
+        if (key === 'h') window.location.href = routes.home;
+        else if (key === 'p') window.location.href = routes.projects;
+        else if (key === 'g') window.location.href = routes.garden;
+        else if (key === 'r') window.location.href = routes.repos;
         lastKey = '';
       } else if (lastKey === 't') {
         if (key === 't') {
@@ -52,6 +138,7 @@ const nextLangUrl = getRouteWithLang(Astro.url, nextLang);
             if (!window.__fallbackStorage) window.__fallbackStorage = {};
             window.__fallbackStorage['theme'] = nextTheme;
           }
+          document.dispatchEvent(new CustomEvent('theme-changed', { detail: nextTheme }));
         }
         else if (key === 'l') {
            window.location.href = nextLangUrl;

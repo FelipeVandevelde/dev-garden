@@ -14,7 +14,7 @@ import { getCollection } from 'astro:content';
 
 const langDir = Astro.params.lang === 'pt-br' ? 'pt-br' : 'en';
 const t = useTranslations((Astro.params.lang as 'en' | 'pt-br') || 'en');
-const allProjects = await getCollection('projects', ({ id }) => id.startsWith(langDir + '/') && !id.includes('/_'));
+const allProjects = await getCollection('projects', ({ data, id }) => id.startsWith(langDir + '/') && !id.includes('/_') && data.draft !== true);
 const allTags = Array.from(new Set(allProjects.flatMap(p => p.data.tags)));
 ---
 <BaseLayout>
