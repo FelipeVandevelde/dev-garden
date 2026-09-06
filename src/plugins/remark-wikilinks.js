@@ -12,6 +12,19 @@ function slugify(text) {
     .replace(/-+$/, '');
 }
 
+function escapeHTML(str) {
+  if (!str) return '';
+  return str.replace(/[&<>"']/g, function(m) {
+    return {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[m];
+  });
+}
+
 function walk(dir, fileList = []) {
   if (!fs.existsSync(dir)) return fileList;
   const files = fs.readdirSync(dir);
@@ -26,15 +39,19 @@ function walk(dir, fileList = []) {
   return fileList;
 }
 
+let cachedRegistries = null;
+
 function buildRegistries() {
-  const gardenDir = path.join(process.cwd(), 'src/content/garden');
+  if (cachedRegistries) return cachedRegistries;
+  
+  const gardenDir = path.resolve(process.cwd(), 'src/content/garden');
   const publicSlugs = new Map();
   const privateSlugs = new Set();
   
   if (fs.existsSync(gardenDir)) {
     const files = walk(gardenDir);
     for (const file of files) {
-      if (file.endsWith('.md')) {
+      if (file.match(/\.mdx?$/)) {
         const relativePath = path.relative(gardenDir, file);
         const normalizedPath = relativePath.replace(/\\/g, '/');
         const filename = path.basename(file);
@@ -44,38 +61,63 @@ function buildRegistries() {
         const isPrivatePath = slugParts.join('/').includes('_private/') || normalizedPath.startsWith('_') || filename.startsWith('_');
         
         const rawContent = fs.readFileSync(file, 'utf8');
-        const parsed = matter(rawContent);
+        let parsed;
+        try {
+          parsed = matter(rawContent);
+        } catch (err) {
+          continue;
+        }
         
-        const baseSlug = slugParts.join('/').replace(/\.md$/, '');
-        const slug = `${langDir}/${baseSlug}`;
+        const fullSlug = slugParts.join('/').replace(/\.mdx?$/, '');
+        const flatSlug = slugify(filename.replace(/\.mdx?$/, ''));
+        const publicSlugKey = `${langDir}/${flatSlug}`;
         
         if (isPrivatePath || parsed.data.draft === true) {
-          privateSlugs.add(slug);
+          privateSlugs.add(publicSlugKey);
         } else {
-          let body = parsed.content.replace(/\[!.*?\]/g, '').replace(/#+\s/g, '').replace(/\n/g, ' ').trim();
+          let body = parsed.content
+            .replace(/\[!.*?\]/g, '')
+            .replace(/#+\s/g, '')
+            .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')
+            .replace(/[*_~`]/g, '')
+            .replace(/\n/g, ' ')
+            .trim();
+          
           body = body.replace(/\[\[(.*?)\]\]/g, '$1'); 
-          const excerpt = body.length > 120 ? body.substring(0, 120) + '...' : body;
+          
+          let excerpt = body;
+          if (excerpt.length > 120) {
+            const cut = excerpt.substring(0, 120);
+            const lastSpace = cut.lastIndexOf(' ');
+            excerpt = (lastSpace > 0 ? cut.substring(0, lastSpace) : cut) + '...';
+          }
 
-          publicSlugs.set(slug, {
-            title: parsed.data.title || slug,
+          publicSlugs.set(publicSlugKey, {
+            title: parsed.data.title || filename.replace(/\.mdx?$/, ''),
             status: parsed.data.status || 'sprout',
-            excerpt: excerpt
+            excerpt: excerpt,
+            fullSlug: fullSlug
           });
         }
       }
     }
   }
-  return { publicSlugs, privateSlugs };
+  cachedRegistries = { publicSlugs, privateSlugs };
+  return cachedRegistries;
 }
-
-const { publicSlugs, privateSlugs } = buildRegistries();
 
 export default function remarkWikilinks() {
   return (tree, file) => {
+    const { publicSlugs, privateSlugs } = buildRegistries();
     const filePath = file.history[0] ? file.history[0].replace(/\\/g, '/') : '';
     const matchLang = filePath.match(/content\/garden\/([^\/]+)/);
     const currentLang = matchLang ? matchLang[1] : 'en';
+    
     visit(tree, 'text', (node, index, parent) => {
+      if (parent && (parent.type === 'code' || parent.type === 'inlineCode' || parent.type === 'link')) {
+        return;
+      }
+
       const regex = /\[\[(.*?)\]\]/g;
       const text = node.value;
       if (!text.includes('[[')) return;
@@ -100,27 +142,30 @@ export default function remarkWikilinks() {
           label = fullMatch;
         }
 
-        const baseSlug = slugify(target);
-        const slug = `${currentLang}/${baseSlug}`;
+        const baseSlug = slugify(target.split('/').pop());
+        const slugKey = `${currentLang}/${baseSlug}`;
+        
+        const safeLabel = escapeHTML(label);
 
-        if (publicSlugs.has(slug)) {
-          const data = publicSlugs.get(slug);
-          const safeTitle = data.title.replace(/"/g, '&quot;');
-          const safeExcerpt = data.excerpt.replace(/"/g, '&quot;');
+        if (publicSlugs.has(slugKey)) {
+          const data = publicSlugs.get(slugKey);
+          const safeTitle = escapeHTML(data.title);
+          const safeExcerpt = escapeHTML(data.excerpt);
+          const prefix = currentLang === 'en' ? '' : '/' + currentLang;
 
           newChildren.push({
             type: 'html',
-            value: `<a href="${currentLang === 'en' ? '' : '/' + currentLang}/garden/${baseSlug}" class="wikilink" data-preview-title="${safeTitle}" data-preview-status="${data.status}" data-preview-excerpt="${safeExcerpt}">${label}</a>`
+            value: `<a href="${prefix}/garden/${data.fullSlug}" class="wikilink" data-preview-title="${safeTitle}" data-preview-status="${data.status}" data-preview-excerpt="${safeExcerpt}">${safeLabel}</a>`
           });
-        } else if (privateSlugs.has(slug)) {
+        } else if (privateSlugs.has(slugKey)) {
           newChildren.push({
             type: 'html',
-            value: `<span class="wikilink-stub wikilink-private" title="Private or work-in-progress note">[? ${label} ?]</span>`
+            value: `<span class="wikilink-stub wikilink-private" title="Private or work-in-progress note">[? ${safeLabel} ?]</span>`
           });
         } else {
           newChildren.push({
             type: 'html',
-            value: `<span class="wikilink-stub wikilink-missing" title="Note does not exist">[❓ ${label} ❓]</span>`
+            value: `<span class="wikilink-stub wikilink-missing" title="Note does not exist">[❓ ${safeLabel} ?]</span>`
           });
         }
 

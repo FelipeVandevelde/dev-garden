@@ -1,7 +1,8 @@
 ---
-title: "A Draft Garden Note"
+title: "Uma Nota de Rascunho"
 draft: true
+status: "sprout"
 ---
 
 DRAFT_LEAK_STRING
-This is a draft thought. It should NEVER be published.
+Este é um pensamento em rascunho. NUNCA deve ser publicado.
