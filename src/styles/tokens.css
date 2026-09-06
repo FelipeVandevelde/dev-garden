@@ -40,8 +40,8 @@
 
 [data-theme="HC-Dark"] {
   --bg-color: #000000;
-  --text-color: #FFFFFF;
-  --focus-color: #FFFF00;
+  --text-color: #FFFF00;
+  --focus-color: #00FFFF;
   --border-width: 2px;
   color-scheme: dark;
 }
@@ -49,7 +49,7 @@
 [data-theme="HC-Light"] {
   --bg-color: #FFFFFF;
   --text-color: #000000;
-  --focus-color: #000000;
+  --focus-color: #0000FF;
   --border-width: 2px;
   color-scheme: light;
 }
@@ -103,8 +103,11 @@ a:hover {
   box-shadow: none !important;
 }
 @media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
