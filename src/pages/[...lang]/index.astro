@@ -10,7 +10,7 @@ export async function getStaticPaths() {
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getEntry } from 'astro:content';
 import Constellation from '../../components/Constellation.astro';
-import CommitStream from '../../components/CommitStream.astro';
+import CommitStream from '../../components/CommitStream.tsx';
 
 const lang = Astro.params.lang || siteConfig.locale.default;
 const t = useTranslations(lang as 'en' | 'pt-br');
@@ -39,7 +39,7 @@ const profile = await getEntry('profile', lang === 'pt-br' ? 'pt-br' : 'en');
 
     <div class="activity-stream">
       <div class="section-header">&gt; LIVE GITHUB REVISION STREAM</div>
-      <CommitStream />
+      <CommitStream client:load />
     </div>
   </div>
 </BaseLayout>
