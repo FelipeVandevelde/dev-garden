@@ -6,7 +6,7 @@ export const siteConfigSchema = z.object({
     bio: z.string().optional(),
     githubUsername: z.string().optional(),
   }),
-  siteUrl: z.string().url(),
+  siteUrl: z.string().url().transform(val => val.replace(/\/+$/, '')),
   social: z.array(z.object({
     name: z.string().min(1),
     url: z.string().url(),
@@ -14,6 +14,7 @@ export const siteConfigSchema = z.object({
   nav: z.array(z.object({
     label: z.string().min(1),
     href: z.string().min(1),
+    isExternal: z.boolean().default(false),
   })),
   locale: z.object({
     default: z.string().min(1),
@@ -36,7 +37,7 @@ const unvalidatedConfig = {
     bio: 'A passionate developer.',
     githubUsername: 'octocat',
   },
-  siteUrl: 'https://example.com',
+  siteUrl: 'https://felipevandevelde.github.io',
   social: [
     { name: 'GitHub', url: 'https://github.com' },
     { name: 'Twitter', url: 'https://twitter.com' }

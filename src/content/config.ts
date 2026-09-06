@@ -9,7 +9,7 @@ const profileCollection = defineCollection({
     name: z.string(),
     title: z.string(),
     bio: z.string(),
-    principles: z.array(z.string()),
+    principles: z.array(z.string()).default([]),
   }),
 });
 
@@ -18,9 +18,10 @@ const projectsCollection = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
-    liveUrl: z.string().url().optional(),
-    githubUrl: z.string().url().optional(),
+    liveUrl: z.union([z.string().url(), z.literal('')]).optional(),
+    githubUrl: z.union([z.string().url(), z.literal('')]).optional(),
     tags: z.array(z.string()),
+    draft: z.boolean().optional().default(false),
     curatorNotes: z.object({
       context: z.string().optional(),
       architecture: z.string().optional(),
