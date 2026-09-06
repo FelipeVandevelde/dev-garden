@@ -22,7 +22,7 @@ export async function fetchRecentCommits(): Promise<Commit[]> {
       headers['Authorization'] = `token ${import.meta.env.GITHUB_TOKEN}`;
     }
 
-    const res = await fetch(`https://api.github.com/users/${username}/events/public`, {
+    const res = await fetch(`https://api.github.com/users/${username}/events/public?per_page=50`, {
       headers,
       signal: AbortSignal.timeout(5000)
     });
@@ -33,6 +33,11 @@ export async function fetchRecentCommits(): Promise<Commit[]> {
     }
 
     const events = await res.json();
+    if (!Array.isArray(events)) {
+      console.warn('[GitHub Fetcher] Payload is not an array. Rate limited? Falling back.');
+      return mockData;
+    }
+    
     const pushEvents = events.filter((e: any) => e.type === 'PushEvent');
     
     const commits: Commit[] = [];
