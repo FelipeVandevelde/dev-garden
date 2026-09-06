@@ -5,6 +5,7 @@ export interface Props {
 const { tags } = Astro.props;
 ---
 <div class="filter-bar" style="margin-bottom: 2rem;">
+  <div aria-live="polite" class="sr-only" id="filter-announcer" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;"></div>
   <strong>Filter: </strong>
   <div class="filter-tags" style="display: inline-flex; gap: 0.5rem; flex-wrap: wrap;">
     <button class="filter-btn active" data-tag="all" aria-pressed="true">All</button>
@@ -19,8 +20,10 @@ const { tags } = Astro.props;
     const filterContainer = document.querySelector('.filter-tags');
     if (!filterContainer) return;
     
+    const container = filterContainer.closest('main') || document;
     const btns = filterContainer.querySelectorAll('.filter-btn');
-    const items = document.querySelectorAll('.filterable-item');
+    const items = container.querySelectorAll('.filterable-item');
+    const announcer = container.querySelector('#filter-announcer');
     
     btns.forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -33,18 +36,25 @@ const { tags } = Astro.props;
         e.currentTarget.setAttribute('aria-pressed', 'true');
         e.currentTarget.classList.add('active');
         
+        let visibleCount = 0;
         items.forEach(item => {
           if (tag === 'all') {
             item.style.display = 'block';
+            visibleCount++;
           } else {
             const itemTags = item.getAttribute('data-tags') || '';
-            if (itemTags.split(',').includes(tag)) {
+            if (itemTags.split('|').map(t => t.trim()).includes(tag)) {
               item.style.display = 'block';
+              visibleCount++;
             } else {
               item.style.display = 'none';
             }
           }
         });
+
+        if (announcer) {
+          announcer.textContent = `Showing ${visibleCount} items filtered by ${tag === 'all' ? 'all' : tag}`;
+        }
       });
     });
   })();

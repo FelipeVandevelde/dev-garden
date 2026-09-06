@@ -9,7 +9,7 @@ This is a public thought. It should be published.
 > [!NOTE] Essential Context
 > This is an Obsidian callout natively parsed into a styled div.
 
-> [!WARNING]
+> [!WARNING] Danger
 > Do not touch the red button.
 
 Here is a link to another [[growing-note|growing note]] which exists.
