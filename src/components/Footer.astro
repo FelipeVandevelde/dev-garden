@@ -6,7 +6,12 @@ const t = useTranslations(lang);
 <footer class="global-footer">
   <div class="footer-status">
     <span>{t('footer.build')} {import.meta.env.GIT_HASH || 'NO_VCS'}</span>
-    <span>{t('footer.time')} {new Date().toISOString()}</span>
+    <span>{t('footer.time')} <span id="client-time"></span></span>
   </div>
   <a href="/rss.xml" class="rss-link">RSS</a>
 </footer>
+
+<script>
+  const el = document.getElementById('client-time');
+  if (el) el.textContent = new Date().toISOString();
+</script>
