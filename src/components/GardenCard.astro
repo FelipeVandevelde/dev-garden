@@ -4,13 +4,13 @@ const { note, t, prefix } = Astro.props;
 const rawSlug = note.id.split('/').slice(1).join('/').replace(/\.(md|mdx)$/, '');
 const url = `${prefix}/garden/${rawSlug}`;
 const status = note.data.status || 'seedling';
-const borderStyle = status === 'evergreen' ? 'solid var(--text-color)' : status === 'budding' ? 'dashed var(--border)' : 'dotted var(--text-muted)';
-const icon = status === 'evergreen' ? '🌲' : status === 'budding' ? '🌿' : '🌱';
+const borderStyle = status === 'evergreen' ? 'solid var(--text-color)' : status === 'growing' ? 'dashed var(--border)' : 'dotted var(--text-muted)';
+const icon = status === 'evergreen' ? '🌲' : status === 'growing' ? '🌿' : '🌱';
 const translatedStatus = t ? t(`status.${status}`) : status;
 ---
 <BaseCard href={url} class="base-card filterable-item" data-tags={status} style={`display: block; text-decoration: none; background: var(--surface-color); border: var(--border-width) solid var(--border); border-left: 3px ${borderStyle}; border-radius: 2px; padding: 18px; transition: background-color 0.2s, border-color 0.2s; margin-bottom: 16px;`}>
   <div class="curator-tag" style="font-family: var(--font-mono); font-size: 11px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; color: var(--text-color);">
-    // {prefix}: [{status.toUpperCase()}{translatedStatus ? ` // ${translatedStatus}` : ''}] {icon || ''}
+    // {prefix}: [{status.toUpperCase()}{translatedStatus ? ` // ${translatedStatus}` : ''}] <span aria-hidden="true">{icon || ''}</span>
   </div>
   <div class="callout-body" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
     <span class="note-link" style="font-family: var(--font-mono); font-weight: bold; font-size: 1.1rem; color: var(--text-color); text-decoration: underline;">[[{rawSlug}]]</span>

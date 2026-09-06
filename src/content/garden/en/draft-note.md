@@ -1,6 +1,7 @@
 ---
 title: "A Draft Garden Note"
 draft: true
+status: "sprout"
 ---
 
 DRAFT_LEAK_STRING

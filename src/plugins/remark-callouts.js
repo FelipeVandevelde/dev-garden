@@ -12,14 +12,16 @@ export default function remarkCallouts() {
             const calloutType = match[1].toLowerCase();
             const calloutTitle = match[2] || calloutType.toUpperCase();
             
-            // Remove the [!TYPE] text
             textNode.value = textNode.value.replace(/^\[!\w+\][ \t]*(.*)?\n?/, '');
             
             if (textNode.value.trim() === '') {
               firstChild.children.shift();
+              // If paragraph is now empty, remove it completely
+              if (firstChild.children.length === 0) {
+                node.children.shift();
+              }
             }
 
-            // Prepend title div
             node.children.unshift({
               type: 'paragraph',
               data: {
@@ -29,12 +31,16 @@ export default function remarkCallouts() {
               children: [{ type: 'text', value: calloutTitle }]
             });
 
-            // Morph blockquote to div
             node.data = node.data || {};
             node.data.hName = 'div';
+            
+            let role = 'note';
+            if (calloutType === 'warning' || calloutType === 'danger' || calloutType === 'error') role = 'alert';
+            else if (calloutType === 'tip' || calloutType === 'success') role = 'status';
+
             node.data.hProperties = {
               className: ['callout', `callout-${calloutType}`],
-              role: calloutType === 'warning' ? 'alert' : 'note',
+              role: role,
             };
           }
         }

@@ -9,7 +9,7 @@ const profileCollection = defineCollection({
     name: z.string(),
     title: z.string(),
     bio: z.string(),
-    principles: z.array(z.string()),
+    principles: z.array(z.string()).default([]),
   }),
 });
 
@@ -18,15 +18,16 @@ const projectsCollection = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
-    liveUrl: z.string().url().optional(),
-    githubUrl: z.string().url().optional(),
+    liveUrl: z.union([z.string().url(), z.literal('')]).optional(),
+    githubUrl: z.union([z.string().url(), z.literal('')]).optional(),
     tags: z.array(z.string()),
+    draft: z.boolean().optional().default(false),
     curatorNotes: z.object({
-      context: z.string(),
-      architecture: z.string(),
-      tradeOffs: z.string(),
-      lessonsLearned: z.string(),
-    })
+      context: z.string().optional(),
+      architecture: z.string().optional(),
+      tradeOffs: z.string().optional(),
+      lessonsLearned: z.string().optional(),
+    }).optional()
   })
 });
 
@@ -87,7 +88,7 @@ const repositoriesCollection = defineCollection({
     title: z.string(),
     description: z.string(),
     url: z.string().url(),
-    language: z.string(),
+    language: z.string().nullable().default('Unknown'),
     tags: z.array(z.string()),
     stars: z.number().default(0),
     forks: z.number().default(0),
@@ -137,7 +138,7 @@ function githubGardenLoader({ repo, basePath }: { repo: string, basePath: string
         for (const item of items) {
           if (item.type === 'dir') {
              await fetchContents(item.path);
-          } else if (item.type === 'file' && item.name.toLowerCase().endsWith('.md')) {
+          } else if (item.type === 'file' && item.name.toLowerCase().match(/\.mdx?$/)) {
              if (!item.download_url) continue;
              
              const fileRes = await fetch(item.download_url, { headers });
@@ -152,7 +153,7 @@ function githubGardenLoader({ repo, basePath }: { repo: string, basePath: string
              if (basePath && id.startsWith(basePath + '/')) {
                id = id.substring(basePath.length + 1);
              }
-             id = id.replace(/\.md$/i, '');
+             id = id.replace(/\.mdx?$/i, '');
              
              let parsed;
              try {
@@ -199,6 +200,8 @@ const gardenCollection = defineCollection({
     title: z.string(),
     draft: z.boolean().optional().default(false),
     status: z.enum(['sprout', 'growing', 'evergreen']).default('sprout'),
+    date: z.coerce.date().optional(),
+    updated: z.coerce.date().optional(),
   })
 });
 

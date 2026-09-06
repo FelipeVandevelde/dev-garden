@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
-
+import { marked } from 'marked';
 import { siteConfig } from '../../../site.config';
 import { useTranslations } from '../../../i18n/utils';
 
@@ -9,8 +9,10 @@ export async function getStaticPaths() {
   const allProjects = await getCollection('projects', ({ id }) => !id.includes('/_'));
   return allProjects.map(p => {
     const parts = p.id.split('/');
-    const langDir = parts[0];
-    const slugParts = parts.slice(1);
+    const isLang = siteConfig.locale.supported.includes(parts[0]);
+    const langDir = isLang ? parts[0] : siteConfig.locale.default;
+    const slugParts = isLang ? parts.slice(1) : parts;
+    
     return {
       params: { 
         lang: langDir === siteConfig.locale.default ? undefined : langDir, 
@@ -26,61 +28,97 @@ const t = useTranslations((Astro.params.lang as 'en' | 'pt-br') || 'en');
 ---
 <BaseLayout>
   <article class="project-case-study">
-    <header style="border-bottom: 4px solid var(--text-color); padding-bottom: 2rem; margin-bottom: 2rem;">
-      <h1 style="font-size: 3rem; text-transform: uppercase; margin-bottom: 0;">{project.title}</h1>
-      <p class="description" style="font-size: 1.25rem;">{project.description}</p>
-      <div class="links" style="display: flex; gap: 1rem; margin-top: 1rem; font-family: monospace;">
-        {project.liveUrl && <a href={project.liveUrl} target="_blank">Live URL ↗</a>}
-        {project.githubUrl && <a href={project.githubUrl} target="_blank">GitHub ↗</a>}
+    <header class="project-header">
+      <h1>{project.title}</h1>
+      <p class="description">{project.description}</p>
+      <div class="links">
+        {project.liveUrl && <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">Live URL ↗</a>}
+        {project.githubUrl && <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">GitHub ↗</a>}
       </div>
     </header>
     
     <section class="curator-notes">
-      <div class="section-header" style="margin-top: 2rem; margin-bottom: 1rem;">{t("curator.tag")} (MONOCHROME)</div>
+      <div class="section-header">{t("curator.tag")} (MONOCHROME)</div>
       
       {project.curatorNotes?.context && (
-        <div class="curator-box" style="background: var(--surface-color); border: var(--border-width) solid var(--border); border-left: 3px solid var(--text-color); border-radius: 2px; padding: 18px; margin-top: 16px;">
-          <div class="curator-tag" style="font-family: var(--font-mono); font-size: 11px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; color: var(--text-color);">
-            {t("curator.context")}
-          </div>
-          <div class="callout-body" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
-            {project.curatorNotes.context}
-          </div>
+        <div class="curator-box curator-context">
+          <div class="curator-tag">{t("curator.context")}</div>
+          <div class="callout-body" set:html={marked.parse(project.curatorNotes.context)}></div>
         </div>
       )}
       
       {project.curatorNotes?.architecture && (
-        <div class="curator-box" style="background: var(--surface-color); border: var(--border-width) solid var(--border); border-left: 3px double var(--text-muted); border-radius: 2px; padding: 18px; margin-top: 16px;">
-          <div class="curator-tag" style="font-family: var(--font-mono); font-size: 11px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; color: var(--text-color);">
-            {t("curator.architecture")}
-          </div>
-          <div class="callout-body" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
-            {project.curatorNotes.architecture}
-          </div>
+        <div class="curator-box curator-architecture">
+          <div class="curator-tag">{t("curator.architecture")}</div>
+          <div class="callout-body" set:html={marked.parse(project.curatorNotes.architecture)}></div>
         </div>
       )}
       
       {project.curatorNotes?.tradeOffs && (
-        <div class="curator-box" style="background: var(--surface-color); border: var(--border-width) solid var(--border); border-left: 3px dashed var(--border); border-radius: 2px; padding: 18px; margin-top: 16px;">
-          <div class="curator-tag" style="font-family: var(--font-mono); font-size: 11px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; color: var(--text-color);">
-            {t("curator.tradeOffs")}
-          </div>
-          <div class="callout-body" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
-            {project.curatorNotes.tradeOffs}
-          </div>
+        <div class="curator-box curator-tradeoffs">
+          <div class="curator-tag">{t("curator.tradeOffs")}</div>
+          <div class="callout-body" set:html={marked.parse(project.curatorNotes.tradeOffs)}></div>
         </div>
       )}
       
       {project.curatorNotes?.lessonsLearned && (
-        <div class="curator-box" style="background: var(--surface-color); border: var(--border-width) solid var(--border); border-left: 3px dotted var(--text-muted); border-radius: 2px; padding: 18px; margin-top: 16px;">
-          <div class="curator-tag" style="font-family: var(--font-mono); font-size: 11px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; color: var(--text-color);">
-            {t("curator.lessons")}
-          </div>
-          <div class="callout-body" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
-            {project.curatorNotes.lessonsLearned}
-          </div>
+        <div class="curator-box curator-lessons">
+          <div class="curator-tag">{t("curator.lessons")}</div>
+          <div class="callout-body" set:html={marked.parse(project.curatorNotes.lessonsLearned)}></div>
         </div>
       )}
     </section>
   </article>
 </BaseLayout>
+
+<style>
+  .project-header {
+    border-bottom: 4px solid var(--text-color);
+    padding-bottom: 2rem;
+    margin-bottom: 2rem;
+  }
+  .project-header h1 {
+    font-size: 3rem;
+    text-transform: uppercase;
+    margin-bottom: 0;
+  }
+  .project-header .description {
+    font-size: 1.25rem;
+  }
+  .project-header .links {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    font-family: var(--font-mono, monospace);
+  }
+  .section-header {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+  .curator-box {
+    background: var(--surface-color);
+    border: var(--border-width) solid var(--border);
+    border-radius: 2px;
+    padding: 18px;
+    margin-top: 16px;
+  }
+  .curator-context { border-left: 3px solid var(--text-color); }
+  .curator-architecture { border-left: 3px double var(--text-muted); }
+  .curator-tradeoffs { border-left: 3px dashed var(--border); }
+  .curator-lessons { border-left: 3px dotted var(--text-muted); }
+  
+  .curator-tag {
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: var(--text-color);
+  }
+  .callout-body {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+</style>

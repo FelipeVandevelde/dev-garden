@@ -2,7 +2,7 @@ import { ui, defaultLang } from './ui';
 
 export function getLangFromUrl(url: URL) {
   const [, lang] = url.pathname.split('/');
-  if (lang in ui) return lang as keyof typeof ui;
+  if (lang && Object.prototype.hasOwnProperty.call(ui, lang)) return lang as keyof typeof ui;
   return defaultLang;
 }
 
@@ -13,16 +13,17 @@ export function useTranslations(lang: keyof typeof ui) {
 }
 
 export function getRouteWithLang(url: URL, lang: string) {
-  const currentLang = getLangFromUrl(url);
-  const path = url.pathname;
-  let newPath = path;
-  if (currentLang === defaultLang && lang !== defaultLang) {
-    newPath = `/${lang}${path === '/' ? '' : path}`;
-  } else if (currentLang !== defaultLang && lang === defaultLang) {
-    newPath = path.replace(`/${currentLang}`, '');
-    if (newPath === '') newPath = '/';
-  } else if (currentLang !== defaultLang && lang !== defaultLang) {
-    newPath = path.replace(`/${currentLang}`, `/${lang}`);
+  const parts = url.pathname.split('/');
+  
+  if (parts[1] && Object.prototype.hasOwnProperty.call(ui, parts[1])) {
+    parts.splice(1, 1);
   }
-  return newPath;
+  
+  let newPath = parts.join('/') || '/';
+  
+  if (lang !== defaultLang) {
+    newPath = newPath === '/' ? `/${lang}` : `/${lang}${newPath}`;
+  }
+  
+  return newPath + url.search + url.hash;
 }

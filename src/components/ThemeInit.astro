@@ -1,4 +1,4 @@
-﻿---
+---
 // ThemeInit.astro
 import { siteConfig } from '../site.config';
 ---
@@ -10,7 +10,7 @@ import { siteConfig } from '../site.config';
       var stored = window.localStorage.getItem('theme');
       if (stored && validThemes.includes(stored)) {
         theme = stored;
-      } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      } else if (typeof window.matchMedia !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         theme = 'Dark';
       } else {
         theme = 'Light';
