@@ -11,10 +11,8 @@ import { collections } from '../src/content/config';
 
 describe('Content Collections Zod Schemas', () => {
   it('profileCollection schema should validate default principles', () => {
-    // Note: Astro's defineCollection may wrap the schema, but we can usually test it
-    // Wait, astro:content might not be mockable easily in vitest without setup.
-    // Let's try parsing directly if possible.
-    const result = collections.profile.schema.safeParse({ name: 'Test', title: 'Developer', bio: '...' });
+    const schema = (collections.profile.schema as any);
+    const result = schema.safeParse({ name: 'Test', title: 'Developer', bio: '...' });
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.principles).toEqual([]);
@@ -22,7 +20,8 @@ describe('Content Collections Zod Schemas', () => {
   });
 
   it('projectsCollection schema should validate missing URLs as empty strings', () => {
-    const result = collections.projects.schema.safeParse({
+    const schema = (collections.projects.schema as any);
+    const result = schema.safeParse({
       title: 'Project',
       description: 'Desc',
       tags: [],
@@ -33,7 +32,8 @@ describe('Content Collections Zod Schemas', () => {
   });
   
   it('projectsCollection schema should accept valid URLs', () => {
-    const result = collections.projects.schema.safeParse({
+    const schema = (collections.projects.schema as any);
+    const result = schema.safeParse({
       title: 'Project',
       description: 'Desc',
       tags: [],
