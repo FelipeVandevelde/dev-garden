@@ -1,4 +1,4 @@
-import { h } from 'preact';
+
 import { useEffect, useState } from 'preact/hooks';
 import mockData from '../data/github-mock.json';
 import { siteConfig } from '../site.config';
