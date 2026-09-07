@@ -5,7 +5,9 @@
   --status-border-evergreen: #18181B;
   --bg-color: #F4F4F6;
   --text-color: #000000;
-  --focus-color: #0000FF;
+  --focus-color: #000000;
+  --selection-bg: #CCCCCC;
+  --selection-text: #000000;
   --border-width: 1px;
   
   --surface-panel-light: #E5E5EA;
@@ -20,6 +22,8 @@
   --surface-color: #121212;
   --text-color: #F2F2F7;
   --focus-color: #FFFFFF;
+  --selection-bg: #333333;
+  --selection-text: #F2F2F7;
   --border-width: 1px;
   
   --surface-panel-dark: #1C1C1E;
@@ -33,7 +37,9 @@
   --bg-color: #FFFFFF;
   --surface-color: #F4F4F6;
   --text-color: #1C1C1E;
-  --focus-color: #0000FF;
+  --focus-color: #000000;
+  --selection-bg: #CCCCCC;
+  --selection-text: #1C1C1E;
   --border-width: 1px;
   color-scheme: light;
 }
@@ -42,6 +48,8 @@
   --bg-color: #000000;
   --text-color: #FFFFFF;
   --focus-color: #FFFF00;
+  --selection-bg: #FFFF00;
+  --selection-text: #000000;
   --border-width: 2px;
   color-scheme: dark;
 }
@@ -50,6 +58,8 @@
   --bg-color: #FFFFFF;
   --text-color: #000000;
   --focus-color: #000000;
+  --selection-bg: #000000;
+  --selection-text: #FFFFFF;
   --border-width: 2px;
   color-scheme: light;
 }
@@ -60,6 +70,16 @@ body {
   background-color: var(--bg-color);
   color: var(--text-color);
   font-family: var(--font-mono), 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+::selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
 }
 .shell-container {
   width: 100%;
