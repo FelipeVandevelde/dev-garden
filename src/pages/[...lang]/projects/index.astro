@@ -22,7 +22,7 @@ const allTags = Array.from(new Set(allProjects.flatMap(p => p.data.tags)));
     <div style="font-family: var(--font-mono); font-size: 12px; color: var(--text-color); margin-bottom: 20px;">
       {t('projects.title')}
     </div>
-    <FilterBar tags={allTags} />
+    <FilterBar tags={allTags} emptyMessage={t('projects.empty') || '// No data found'} />
     <div class="project-grid" style="margin-top: 24px;">
       {allProjects.map(p => <ProjectCard id={p.id} project={p.data} prefix={langDir === 'pt-br' ? '/pt-br' : ''} />)}
     </div>
