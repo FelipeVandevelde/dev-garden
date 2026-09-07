@@ -1,8 +1,9 @@
 ---
 export interface Props {
   tags: string[];
+  emptyMessage?: string;
 }
-const { tags } = Astro.props;
+const { tags, emptyMessage = '// No data found' } = Astro.props;
 ---
 <div class="filter-bar" style="margin-bottom: 2rem;">
   <div aria-live="polite" class="sr-only" id="filter-announcer" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;"></div>
@@ -14,6 +15,7 @@ const { tags } = Astro.props;
     ))}
   </div>
 </div>
+<div class="filter-empty-state" style="display: none; padding-top: 2rem; color: var(--text-secondary); font-family: var(--font-mono);">{emptyMessage}</div>
 
 <script is:inline>
   (function() {
@@ -51,6 +53,11 @@ const { tags } = Astro.props;
             }
           }
         });
+
+        const emptyState = container.querySelector('.filter-empty-state');
+        if (emptyState) {
+          emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
 
         if (announcer) {
           announcer.textContent = `Showing ${visibleCount} items filtered by ${tag === 'all' ? 'all' : tag}`;
