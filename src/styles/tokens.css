@@ -1,4 +1,11 @@
+@custom-media --breakpoint-sm (max-width: 640px);
+@custom-media --breakpoint-md (max-width: 768px);
+@custom-media --breakpoint-lg (max-width: 1024px);
+
 :root {
+  --z-base: 1;
+  --z-popover: 100;
+  --z-modal: 200;
   --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
   --status-border-sprout: #71717A;
   --status-border-growing: #3F3F46;
@@ -126,7 +133,7 @@ a:hover {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition: none !important;
     scroll-behavior: auto !important;
   }
 }
@@ -352,7 +359,7 @@ a:hover {
   color: var(--text-color);
   border: var(--border-width) solid var(--text-color);
   padding: 1rem;
-  z-index: 1000;
+  z-index: var(--z-popover);
   display: none;
   opacity: 0;
   transition: opacity 0.2s ease;
@@ -375,7 +382,7 @@ a:hover {
   display: none; /* Desktop hidden */
 }
 
-@media (max-width: 768px) {
+@media (--breakpoint-md) {
   .graph-container {
     display: none; /* Hide complex graph on mobile */
   }
@@ -481,7 +488,7 @@ h1.display-title { font-family: var(--font-mono); font-size: 26px; margin: 0 0 1
   gap: 8px;
   transition: all 0.2s;
   color: var(--text-color);
-  z-index: 10;
+  z-index: var(--z-base);
 }
 .node:hover {
   border-color: var(--text-color);
