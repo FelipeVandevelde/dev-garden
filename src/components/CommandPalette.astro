@@ -67,7 +67,7 @@ const baseUrl = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL
   .palette-item .icon { opacity: 0.7; }
 </style>
 
-<script is:inline define:vars={{ baseUrl, noResultsText: "No results found for", errorText: "Search failed." }}>
+<script is:inline define:vars={{ baseUrl, noResultsText: "No results found for", errorText: "Search failed.", searchingText: t('command.searching') }}>
   (function() {
     const dialog = document.getElementById('command-palette');
     const input = document.getElementById('palette-input');
@@ -104,7 +104,11 @@ const baseUrl = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL
     });
 
     dialog.addEventListener('click', (e) => {
-      if (e.target === dialog) dialog.close();
+      const rect = dialog.getBoundingClientRect();
+      const inBounds = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+      if (!inBounds && (e.clientX !== 0 || e.clientY !== 0)) {
+        dialog.close();
+      }
     });
 
     function updateSelection() {
@@ -182,6 +186,8 @@ const baseUrl = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL
       debounceTimer = setTimeout(async () => {
         const currentSearch = ++searchCounter;
         
+        list.innerHTML = `<li class="palette-item" style="opacity:0.5; font-family: monospace;" tabindex="-1" role="option" aria-disabled="true" aria-selected="false">${escapeHtml(searchingText)}</li>`;
+
         if (!pagefind) {
           try {
             pagefind = await import(baseUrl + '/pagefind/pagefind.js');
