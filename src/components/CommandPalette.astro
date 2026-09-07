@@ -6,22 +6,32 @@ const baseUrl = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL
 ---
 <dialog id="command-palette" class="command-palette" role="dialog" aria-label="Command Palette">
   <div class="palette-container">
-    <div class="palette-header">
-      <input type="text" id="palette-input" role="combobox" aria-autocomplete="list" aria-controls="palette-list" aria-expanded="true" placeholder={t('command.placeholder') || "Search or type a command... (Cmd+K)"} autocomplete="off" spellcheck="false" />
+    <div class="palette-header" style="display:flex; align-items:center;">
+      <span class="prompt" style="padding-left:1rem; font-weight:bold;">&gt;_</span>
+      <input type="text" id="palette-input" role="combobox" aria-autocomplete="list" aria-controls="palette-list" aria-expanded="true" placeholder={t('command.placeholder') || "Search or type a command... (Cmd+K)"} autocomplete="off" spellcheck="false" style="flex:1;" />
+      <span class="esc-tag" style="margin-right:1rem; font-size:10px; border:1px solid var(--text-muted); padding:2px 6px; border-radius:2px; color:var(--text-muted);">ESC</span>
     </div>
     <div class="palette-results" id="palette-results">
       <ul id="palette-list" role="listbox">
         <!-- Default Actions rendered dynamically -->
       </ul>
     </div>
+    <div class="modal-footer" style="border-top: var(--border-width) solid var(--border); padding: 10px 16px; display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); font-family: monospace;">
+      <span>Use ↑ / ↓ to navigate</span>
+      <span>↵ to select</span>
+      <span>ESC to dismiss</span>
+    </div>
   </div>
 </dialog>
 <template id="palette-default-actions">
-  <li class="palette-item action-item" data-action="theme" tabindex="-1" role="option">
-    <span class="icon">🌓</span> {t('cmd.toggleTheme') || 'Toggle Theme'}
+  <div class="results-group" style="padding: 12px 16px 4px 16px; font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-family: monospace;">THEME MODES & COMMANDS</div>
+  <li class="palette-item action-item" data-action="theme" tabindex="-1" role="option" style="justify-content: space-between;">
+    <span>Cycle Theme: [Dark ➔ Light ➔ HC Dark ➔ HC Light]</span>
+    <span class="shortcut-badge" style="font-size: 10px; border: 1px solid var(--text-muted); padding: 1px 5px; border-radius: 2px;">t t</span>
   </li>
-  <li class="palette-item action-item" data-action="graph" tabindex="-1" role="option">
-    <span class="icon">🕸️</span> {t('cmd.graph') || 'Open Knowledge Graph'}
+  <li class="palette-item action-item" data-action="graph" tabindex="-1" role="option" style="justify-content: space-between;">
+    <span>Open Knowledge Graph</span>
+    <span class="shortcut-badge" style="font-size: 10px; border: 1px solid var(--text-muted); padding: 1px 5px; border-radius: 2px;">g g</span>
   </li>
 </template>
 
@@ -204,15 +214,39 @@ const baseUrl = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL
           
           const validResults = topResults.filter(Boolean);
           
-          list.innerHTML = validResults.map(r => `
-            <li class="palette-item" data-href="${escapeHtml(r.url)}" role="option">
-              <span class="icon">📄</span>
-              <div>
-                <strong style="display:block">${escapeHtml(r.meta?.title || r.url)}</strong>
-                <small style="opacity:0.7">${escapeHtml(r.excerpt)}</small>
-              </div>
-            </li>
-          `).join('');
+          const projects = validResults.filter(r => r.url.includes('/projects/'));
+          const garden = validResults.filter(r => r.url.includes('/garden/'));
+          const others = validResults.filter(r => !r.url.includes('/projects/') && !r.url.includes('/garden/'));
+
+          let html = '';
+          if (projects.length > 0) {
+            html += `<div class="results-group" style="padding: 12px 16px 4px 16px; font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-family: monospace;">PROJECT CASE STUDIES (${projects.length})</div>`;
+            html += projects.map(r => `
+              <li class="palette-item result-item" data-href="${escapeHtml(r.url)}" role="option" style="justify-content: space-between;">
+                <span><b>${escapeHtml(r.meta?.title || r.url)}</b></span>
+                <span class="shortcut-badge" style="font-size: 10px; border: 1px solid var(--text-muted); padding: 1px 5px; border-radius: 2px; color: inherit; border-color: inherit;">Jump ↵</span>
+              </li>
+            `).join('');
+          }
+          if (garden.length > 0) {
+            html += `<div class="results-group" style="padding: 12px 16px 4px 16px; font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-family: monospace;">DIGITAL GARDEN SYNTHESES (${garden.length})</div>`;
+            html += garden.map(r => `
+              <li class="palette-item result-item" data-href="${escapeHtml(r.url)}" role="option" style="justify-content: space-between;">
+                <span>[[${escapeHtml(r.meta?.title || r.url)}]]</span>
+                <span class="shortcut-badge" style="font-size: 10px; border: 1px solid var(--text-muted); padding: 1px 5px; border-radius: 2px; color: inherit; border-color: inherit;">Jump ↵</span>
+              </li>
+            `).join('');
+          }
+          if (others.length > 0) {
+            html += `<div class="results-group" style="padding: 12px 16px 4px 16px; font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-family: monospace;">OTHER RESULTS (${others.length})</div>`;
+            html += others.map(r => `
+              <li class="palette-item result-item" data-href="${escapeHtml(r.url)}" role="option" style="justify-content: space-between;">
+                <span>${escapeHtml(r.meta?.title || r.url)}</span>
+                <span class="shortcut-badge" style="font-size: 10px; border: 1px solid var(--text-muted); padding: 1px 5px; border-radius: 2px; color: inherit; border-color: inherit;">Jump ↵</span>
+              </li>
+            `).join('');
+          }
+          list.innerHTML = html;
         }
         selectedIndex = 0;
         updateSelection();

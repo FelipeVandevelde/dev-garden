@@ -1,0 +1,16 @@
+---
+export interface Props {
+  backlinks?: { title: string; url: string }[];
+}
+const { backlinks } = Astro.props;
+---
+{backlinks && backlinks.length > 0 && (
+  <div style="margin-top:16px; font-family:var(--font-mono); font-size:11px;">
+    <div style="color:var(--text-muted); margin-bottom:6px;">BACKLINKS TO THIS NOTE ({backlinks.length}):</div>
+    {backlinks.map((bl) => (
+      <div style="margin-bottom:4px;">
+        <a href={bl.url} style="color:var(--text-color); text-decoration:none;">&gt; [[{bl.title}]]</a>
+      </div>
+    ))}
+  </div>
+)}

@@ -18,7 +18,7 @@
 [data-theme="Dark"] {
   --bg-color: #000000;
   --surface-color: #121212;
-  --text-color: #FFFFFF;
+  --text-color: #F2F2F7;
   --focus-color: #FFFFFF;
   --border-width: 1px;
   
@@ -32,7 +32,7 @@
 [data-theme="Light"] {
   --bg-color: #FFFFFF;
   --surface-color: #F4F4F6;
-  --text-color: #000000;
+  --text-color: #1C1C1E;
   --focus-color: #0000FF;
   --border-width: 1px;
   color-scheme: light;
@@ -40,8 +40,8 @@
 
 [data-theme="HC-Dark"] {
   --bg-color: #000000;
-  --text-color: #FFFF00;
-  --focus-color: #00FFFF;
+  --text-color: #FFFFFF;
+  --focus-color: #FFFF00;
   --border-width: 2px;
   color-scheme: dark;
 }
@@ -49,7 +49,7 @@
 [data-theme="HC-Light"] {
   --bg-color: #FFFFFF;
   --text-color: #000000;
-  --focus-color: #0000FF;
+  --focus-color: #000000;
   --border-width: 2px;
   color-scheme: light;
 }
@@ -214,6 +214,7 @@ a:hover {
 [data-theme^="HC-"] .base-card:hover {
   background-color: var(--text-color);
   color: var(--bg-color);
+  border-color: var(--bg-color);
 }
 [data-theme^="HC-"] .base-card:hover .note-link {
   color: var(--bg-color);
@@ -284,7 +285,7 @@ a:hover {
   border: var(--border-width) dashed var(--text-color);
 }
 .badge-evergreen {
-  border: var(--border-width) solid var(--border);
+  border: var(--border-width) solid var(--text-color);
   background: var(--surface-panel);
   color: var(--text-color);
 }
@@ -410,9 +411,9 @@ code, pre, .mono, .command-input { font-family: 'JetBrains Mono', 'Fira Code', m
 }
 .nav-brand { font-weight: bold; }
 .nav-links { display: flex; gap: 20px; }
-.nav-links a { color: var(--text-muted); text-decoration: none; padding: 4px 8px; }
+.nav-links a { color: var(--text-muted); text-decoration: none; padding: 4px 8px; border-bottom: var(--border-width) solid transparent; }
 .nav-links a.active { color: var(--text-color); border-bottom: var(--border-width) solid var(--text-color); }
-.nav-links a:hover { color: var(--text-color); }
+.nav-links a:hover { color: var(--text-color); border-bottom: var(--border-width) solid var(--text-color); }
 [data-theme^="HC-"] .terminal-nav a:hover {
   background-color: var(--text-color);
   color: var(--bg-color) !important;

@@ -5,29 +5,49 @@ import { getCollection, render } from 'astro:content';
 import { siteConfig } from '../../../site.config';
 
 import KnowledgeGraph from '../../../components/KnowledgeGraph.astro';
+import BacklinksList from '../../../components/BacklinksList.astro';
+
+import { generateGraphData } from '../../../utils/graph';
 
 export async function getStaticPaths() {
   const gardenEntries = await getCollection('garden', ({ data, id }) => {
     return data.draft !== true && !id.includes('/_');
   });
+  const graphData = await generateGraphData();
+
   return gardenEntries.map(entry => {
     const parts = entry.id.split('/');
     const isLang = siteConfig.locale.supported.includes(parts[0]);
     const langDir = isLang ? parts[0] : siteConfig.locale.default;
     const slugParts = isLang ? parts.slice(1) : parts;
+    
+    const rawBacklinks = graphData.links
+      .filter((l: any) => l.target === entry.id)
+      .map((l: any) => graphData.nodes.find((n: any) => n.id === l.source))
+      .filter(Boolean);
+
+    const backlinks = rawBacklinks.map((bl: any) => {
+      const blParts = bl.id.split('/');
+      const blIsLang = siteConfig.locale.supported.includes(blParts[0]);
+      const slugUrl = blIsLang 
+        ? (blParts[0] === siteConfig.locale.default ? '' : `/${blParts[0]}`) + `/garden/${blParts.slice(1).join('/')}`
+        : `/garden/${bl.id}`;
+      return { title: bl.title, url: slugUrl };
+    });
+
     return {
       params: { 
         lang: langDir === siteConfig.locale.default ? undefined : langDir, 
         slug: slugParts.join('/').replace(/\.(md|mdx)$/, '') 
       },
-      props: { entry }
+      props: { entry, backlinks }
     };
   });
 }
 
 import { getLangFromUrl, useTranslations } from '../../../i18n/utils';
 
-const { entry } = Astro.props;
+const { entry, backlinks } = Astro.props;
 const { Content } = await render(entry);
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang as any);
@@ -46,10 +66,11 @@ const t = useTranslations(lang as any);
       </div>
       <div>
         <div class="sidebar-box" style="background: var(--surface-color); border: var(--border-width) solid var(--border); padding: 20px; border-radius: 2px;">
-          <div style="font-family:var(--font-mono); font-size:12px; margin-bottom:12px;">
-            {t('graph.title')}
+          <div style="font-family:var(--font-mono); font-size:12px; margin-bottom:12px; text-transform: uppercase;">
+            &gt; {t('graph.title') || 'Knowledge Graph'}
           </div>
           <KnowledgeGraph localNodeId={entry.id} height="240px" />
+          <BacklinksList backlinks={backlinks} />
         </div>
       </div>
     </div>
