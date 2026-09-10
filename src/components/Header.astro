@@ -33,10 +33,15 @@ const ptUrl = getRouteWithLang(Astro.url, 'pt-br');
       <a href={ptUrl} style={lang === 'pt-br' ? 'font-weight: bold; color: var(--text-color);' : 'color: inherit; text-decoration: none;'}>PT</a> | 
       <a href={enUrl} style={lang === 'en' ? 'font-weight: bold; color: var(--text-color);' : 'color: inherit; text-decoration: none;'}>EN</a>
     </span>
-    <div style="display: flex; gap: 8px; font-size: 14px;">
+    <div class="theme-toggles" style="display: flex; gap: 8px; font-size: 14px;">
       <span id="btn-theme-toggle" role="button" tabindex="0" aria-label={t('cmd.toggleTheme')} style="cursor: pointer; filter: grayscale(100%);" title={t('cmd.toggleTheme')}>☀️</span>
       <span id="btn-hc-toggle" role="button" tabindex="0" aria-label={t('cmd.toggleHighContrast')} style="cursor: pointer; filter: grayscale(100%);" title={t('cmd.toggleHighContrast')}>👁️</span>
     </div>
+    <noscript>
+      <style>
+        .theme-toggles { display: none !important; }
+      </style>
+    </noscript>
   </div>
 </header>
 

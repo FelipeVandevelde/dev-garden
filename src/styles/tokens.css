@@ -85,8 +85,8 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--focus-color);
-  outline-offset: 2px;
+  outline: 3px solid var(--focus-color);
+  outline-offset: 3px;
 }
 .shell-container {
   width: 100%;
@@ -133,7 +133,9 @@ a:hover {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition: none !important;
+    animation-delay: 0s !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
     scroll-behavior: auto !important;
   }
 }
@@ -170,7 +172,8 @@ a:hover {
 /* Constellation Overrides */
 @media (prefers-reduced-motion: reduce) {
   .constellation-node, .constellation-link {
-    transition: none !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
   }
 }
 .constellation-node:focus {
@@ -238,13 +241,29 @@ a:hover {
 .base-card:hover {
   border-color: var(--focus-color);
 }
-[data-theme^="HC-"] .base-card:hover {
+[data-theme^="HC-"] .base-card:hover,
+[data-theme^="HC-"] .base-card:focus-visible {
   background-color: var(--text-color);
   color: var(--bg-color);
   border-color: var(--bg-color);
 }
-[data-theme^="HC-"] .base-card:hover .note-link {
+[data-theme^="HC-"] .base-card:hover .note-link,
+[data-theme^="HC-"] .base-card:focus-visible .note-link {
   color: var(--bg-color);
+}
+
+[data-theme="HC-Dark"] .base-card:hover,
+[data-theme="HC-Dark"] .base-card:focus-visible {
+  --text-secondary: #333333;
+  --text-muted: #555555;
+  --focus-color: #0000FF;
+}
+
+[data-theme="HC-Light"] .base-card:hover,
+[data-theme="HC-Light"] .base-card:focus-visible {
+  --text-secondary: #CCCCCC;
+  --text-muted: #AAAAAA;
+  --focus-color: #FFFF00;
 }
 
 .project-card {
