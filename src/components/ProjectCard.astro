@@ -18,37 +18,7 @@ const url = `${prefix}/projects/${rawSlug}`;
       <h2 class="proj-title">{project.title}</h2>
       <div class="proj-meta">{project?.tags?.join(' \u2022 ')?.toUpperCase() || ''}</div>
     </div>
-    <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-color); border:var(--border-width) solid var(--text-color); padding:2px 8px; align-self: flex-start;">
-      [PRODUCTION_VERIFIED]
-    </div>
   </div>
   <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">{project.description}</p>
-  {project.curatorNotes && (
-    <div style="margin-top: 24px;">
-      {project.curatorNotes.context && (
-        <div class="curator-box" style="background: var(--surface-panel); border: var(--border-width) solid var(--border); border-left: 3px solid var(--text-color); border-radius: 2px; padding: 18px; margin-top: 16px;">
-          <div class="curator-tag" style="font-family: var(--font-mono); font-size: 11px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; color: var(--text-color);">// CURATOR NOTE: CONTEXT</div>
-          <div class="callout-body" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">{project.curatorNotes.context}</div>
-        </div>
-      )}
-      {project.curatorNotes.architecture && (
-        <div class="curator-box" style="background: var(--surface-panel); border: var(--border-width) solid var(--border); border-left: 3px solid var(--text-color); border-radius: 2px; padding: 18px; margin-top: 16px;">
-          <div class="curator-tag" style="font-family: var(--font-mono); font-size: 11px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; color: var(--text-color);">// CURATOR NOTE: ARCHITECTURE</div>
-          <div class="callout-body" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">{project.curatorNotes.architecture}</div>
-        </div>
-      )}
-      {project.curatorNotes.tradeOffs && (
-        <div class="curator-box" style="background: var(--surface-panel); border: var(--border-width) solid var(--border); border-left: 3px double var(--text-secondary); border-radius: 2px; padding: 18px; margin-top: 16px;">
-          <div class="curator-tag" style="font-family: var(--font-mono); font-size: 11px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; color: var(--text-color);">// CURATOR NOTE: KEY ARCHITECTURAL TRADE-OFFS</div>
-          <div class="callout-body" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">{project.curatorNotes.tradeOffs}</div>
-        </div>
-      )}
-      {project.curatorNotes.lessonsLearned && (
-        <div class="curator-box" style="background: var(--surface-panel); border: var(--border-width) solid var(--border); border-left: 3px dashed var(--text-muted); border-radius: 2px; padding: 18px; margin-top: 16px;">
-          <div class="curator-tag" style="font-family: var(--font-mono); font-size: 11px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; color: var(--text-color);">// CURATOR NOTE: LESSONS LEARNED & RETROSPECTIVE</div>
-          <div class="callout-body" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">{project.curatorNotes.lessonsLearned}</div>
-        </div>
-      )}
-    </div>
-  )}
+
 </BaseCard>
