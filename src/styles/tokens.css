@@ -527,6 +527,30 @@ h1.display-title { font-family: var(--font-mono); font-size: 26px; margin: 0 0 1
 .proj-title { font-family: var(--font-mono); font-size: 20px; color: var(--text-color); margin: 0 0 6px 0; }
 .proj-meta { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
 
+/* Garden Cards */
+.garden-card {
+  display: block;
+  text-decoration: none;
+  background: var(--surface-color);
+  border: var(--border-width) solid var(--border);
+  border-left-width: 3px;
+  border-left-style: solid;
+  border-left-color: transparent;
+  border-radius: 2px;
+  padding: 18px;
+  margin-bottom: 16px;
+  color: var(--text-color);
+  transition: background-color 0.2s, border-color 0.2s;
+}
+.garden-card.status-evergreen { border-left-style: solid; border-left-color: var(--text-color); }
+.garden-card.status-growing { border-left-style: dashed; border-left-color: var(--border); }
+.garden-card.status-seedling { border-left-style: dotted; border-left-color: var(--text-muted); }
+
+.garden-card:hover,
+.garden-card:focus-visible {
+  border-left-color: var(--focus-color);
+  background-color: var(--surface-panel);
+}
 /* Shiki CSS Variables */
 :root {
   --shiki-color-text: var(--text-color);
