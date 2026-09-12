@@ -48,9 +48,13 @@ const { localNodeId, height } = Astro.props;
         dataCache = await res.json();
       }
       const data = dataCache;
-      const { default: ForceGraph } = await import('force-graph');
+      const forceGraphModule = await import('force-graph');
+      let ForceGraph: any = forceGraphModule.default || forceGraphModule;
+      if (typeof ForceGraph !== 'function' && ForceGraph.default) {
+        ForceGraph = ForceGraph.default;
+      }
       
-      const width = container.clientWidth;
+      const width = container.clientWidth || container.parentElement?.clientWidth || window.innerWidth || 800;
       const height = container.clientHeight || 600;
       
       container.innerHTML = '';
