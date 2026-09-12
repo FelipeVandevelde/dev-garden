@@ -112,7 +112,6 @@ const { localNodeId, height } = Astro.props;
         .nodeColor((node: any) => node.id === localNodeId ? colors.focus : colors.text)
         .linkColor(() => colors.text)
         .linkWidth(1)
-        .linkOpacity(0.2)
         .onNodeClick((node: any) => {
           const langPrefix = document.documentElement.lang === 'pt-br' ? '/pt-br' : '';
           window.location.href = `${langPrefix}/garden/${node.id.split("/").slice(1).join("/")}`;
@@ -153,8 +152,12 @@ const { localNodeId, height } = Astro.props;
       // Cleanup previous listener if needed (handled by astro unmount typically, but we can't easily remove without reference)
       // Since it's a client script, we keep it simple.
 
-    } catch(e) {
+    } catch(e: any) {
       console.error("Graph init failed:", e);
+      const container = document.getElementById('graph-container');
+      if (container) {
+        container.innerHTML = `<div style="color:red; padding:20px;">Graph Error: ${e.message}</div>`;
+      }
     }
   }
 
