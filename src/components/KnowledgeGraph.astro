@@ -12,46 +12,59 @@ const { localNodeId, height } = Astro.props;
 </div>
 
 <script>
-  import * as d3 from 'd3';
-
-  let simulation: any = null;
+  let graphInstance: any = null;
+  let observer: MutationObserver | null = null;
+  let dataCache: any = null;
 
   async function initGraph() {
-    if (simulation && typeof simulation.stop === 'function') {
-      simulation.stop();
-      simulation = null;
-    }
-    
     const container = document.getElementById('graph-container');
     if (!container) return;
 
     if (window.innerWidth < 768) {
       container.innerHTML = '';
+      if (observer) {
+        observer.disconnect();
+        observer = null;
+      }
+      if (graphInstance) {
+        if (typeof graphInstance._destructor === 'function') {
+          graphInstance._destructor();
+        }
+        graphInstance = null;
+      }
       return;
     }
 
+    if (graphInstance && typeof graphInstance._destructor === 'function') {
+      graphInstance._destructor();
+      graphInstance = null;
+    }
+
     try {
-      const baseUrl = import.meta.env.BASE_URL.replace(/\/+$/, '');
-      const res = await fetch(baseUrl + '/graph-data.json');
-      if (!res.ok) throw new Error('Failed to fetch graph data');
-      const data = await res.json();
+      if (!dataCache) {
+        const baseUrl = import.meta.env.BASE_URL.replace(/\/+$/, '');
+        const res = await fetch(baseUrl + '/graph-data.json');
+        if (!res.ok) throw new Error('Failed to fetch graph data');
+        dataCache = await res.json();
+      }
+      const data = dataCache;
+      const { default: ForceGraph } = await import('force-graph');
       
       const width = container.clientWidth;
-      const height = container.clientHeight;
+      const height = container.clientHeight || 600;
       
       container.innerHTML = '';
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      container.appendChild(canvas);
-      
-      const context = canvas.getContext('2d');
-      if (!context) return;
 
-      const style = getComputedStyle(document.body);
-      const textColor = style.getPropertyValue('--text-color').trim() || '#000';
-      const bgColor = style.getPropertyValue('--bg-color').trim() || '#fff';
-      const focusColor = style.getPropertyValue('--focus-color').trim() || textColor;
+      const getThemeColors = () => {
+        const style = getComputedStyle(document.documentElement);
+        return {
+          text: style.getPropertyValue('--text-color').trim() || '#000',
+          bg: style.getPropertyValue('--bg-color').trim() || '#fff',
+          focus: style.getPropertyValue('--focus-color').trim() || style.getPropertyValue('--text-color').trim() || '#000',
+        };
+      };
+
+      let colors = getThemeColors();
 
       const lang = document.documentElement.lang || 'en';
       let graphNodes = (data?.nodes || []).filter((n: any) => typeof n?.id === 'string' && n.id.startsWith(lang + "/"));
@@ -82,98 +95,57 @@ const { localNodeId, height } = Astro.props;
         if (degree[l.target] !== undefined) degree[l.target]++;
       });
 
-      const nodes = graphNodes.map((d: any) => Object.create(d));
-      const links = graphLinks.map((d: any) => Object.create(d));
+      const nodes = graphNodes.map((d: any) => Object.assign({}, d));
+      const links = graphLinks.map((d: any) => Object.assign({}, d));
 
-      simulation = d3.forceSimulation(nodes)
-          .force("link", d3.forceLink(links).id((d: any) => d.id).distance(150))
-          .force("charge", d3.forceManyBody().strength(-400))
-          .force("center", d3.forceCenter(width / 2, height / 2));
-
-      let currentTransform = d3.zoomIdentity;
-
-      function ticked() {
-        if (!context) return;
-        context.save();
-        context.clearRect(0, 0, width, height);
-        context.translate(currentTransform.x, currentTransform.y);
-        context.scale(currentTransform.k, currentTransform.k);
-
-        context.beginPath();
-        links.forEach((d: any) => {
-          context.moveTo(d.source.x, d.source.y);
-          context.lineTo(d.target.x, d.target.y);
-        });
-        context.strokeStyle = textColor;
-        context.globalAlpha = 0.2;
-        context.stroke();
-        context.globalAlpha = 1.0;
-
-        nodes.forEach((d: any) => {
-          context.beginPath();
-          const r = 5 + (degree[d.id] || 0) * 2;
-          d.r = r;
-          context.moveTo(d.x + r, d.y);
-          context.arc(d.x, d.y, r, 0, 2 * Math.PI);
-          context.fillStyle = bgColor;
-          context.fill();
-          context.strokeStyle = d.id === localNodeId ? focusColor : textColor;
-          context.lineWidth = d.id === localNodeId ? 3 : 2;
-          context.stroke();
-
-          context.fillStyle = textColor;
-          context.font = d.id === localNodeId ? "bold 14px monospace" : "12px monospace";
-          context.fillText(d.title, d.x + r + 6, d.y + 4);
-        });
-        
-        context.restore();
-      }
-
-      simulation.on("tick", ticked);
-
-      d3.select(canvas).call(d3.zoom<HTMLCanvasElement, unknown>()
-          .scaleExtent([0.1, 4])
-          .on("zoom", (e: any) => {
-             currentTransform = e.transform;
-             ticked();
-          }));
-
-      canvas.addEventListener('click', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const mx = (e.clientX - rect.left - currentTransform.x) / currentTransform.k;
-        const my = (e.clientY - rect.top - currentTransform.y) / currentTransform.k;
-        
-        let closest: any = null;
-        let minDist = Infinity;
-        nodes.forEach((d: any) => {
-          const dx = mx - d.x;
-          const dy = my - d.y;
-          const dist = Math.sqrt(dx*dx + dy*dy);
-          if (dist < d.r + 5 && dist < minDist) {
-            minDist = dist;
-            closest = d;
-          }
-        });
-
-        if (closest) {
+      graphInstance = (ForceGraph as any)()(container)
+        .width(width)
+        .height(height)
+        .backgroundColor(colors.bg)
+        .nodeRelSize(5)
+        .nodeVal((node: any) => (degree[node.id] || 0) * 2 + 5)
+        .nodeColor((node: any) => node.id === localNodeId ? colors.focus : colors.text)
+        .linkColor(() => colors.text)
+        .linkWidth(1)
+        .linkOpacity(0.2)
+        .onNodeClick((node: any) => {
           const langPrefix = document.documentElement.lang === 'pt-br' ? '/pt-br' : '';
-          window.location.href = `${langPrefix}/garden/${closest.id.split("/").slice(1).join("/")}`;
-        }
+          window.location.href = `${langPrefix}/garden/${node.id.split("/").slice(1).join("/")}`;
+        })
+        .nodeCanvasObject((node: any, ctx: CanvasRenderingContext2D) => {
+          const r = 5 + (degree[node.id] || 0) * 2;
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
+          ctx.fillStyle = colors.bg;
+          ctx.fill();
+          ctx.strokeStyle = node.id === localNodeId ? colors.focus : colors.text;
+          ctx.lineWidth = node.id === localNodeId ? 3 : 2;
+          ctx.stroke();
+
+          ctx.fillStyle = colors.text;
+          ctx.font = node.id === localNodeId ? "bold 14px monospace" : "12px monospace";
+          ctx.fillText(node.title || '', node.x + r + 6, node.y + 4);
+          ctx.restore();
+        })
+        .graphData({ nodes, links });
+
+      graphInstance.d3Force('charge').strength(-400);
+
+      if (observer) {
+        observer.disconnect();
+      }
+      
+      observer = new MutationObserver(() => {
+        colors = getThemeColors();
+        graphInstance
+          .backgroundColor(colors.bg)
+          .nodeColor((node: any) => node.id === localNodeId ? colors.focus : colors.text)
+          .linkColor(() => colors.text);
       });
       
-      canvas.addEventListener('mousemove', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const mx = (e.clientX - rect.left - currentTransform.x) / currentTransform.k;
-        const my = (e.clientY - rect.top - currentTransform.y) / currentTransform.k;
-        
-        let found = false;
-        nodes.forEach((d: any) => {
-          const dx = mx - d.x;
-          const dy = my - d.y;
-          if (Math.sqrt(dx*dx + dy*dy) < d.r + 5) found = true;
-        });
-        canvas.style.cursor = found ? 'pointer' : 'grab';
-      });
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+      observer.observe(document.body, { attributes: true, attributeFilter: ['class', 'data-theme'] });
 
     } catch(e) {
       console.error("Graph init failed:", e);
@@ -183,7 +155,25 @@ const { localNodeId, height } = Astro.props;
   let timeout: any;
   window.addEventListener('resize', () => {
     clearTimeout(timeout);
-    timeout = setTimeout(initGraph, 250);
+    timeout = setTimeout(() => {
+      const container = document.getElementById('graph-container');
+      if (window.innerWidth < 768) {
+        if (container) container.innerHTML = '';
+        if (graphInstance) {
+          if (typeof graphInstance._destructor === 'function') {
+            graphInstance._destructor();
+          }
+          graphInstance = null;
+        }
+        return;
+      }
+      if (graphInstance && container) {
+        graphInstance.width(container.clientWidth);
+        graphInstance.height(container.clientHeight || 600);
+      } else {
+        initGraph();
+      }
+    }, 250);
   });
 
   initGraph();
