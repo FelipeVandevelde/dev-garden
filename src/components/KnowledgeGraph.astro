@@ -54,6 +54,7 @@ const { localNodeId, height } = Astro.props;
       const height = container.clientHeight || 600;
       
       container.innerHTML = '';
+      container.style.height = height + 'px';
 
       const getThemeColors = () => {
         const style = getComputedStyle(document.documentElement);
@@ -132,20 +133,21 @@ const { localNodeId, height } = Astro.props;
 
       graphInstance.d3Force('charge').strength(-400);
 
-      if (observer) {
-        observer.disconnect();
-      }
+      const updateColors = () => {
+        setTimeout(() => {
+          if (!graphInstance) return;
+          colors = getThemeColors();
+          graphInstance
+            .backgroundColor(colors.bg)
+            .nodeColor((node: any) => node.id === localNodeId ? colors.focus : colors.text)
+            .linkColor(() => colors.text);
+        }, 50);
+      };
+
+      document.addEventListener('theme-changed', updateColors);
       
-      observer = new MutationObserver(() => {
-        colors = getThemeColors();
-        graphInstance
-          .backgroundColor(colors.bg)
-          .nodeColor((node: any) => node.id === localNodeId ? colors.focus : colors.text)
-          .linkColor(() => colors.text);
-      });
-      
-      observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-      observer.observe(document.body, { attributes: true, attributeFilter: ['class', 'data-theme'] });
+      // Cleanup previous listener if needed (handled by astro unmount typically, but we can't easily remove without reference)
+      // Since it's a client script, we keep it simple.
 
     } catch(e) {
       console.error("Graph init failed:", e);
