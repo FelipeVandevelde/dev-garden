@@ -27,6 +27,7 @@
     },
     "devDependencies": {
         "@astrojs/check": "^0.9.4",
+        "@playwright/test": "^1.63.0",
         "@types/d3": "^7.4.3",
         "@types/force-graph": "^1.21.2",
         "@types/node": "^26.2.0",
