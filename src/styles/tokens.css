@@ -418,6 +418,12 @@ a:hover {
   .nav-controls {
     flex-shrink: 0;
   }
+  .cmd-chip {
+    display: none;
+  }
+  .desktop-only {
+    display: none;
+  }
   .nav-links {
     order: 3;
     width: 100%;
