@@ -20,5 +20,65 @@ const url = `${prefix}/projects/${rawSlug}`;
     </div>
   </div>
   <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">{project.description}</p>
-
+  
+  {project.curatorNotes && (project.curatorNotes.architecture || project.curatorNotes.tradeOffs || project.curatorNotes.lessonsLearned) && (
+    <div class="curator-notes">
+      {project.curatorNotes.architecture && (
+        <div class="curator-note note-architecture">
+          <div class="curator-note-title">⬡ Architecture</div>
+          <div>{project.curatorNotes.architecture}</div>
+        </div>
+      )}
+      {project.curatorNotes.tradeOffs && (
+        <div class="curator-note note-trade-offs">
+          <div class="curator-note-title">⇄ Trade-Offs</div>
+          <div>{project.curatorNotes.tradeOffs}</div>
+        </div>
+      )}
+      {project.curatorNotes.lessonsLearned && (
+        <div class="curator-note note-lessons-learned">
+          <div class="curator-note-title">◈ Lessons Learned</div>
+          <div>{project.curatorNotes.lessonsLearned}</div>
+        </div>
+      )}
+    </div>
+  )}
 </BaseCard>
+
+<style>
+  .curator-notes {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .curator-note {
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 0.5rem 0 0.5rem 12px;
+    color: var(--text-secondary);
+  }
+  .curator-note-title {
+    font-weight: bold;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    font-size: 11px;
+    margin-bottom: 0.25rem;
+    color: var(--text-color);
+  }
+  .curator-note.note-architecture {
+    border-left: 3px solid var(--border-focus);
+  }
+  .curator-note.note-trade-offs {
+    border-left: 3px solid var(--border-focus);
+    box-shadow: inset 5px 0 0 -3px var(--bg-color), inset 7px 0 0 -3px var(--border-focus);
+  }
+  .curator-note.note-lessons-learned {
+    border-left: none;
+    background-image: repeating-linear-gradient(to bottom, var(--border-focus) 0px, var(--border-focus) 5px, transparent 5px, transparent 9px);
+    background-size: 3px 100%;
+    background-repeat: no-repeat;
+    background-position: left center;
+    padding-left: 19px;
+  }
+</style>
