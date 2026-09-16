@@ -1,0 +1,22 @@
+generated: 09-10-2026 07:20
+last_updated: 09-10-2026 07:20
+project: bmad-first-project
+project_key: NOKEY
+tracking_system: file-system
+story_location: "_bmad-output/implementation-artifacts/stories"
+
+development_status:
+  sprint-2-ux-polish-and-qa: in-progress
+  1-ux-curator-notes-and-garden-badges: review
+  2-css-token-alignment-hc-themes: backlog
+  3-component-architecture-optimization: backlog
+  4-qa-automation-suite: backlog
+  epic-backlog-fixes: done
+  1-css-framework-theme-foundation: done
+  2-card-ui-interactive-overlays: done
+  3-constellation-graph-transformation: done
+  4-config-ast-unit-tests: done
+  5-e2e-visual-regression-suite: done
+  epic-backlog-fixes-retrospective: done
+
+action_items: []

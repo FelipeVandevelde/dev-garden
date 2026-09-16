@@ -5,12 +5,12 @@ const rawSlug = note.id.split('/').slice(1).join('/').replace(/\.(md|mdx)$/, '')
 const url = `${prefix}/garden/${rawSlug}`;
 const status = note.data.status || 'seedling';
 const safeStatus = status.replace(/[^a-z0-9-]/gi, '-');
-const icon = status === 'evergreen' ? '🌲' : status === 'growing' ? '🌿' : '🌱';
+const icon = status === 'evergreen' ? '●' : status === 'growing' ? '◐' : '◌';
 const translatedStatus = t ? t(`status.${status}`) : status;
 ---
 <BaseCard href={url} class={`base-card garden-card filterable-item status-${safeStatus}`} data-tags={status}>
   <div class="curator-tag" style="font-family: var(--font-mono); font-size: 11px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; color: var(--text-color);">
-    // {prefix}: [{status.toUpperCase()}{translatedStatus ? ` // ${translatedStatus}` : ''}] <span aria-hidden="true">{icon || ''}</span>
+    // {prefix}: <span class={`badge badge-${safeStatus}`}>{status.toUpperCase()}{translatedStatus ? ` // ${translatedStatus}` : ''} <span aria-hidden="true">{icon}</span></span>
   </div>
   <div class="callout-body" style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
     <span class="note-link" style="font-family: var(--font-mono); font-weight: bold; font-size: 1.1rem; color: var(--text-color); text-decoration: underline;">[[{rawSlug}]]</span>
