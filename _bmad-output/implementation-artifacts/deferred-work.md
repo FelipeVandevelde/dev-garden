@@ -54,3 +54,11 @@ odes data structure before assigning it.*
   summary: Add QA Automation tests asserting the DOM structure of Garden Badges and Curator Notes.  
   evidence: Identified by review loop; no E2E tests currently verify that these specific CSS classes and glyphs render correctly.  
  
+- source_spec: _bmad-output/implementation-artifacts/spec-2-css-token-alignment-hc-themes.md
+  summary: Refactor inline styles in GardenCard.astro into CSS classes, using design tokens and logical properties.
+  evidence: Review flagged hardcoded 16px magic numbers, mixing px and rem, and inline styles.
+
+- source_spec: _bmad-output/implementation-artifacts/spec-2-css-token-alignment-hc-themes.md
+  summary: Use a dedicated data attribute (e.g. data-high-contrast=true) instead of prefix matching [data-theme^=HC-].
+  evidence: Review flagged the prefix matching as risky and brittle.
+

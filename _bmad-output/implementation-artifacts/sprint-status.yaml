@@ -8,7 +8,7 @@ story_location: "_bmad-output/implementation-artifacts/stories"
 development_status:
   sprint-2-ux-polish-and-qa: in-progress
   1-ux-curator-notes-and-garden-badges: review
-  2-css-token-alignment-hc-themes: backlog
+  2-css-token-alignment-hc-themes: done
   3-component-architecture-optimization: backlog
   4-qa-automation-suite: backlog
   epic-backlog-fixes: done

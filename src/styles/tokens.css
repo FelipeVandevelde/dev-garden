@@ -53,6 +53,7 @@
 
 [data-theme="HC-Dark"] {
   --bg-color: #000000;
+  --surface-color: #000000;
   --text-color: #FFFFFF;
   --focus-color: #FFFF00;
   --selection-bg: #FFFF00;
@@ -63,6 +64,7 @@
 
 [data-theme="HC-Light"] {
   --bg-color: #FFFFFF;
+  --surface-color: #FFFFFF;
   --text-color: #000000;
   --focus-color: #000000;
   --selection-bg: #000000;
@@ -324,7 +326,7 @@ a:hover {
   display: inline-block;
   vertical-align: middle;
 }
-.badge-sprout {
+.badge-seedling {
   border: var(--border-width) dotted var(--text-color);
 }
 .badge-growing {
@@ -588,3 +590,37 @@ h1.display-title { font-family: var(--font-mono); font-size: 26px; margin: 0 0 1
   --shiki-token-punctuation: var(--text-secondary);
   --shiki-token-link: var(--text-color);
 }
+
+[data-theme^="HC-"] .base-card:hover .proj-title,
+[data-theme^="HC-"] .base-card:focus-visible .proj-title,
+[data-theme^="HC-"] .base-card:hover .proj-meta,
+[data-theme^="HC-"] .base-card:focus-visible .proj-meta,
+[data-theme^="HC-"] .base-card:hover .curator-tag,
+[data-theme^="HC-"] .base-card:focus-visible .curator-tag,
+[data-theme^="HC-"] .base-card:hover .callout-body,
+[data-theme^="HC-"] .base-card:focus-visible .callout-body,
+[data-theme^="HC-"] .base-card:hover .callout-body span,
+[data-theme^="HC-"] .base-card:focus-visible .callout-body span {
+  color: var(--bg-color) !important;
+}
+
+[data-theme^="HC-"] .base-card:hover .card-header,
+[data-theme^="HC-"] .base-card:focus-visible .card-header {
+  border-bottom-color: var(--bg-color) !important;
+}
+
+[data-theme^="HC-"] .base-card:hover .badge,
+[data-theme^="HC-"] .base-card:focus-visible .badge {
+  color: var(--bg-color) !important;
+  border-color: var(--bg-color) !important;
+}
+
+[data-theme^="HC-"] .base-card:hover .badge-evergreen,
+[data-theme^="HC-"] .base-card:focus-visible .badge-evergreen {
+  background: var(--text-color) !important;
+}
+
+[data-theme^="HC-"] .garden-card {
+  border-left-width: 8px !important;
+}
+
