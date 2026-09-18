@@ -326,7 +326,7 @@ a:hover {
   display: inline-block;
   vertical-align: middle;
 }
-.badge-seedling {
+.badge-sprout {
   border: var(--border-width) dotted var(--text-color);
 }
 .badge-growing {
@@ -569,7 +569,7 @@ h1.display-title { font-family: var(--font-mono); font-size: 26px; margin: 0 0 1
 }
 .garden-card.status-evergreen { border-left-style: solid; border-left-color: var(--text-color); }
 .garden-card.status-growing { border-left-style: dashed; border-left-color: var(--border); }
-.garden-card.status-seedling { border-left-style: dotted; border-left-color: var(--text-muted); }
+.garden-card.status-sprout { border-left-style: dotted; border-left-color: var(--text-muted); }
 
 .garden-card:hover,
 .garden-card:focus-visible {

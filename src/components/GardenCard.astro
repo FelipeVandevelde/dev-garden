@@ -3,7 +3,7 @@ import BaseCard from './BaseCard.astro';
 const { note, t, prefix } = Astro.props;
 const rawSlug = note.id.split('/').slice(1).join('/').replace(/\.(md|mdx)$/, '');
 const url = `${prefix}/garden/${rawSlug}`;
-const status = note.data.status || 'seedling';
+const status = note.data.status || 'sprout';
 const safeStatus = status.replace(/[^a-z0-9-]/gi, '-');
 const icon = status === 'evergreen' ? '●' : status === 'growing' ? '◐' : '◌';
 const translatedStatus = t ? t(`status.${status}`) : status;
