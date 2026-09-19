@@ -62,3 +62,51 @@ odes data structure before assigning it.*
   summary: Use a dedicated data attribute (e.g. data-high-contrast=true) instead of prefix matching [data-theme^=HC-].
   evidence: Review flagged the prefix matching as risky and brittle.
 
+- source_spec: _bmad-output/implementation-artifacts/spec-3-component-architecture-optimization.md
+  summary: Semantic HTML is missing in Header.astro; theme toggles use spans instead of native buttons.
+  evidence: Review found theme toggles use <span role="button" tabindex="0"> instead of <button>, requiring manual JS keyboard event handling.
+
+- source_spec: _bmad-output/implementation-artifacts/spec-3-component-architecture-optimization.md
+  summary: window.__fallbackStorage is redundantly initialized in both ThemeInit.astro and Header.astro.
+  evidence: Duplicated global state initialization creates unnecessary redundancy.
+
+- source_spec: _bmad-output/implementation-artifacts/spec-3-component-architecture-optimization.md
+  summary: Returning 
+ull within the links.map loop in Constellation.astro renders empty placeholder nodes.
+  evidence: SVG DOM is cluttered with empty elements; a .filter() should be used before mapping.
+
+- source_spec: _bmad-output/implementation-artifacts/spec-3-component-architecture-optimization.md
+  summary: The hardcoded language check in KnowledgeGraph.astro is tightly coupled.
+  evidence: document.documentElement.lang === 'pt-br' ? '/pt-br' : '' is used instead of a centralized localized routing utility.
+
+- source_spec: _bmad-output/implementation-artifacts/spec-3-component-architecture-optimization.md
+  summary: Inline transition styles applied to SVG links in Constellation.astro.
+  evidence: Missing class-based CSS extraction decreases maintainability.
+
+- source_spec: _bmad-output/implementation-artifacts/spec-3-component-architecture-optimization.md
+  summary: Constellation node click filtering is unverified by tests.
+  evidence: e2e/constellation.spec.ts does not assert the visibility of .filterable-item elements.
+
+- source_spec: _bmad-output/implementation-artifacts/spec-3-component-architecture-optimization.md
+  summary: Theme toggle icon switching is unverified by tests.
+  evidence: No e2e test clicks the theme buttons and asserts that the html data attribute changes and the correct icon becomes visible.
+
+- source_spec: _bmad-output/implementation-artifacts/spec-3-component-architecture-optimization.md
+  summary: Inline script fallback storage initialization is unverified.
+  evidence: No test runs the application in a blocked-storage context to ensure inline scripts don't throw fatal exceptions.
+
+- source_spec: _bmad-output/implementation-artifacts/spec-4-qa-automation-suite.md
+  summary: Subsequent Garden badges lack aria-hidden span test assertions.
+  evidence: e2e test only evaluates the first badge, potentially missing regressions in remaining badges.
+
+- source_spec: _bmad-output/implementation-artifacts/spec-4-qa-automation-suite.md
+  summary: Empty state rendering for Curator Notes is unchecked.
+  evidence: e2e test checks the first element but could silently pass if the list is technically visible but empty.
+
+- source_spec: _bmad-output/implementation-artifacts/spec-4-qa-automation-suite.md
+  summary: Hardcoded setTimeout in pagefind intercept.
+  evidence: Using 500ms timeout in Command Palette e2e test introduces unnecessary test execution delays instead of conditionally resolving.
+
+- source_spec: _bmad-output/implementation-artifacts/spec-4-qa-automation-suite.md
+  summary: E2E test files use brittle DOM/CSS selectors instead of accessibility locators.
+  evidence: Tests heavily rely on CSS classes (e.g., .badge) and permissive URL regex, which makes them less resilient to UI refactoring.

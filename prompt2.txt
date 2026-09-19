@@ -1,0 +1,126 @@
+﻿Read D:\PROJETOS_FELIPE\dev-garden\_bmad\render\bmad-build\dev-garden-0a9bff4f6f59\a9c932843687c16ca0ea/review-prompts/edge-case-hunter.md completely and follow it as your review instructions.
+
+Review content:
+
+diff --git a/e2e/badges-and-curator.spec.ts b/e2e/badges-and-curator.spec.ts
+new file mode 100644
+--- /dev/null
++++ b/e2e/badges-and-curator.spec.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('Badges and Curator Notes', () => {
+  test('Garden cards have badges with aria-hidden icons', async ({ page }) => {
+    await page.goto('/garden');
+    
+    const badges = page.locator('.badge');
+    const badgeCount = await badges.count();
+    
+    expect(badgeCount).toBeGreaterThan(0);
+
+    // Verify at least the first badge has the aria-hidden span
+    const ariaHiddenSpan = badges.first().locator('span[aria-hidden="true"]');
+    await expect(ariaHiddenSpan).toBeAttached();
+  });
+
+  test('Curator notes render on project cards', async ({ page }) => {
+    await page.goto('/projects');
+    
+    const curatorNotes = page.locator('.curator-notes');
+    const notesCount = await curatorNotes.count();
+    
+    expect(notesCount).toBeGreaterThan(0);
+    
+    // Check one of them has at least one note item inside it
+    const firstNoteGroup = curatorNotes.first();
+    await expect(firstNoteGroup.locator('.curator-note').first()).toBeVisible();
+  });
+});
+
+diff --git a/e2e/command-palette.spec.ts b/e2e/command-palette.spec.ts
+new file mode 100644
+--- /dev/null
++++ b/e2e/command-palette.spec.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('Command Palette', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+  });
+
+  test('loads and opens via keyboard shortcut', async ({ page }) => {
+    const dialog = page.locator('#command-palette');
+    await expect(dialog).toBeHidden();
+
+    const isMac = process.platform === 'darwin';
+    const modifier = isMac ? 'Meta' : 'Control';
+    await page.keyboard.press($modifier+k);
+
+    await expect(dialog).toBeVisible();
+  });
+
+  test('can be dismissed by clicking the backdrop', async ({ page }) => {
+    const isMac = process.platform === 'darwin';
+    const modifier = isMac ? 'Meta' : 'Control';
+    await page.keyboard.press($modifier+k);
+    const dialog = page.locator('#command-palette');
+    await expect(dialog).toBeVisible();
+
+    // Click outside the dialog to dismiss it.
+    await page.mouse.click(5, 5);
+    await expect(dialog).toBeHidden();
+  });
+
+  test('shows async loading state while searching', async ({ page }) => {
+    // Intercept pagefind to delay its load, ensuring the loading state is visible
+    await page.route('**/pagefind.js', async (route) => {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await route.continue();
+    });
+
+    const isMac = process.platform === 'darwin';
+    const modifier = isMac ? 'Meta' : 'Control';
+    await page.keyboard.press($modifier+k);
+    
+    const input = page.locator('#palette-input');
+    await input.fill('something');
+
+    // It should show a searching text
+    const searchingItem = page.locator('.palette-item[aria-disabled="true"]');
+    await expect(searchingItem).toBeVisible();
+  });
+});
+
+diff --git a/e2e/github-and-localization.spec.ts b/e2e/github-and-localization.spec.ts
+new file mode 100644
+--- /dev/null
++++ b/e2e/github-and-localization.spec.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('GitHub Stream and Localization', () => {
+  test('GitHub activity stream renders', async ({ page }) => {
+    await page.goto('/');
+    
+    // The component might take a moment to fetch or load mock data
+    const activityItems = page.locator('.activity-item');
+    await expect(activityItems.first()).toBeVisible({ timeout: 10000 });
+  });
+
+  test('Portuguese localization toggle navigates correctly', async ({ page }) => {
+    await page.goto('/');
+    
+    // Find the PT link in the header
+    const ptLink = page.locator('header.terminal-nav a', { hasText: /^PT$/ });
+    await expect(ptLink).toBeVisible();
+    await ptLink.click();
+    
+    // The URL should update to include /pt-br
+    await expect(page).toHaveURL(/.*\/pt-br\/?/);
+    
+    // Verify the nav links are translated, e.g. "PROJETOS"
+    const navLinks = page.locator('nav.nav-links a');
+    await expect(navLinks.filter({ hasText: 'PROJETOS' })).toBeVisible();
+  });
+});
+
+
+Do not invoke any skill. If the instruction file is unreadable, report that exact failure and stop. Return only the review result.

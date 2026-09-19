@@ -9,8 +9,8 @@ development_status:
   sprint-2-ux-polish-and-qa: in-progress
   1-ux-curator-notes-and-garden-badges: review
   2-css-token-alignment-hc-themes: done
-  3-component-architecture-optimization: backlog
-  4-qa-automation-suite: backlog
+  3-component-architecture-optimization: review
+  4-qa-automation-suite: review
   epic-backlog-fixes: done
   1-css-framework-theme-foundation: done
   2-card-ui-interactive-overlays: done
