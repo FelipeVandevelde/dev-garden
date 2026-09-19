@@ -34,14 +34,26 @@ const ptUrl = getRouteWithLang(Astro.url, 'pt-br');
       <a href={enUrl} style={lang === 'en' ? 'font-weight: bold; color: var(--text-color);' : 'color: inherit; text-decoration: none;'}>EN</a>
     </span>
     <div class="theme-toggles" style="display: flex; gap: 8px; font-size: 14px;">
-      <span id="btn-theme-toggle" role="button" tabindex="0" aria-label={t('cmd.toggleTheme')} style="cursor: pointer; filter: grayscale(100%);" title={t('cmd.toggleTheme')}>☀️</span>
-      <span id="btn-hc-toggle" role="button" tabindex="0" aria-label={t('cmd.toggleHighContrast')} style="cursor: pointer; filter: grayscale(100%);" title={t('cmd.toggleHighContrast')}>👁️</span>
+      <span id="btn-theme-toggle" role="button" tabindex="0" aria-label={t('cmd.toggleTheme')} style="cursor: pointer; filter: grayscale(100%);" title={t('cmd.toggleTheme')}>
+        <span class="icon-dark">☀️</span>
+        <span class="icon-light">🌙</span>
+      </span>
+      <span id="btn-hc-toggle" role="button" tabindex="0" aria-label={t('cmd.toggleHighContrast')} style="cursor: pointer; filter: grayscale(100%);" title={t('cmd.toggleHighContrast')}>
+        <span class="icon-hc-off">👁️</span>
+        <span class="icon-hc-on">👁️‍🗨️</span>
+      </span>
     </div>
     <noscript>
       <style>
         .theme-toggles { display: none !important; }
       </style>
     </noscript>
+    <style is:inline>
+      html[data-theme*="Light"] .icon-dark { display: none !important; }
+      html:not([data-theme*="Light"]) .icon-light { display: none !important; }
+      html[data-theme*="HC"] .icon-hc-off { display: none !important; }
+      html:not([data-theme*="HC"]) .icon-hc-on { display: none !important; }
+    </style>
   </div>
 </header>
 
@@ -53,20 +65,9 @@ const ptUrl = getRouteWithLang(Astro.url, 'pt-br');
     (window as any).__fallbackStorage = (window as any).__fallbackStorage || {};
   }
 
-  function updateIcons() {
-    const current = document.documentElement.getAttribute('data-theme') || 'Dark';
-    if (btnTheme) {
-      btnTheme.textContent = current.includes('Light') ? '🌙' : '☀️';
-    }
-    if (btnHc) {
-      btnHc.textContent = current.includes('HC') ? '👁️‍🗨️' : '👁️';
-    }
-  }
-
   function setTheme(next: string) {
     document.documentElement.setAttribute('data-theme', next);
     try { window.localStorage.setItem('theme', next); } catch(err) { (window as any).__fallbackStorage['theme'] = next; }
-    updateIcons();
   }
 
   function handleKey(e: KeyboardEvent, action: () => void) {
@@ -102,8 +103,4 @@ const ptUrl = getRouteWithLang(Astro.url, 'pt-br');
     btnHc.addEventListener('click', toggleHc);
     btnHc.addEventListener('keydown', (e) => handleKey(e, toggleHc));
   }
-
-  document.addEventListener('theme-changed', () => updateIcons());
-
-  updateIcons();
 </script>

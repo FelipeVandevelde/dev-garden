@@ -113,6 +113,7 @@ const { localNodeId, height } = Astro.props;
         .linkColor(() => colors.text)
         .linkWidth(1)
         .onNodeClick((node: any) => {
+          if (!node?.id || typeof node.id !== 'string' || !node.id.includes('/')) return;
           const langPrefix = document.documentElement.lang === 'pt-br' ? '/pt-br' : '';
           window.location.href = `${langPrefix}/garden/${node.id.split("/").slice(1).join("/")}`;
         })
