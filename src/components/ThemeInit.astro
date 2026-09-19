@@ -4,6 +4,7 @@ import { siteConfig } from '../site.config';
 ---
 <script is:inline define:vars={{ defaultTheme: siteConfig.theme.default }}>
   (function() {
+    window.__fallbackStorage = window.__fallbackStorage || {};
     var validThemes = ['Dark', 'Light', 'HC-Dark', 'HC-Light'];
     var theme = defaultTheme;
     try {
