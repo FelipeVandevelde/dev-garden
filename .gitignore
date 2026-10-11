@@ -17,15 +17,20 @@ Thumbs.db
 # Tooling & Agent Workspaces
 .claude/
 .agents/
+.github/agents/
 _bmad/
 _bmad-output/
 scratch/
 .mcp.json
 AGENTS.md
+bmad_*.json
+resolved_config.json
+
+# Test Results & Reports
+playwright-report/
+test-results/
 
 # Temporary & Diff Files
+prompt*.txt
 diff*.txt
-project-*.txt
-.mcp.json
-AGENTS.md
-  
+project-*.txt
