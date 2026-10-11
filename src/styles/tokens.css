@@ -1,11 +1,20 @@
+@custom-media --breakpoint-sm (max-width: 640px);
+@custom-media --breakpoint-md (max-width: 768px);
+@custom-media --breakpoint-lg (max-width: 1024px);
+
 :root {
+  --z-base: 1;
+  --z-popover: 100;
+  --z-modal: 200;
   --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
   --status-border-sprout: #71717A;
   --status-border-growing: #3F3F46;
   --status-border-evergreen: #18181B;
   --bg-color: #F4F4F6;
   --text-color: #000000;
-  --focus-color: #0000FF;
+  --focus-color: #000000;
+  --selection-bg: #CCCCCC;
+  --selection-text: #000000;
   --border-width: 1px;
   
   --surface-panel-light: #E5E5EA;
@@ -20,6 +29,8 @@
   --surface-color: #121212;
   --text-color: #F2F2F7;
   --focus-color: #FFFFFF;
+  --selection-bg: #333333;
+  --selection-text: #F2F2F7;
   --border-width: 1px;
   
   --surface-panel-dark: #1C1C1E;
@@ -33,23 +44,31 @@
   --bg-color: #FFFFFF;
   --surface-color: #F4F4F6;
   --text-color: #1C1C1E;
-  --focus-color: #0000FF;
+  --focus-color: #000000;
+  --selection-bg: #CCCCCC;
+  --selection-text: #1C1C1E;
   --border-width: 1px;
   color-scheme: light;
 }
 
 [data-theme="HC-Dark"] {
   --bg-color: #000000;
+  --surface-color: #000000;
   --text-color: #FFFFFF;
   --focus-color: #FFFF00;
+  --selection-bg: #FFFF00;
+  --selection-text: #000000;
   --border-width: 2px;
   color-scheme: dark;
 }
 
 [data-theme="HC-Light"] {
   --bg-color: #FFFFFF;
+  --surface-color: #FFFFFF;
   --text-color: #000000;
   --focus-color: #000000;
+  --selection-bg: #000000;
+  --selection-text: #FFFFFF;
   --border-width: 2px;
   color-scheme: light;
 }
@@ -60,6 +79,16 @@ body {
   background-color: var(--bg-color);
   color: var(--text-color);
   font-family: var(--font-mono), 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+::selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-text);
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus-color);
+  outline-offset: 3px;
 }
 .shell-container {
   width: 100%;
@@ -106,7 +135,9 @@ a:hover {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
     scroll-behavior: auto !important;
   }
 }
@@ -143,7 +174,8 @@ a:hover {
 /* Constellation Overrides */
 @media (prefers-reduced-motion: reduce) {
   .constellation-node, .constellation-link {
-    transition: none !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
   }
 }
 .constellation-node:focus {
@@ -211,13 +243,29 @@ a:hover {
 .base-card:hover {
   border-color: var(--focus-color);
 }
-[data-theme^="HC-"] .base-card:hover {
+[data-theme^="HC-"] .base-card:hover,
+[data-theme^="HC-"] .base-card:focus-visible {
   background-color: var(--text-color);
   color: var(--bg-color);
   border-color: var(--bg-color);
 }
-[data-theme^="HC-"] .base-card:hover .note-link {
+[data-theme^="HC-"] .base-card:hover .note-link,
+[data-theme^="HC-"] .base-card:focus-visible .note-link {
   color: var(--bg-color);
+}
+
+[data-theme="HC-Dark"] .base-card:hover,
+[data-theme="HC-Dark"] .base-card:focus-visible {
+  --text-secondary: #333333;
+  --text-muted: #555555;
+  --focus-color: #0000FF;
+}
+
+[data-theme="HC-Light"] .base-card:hover,
+[data-theme="HC-Light"] .base-card:focus-visible {
+  --text-secondary: #CCCCCC;
+  --text-muted: #AAAAAA;
+  --focus-color: #FFFF00;
 }
 
 .project-card {
@@ -332,7 +380,7 @@ a:hover {
   color: var(--text-color);
   border: var(--border-width) solid var(--text-color);
   padding: 1rem;
-  z-index: 1000;
+  z-index: var(--z-popover);
   display: none;
   opacity: 0;
   transition: opacity 0.2s ease;
@@ -355,12 +403,35 @@ a:hover {
   display: none; /* Desktop hidden */
 }
 
-@media (max-width: 768px) {
+@media (--breakpoint-md) {
   .graph-container {
     display: none; /* Hide complex graph on mobile */
   }
   .graph-fallback {
     display: block; /* Show accessible list on mobile */
+  }
+  .terminal-nav {
+    flex-wrap: wrap;
+    padding: 12px 16px;
+  }
+  .nav-brand {
+    flex: 1;
+  }
+  .nav-controls {
+    flex-shrink: 0;
+  }
+  .cmd-chip {
+    display: none;
+  }
+  .desktop-only {
+    display: none;
+  }
+  .nav-links {
+    order: 3;
+    width: 100%;
+    margin-top: 12px;
+    flex-wrap: wrap;
+    gap: 12px;
   }
 }\n.wikilink { text-decoration: underline; font-family: monospace; }\n\n[data-theme^="HC-"] .shell-container, [data-theme^="HC-"] .global-header, [data-theme^="HC-"] .global-footer { border-width: 2px !important; }\n
 
@@ -461,7 +532,7 @@ h1.display-title { font-family: var(--font-mono); font-size: 26px; margin: 0 0 1
   gap: 8px;
   transition: all 0.2s;
   color: var(--text-color);
-  z-index: 10;
+  z-index: var(--z-base);
 }
 .node:hover {
   border-color: var(--text-color);
@@ -481,6 +552,30 @@ h1.display-title { font-family: var(--font-mono); font-size: 26px; margin: 0 0 1
 .proj-title { font-family: var(--font-mono); font-size: 20px; color: var(--text-color); margin: 0 0 6px 0; }
 .proj-meta { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
 
+/* Garden Cards */
+.garden-card {
+  display: block;
+  text-decoration: none;
+  background: var(--surface-color);
+  border: var(--border-width) solid var(--border);
+  border-left-width: 3px;
+  border-left-style: solid;
+  border-left-color: transparent;
+  border-radius: 2px;
+  padding: 18px;
+  margin-bottom: 16px;
+  color: var(--text-color);
+  transition: background-color 0.2s, border-color 0.2s;
+}
+.garden-card.status-evergreen { border-left-style: solid; border-left-color: var(--text-color); }
+.garden-card.status-growing { border-left-style: dashed; border-left-color: var(--border); }
+.garden-card.status-sprout { border-left-style: dotted; border-left-color: var(--text-muted); }
+
+.garden-card:hover,
+.garden-card:focus-visible {
+  border-left-color: var(--focus-color);
+  background-color: var(--surface-panel);
+}
 /* Shiki CSS Variables */
 :root {
   --shiki-color-text: var(--text-color);
@@ -495,3 +590,37 @@ h1.display-title { font-family: var(--font-mono); font-size: 26px; margin: 0 0 1
   --shiki-token-punctuation: var(--text-secondary);
   --shiki-token-link: var(--text-color);
 }
+
+[data-theme^="HC-"] .base-card:hover .proj-title,
+[data-theme^="HC-"] .base-card:focus-visible .proj-title,
+[data-theme^="HC-"] .base-card:hover .proj-meta,
+[data-theme^="HC-"] .base-card:focus-visible .proj-meta,
+[data-theme^="HC-"] .base-card:hover .curator-tag,
+[data-theme^="HC-"] .base-card:focus-visible .curator-tag,
+[data-theme^="HC-"] .base-card:hover .callout-body,
+[data-theme^="HC-"] .base-card:focus-visible .callout-body,
+[data-theme^="HC-"] .base-card:hover .callout-body span,
+[data-theme^="HC-"] .base-card:focus-visible .callout-body span {
+  color: var(--bg-color) !important;
+}
+
+[data-theme^="HC-"] .base-card:hover .card-header,
+[data-theme^="HC-"] .base-card:focus-visible .card-header {
+  border-bottom-color: var(--bg-color) !important;
+}
+
+[data-theme^="HC-"] .base-card:hover .badge,
+[data-theme^="HC-"] .base-card:focus-visible .badge {
+  color: var(--bg-color) !important;
+  border-color: var(--bg-color) !important;
+}
+
+[data-theme^="HC-"] .base-card:hover .badge-evergreen,
+[data-theme^="HC-"] .base-card:focus-visible .badge-evergreen {
+  background: var(--text-color) !important;
+}
+
+[data-theme^="HC-"] .garden-card {
+  border-left-width: 8px !important;
+}
+

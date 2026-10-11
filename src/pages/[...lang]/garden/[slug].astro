@@ -57,7 +57,7 @@ const t = useTranslations(lang as any);
     <div class="hero-grid" style="grid-template-columns: 2fr 1fr; gap: 32px;">
       <div class="article-card" style="background: var(--surface-color); border: var(--border-width) solid var(--border); padding: 32px; border-radius: 2px;">
         <div class="badge-row" style="display: flex; gap: 8px; margin-bottom: 24px;">
-          <span class={`badge badge-${entry.data.status}`} style="font-family: var(--font-mono); font-size: 10px; font-weight: bold; padding: 2px 6px;">[{entry.data.status.toUpperCase()}]</span>
+          <span class={`badge badge-${entry.data.status}`} style="font-family: var(--font-mono); font-size: 10px; font-weight: bold; padding: 2px 6px;" aria-hidden="true">[{entry.data.status.toUpperCase()}]</span><span class="sr-only"> [{entry.data.status.toUpperCase()}]</span>
         </div>
         <h1 class="note-title" style="font-family: var(--font-mono); font-size: 22px; margin: 0 0 12px 0;">[[{entry.id}]]</h1>
         <div class="prose" style="font-size: 14px; line-height: 1.7; color: var(--text-secondary);">
