@@ -11,7 +11,7 @@ const { tags, emptyMessage = '// No data found' } = Astro.props;
   <div class="filter-tags" style="display: inline-flex; gap: 0.5rem; flex-wrap: wrap;">
     <button class="filter-btn active" data-tag="all" aria-pressed="true">All</button>
     {tags.map((t: string) => (
-      <button class="filter-btn" data-tag={t} aria-pressed="false">#{t}</button>
+      <button class="filter-btn" data-tag={t} aria-pressed="false">{t.endsWith('/') ? t : `#${t}`}</button>
     ))}
   </div>
 </div>
@@ -19,39 +19,60 @@ const { tags, emptyMessage = '// No data found' } = Astro.props;
 
 <script is:inline>
   (function() {
-    const filterContainer = document.querySelector('.filter-tags');
-    if (!filterContainer) return;
-    
-    const container = filterContainer.closest('main') || document;
-    const btns = filterContainer.querySelectorAll('.filter-btn');
-    const items = container.querySelectorAll('.filterable-item');
-    const announcer = container.querySelector('#filter-announcer');
-    
-    btns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const tag = e.currentTarget.getAttribute('data-tag');
-        
+    function initFilterBar() {
+      const filterContainer = document.querySelector('.filter-tags');
+      if (!filterContainer) return;
+      
+      const container = filterContainer.closest('main') || document;
+      const btns = filterContainer.querySelectorAll('.filter-btn');
+      const announcer = container.querySelector('#filter-announcer');
+
+      function applyFilter(tag, updateHistory = false) {
+        const items = container.querySelectorAll('.filterable-item');
+        const hasFolderStructure = Array.from(items).some(
+          item => item.hasAttribute('data-folder') || item.hasAttribute('data-folder-item')
+        );
+        const isFolderTag = typeof tag === 'string' && tag.endsWith('/');
+
         btns.forEach(b => {
-          b.setAttribute('aria-pressed', 'false');
-          b.classList.remove('active');
+          const isMatch = b.getAttribute('data-tag') === tag;
+          b.setAttribute('aria-pressed', isMatch ? 'true' : 'false');
+          b.classList.toggle('active', isMatch);
         });
-        e.currentTarget.setAttribute('aria-pressed', 'true');
-        e.currentTarget.classList.add('active');
-        
+
+        if (updateHistory && hasFolderStructure && typeof window !== 'undefined') {
+          const url = new URL(window.location.href);
+          if (isFolderTag) {
+            url.searchParams.set('folder', tag);
+          } else {
+            url.searchParams.delete('folder');
+          }
+          window.history.pushState({}, '', url.toString());
+        }
+
         let visibleCount = 0;
         items.forEach(item => {
-          if (tag === 'all') {
-            item.style.display = 'block';
-            visibleCount++;
+          const isFolderCard = item.hasAttribute('data-folder-item');
+          const itemFolder = item.getAttribute('data-folder') || '';
+          const itemTags = (item.getAttribute('data-tags') || '').split('|').map(t => t.trim());
+
+          let shouldShow = false;
+
+          if (!hasFolderStructure) {
+            shouldShow = tag === 'all' || itemTags.includes(tag);
+          } else if (tag === 'all') {
+            // Root garden view: show folder cards and root-level notes (not inside a subfolder)
+            shouldShow = isFolderCard || itemFolder === '';
+          } else if (isFolderTag) {
+            // Folder filter view: show only text pages located inside that folder
+            shouldShow = !isFolderCard && itemFolder === tag;
           } else {
-            const itemTags = item.getAttribute('data-tags') || '';
-            if (itemTags.split('|').map(t => t.trim()).includes(tag)) {
-              item.style.display = 'block';
-              visibleCount++;
-            } else {
-              item.style.display = 'none';
-            }
+            // Status filter view: show notes matching status
+            shouldShow = !isFolderCard && itemTags.includes(tag);
           }
+
+          item.style.display = shouldShow ? 'block' : 'none';
+          if (shouldShow) visibleCount++;
         });
 
         const emptyState = container.querySelector('.filter-empty-state');
@@ -62,7 +83,50 @@ const { tags, emptyMessage = '// No data found' } = Astro.props;
         if (announcer) {
           announcer.textContent = `Showing ${visibleCount} items filtered by ${tag === 'all' ? 'all' : tag}`;
         }
+      }
+
+      btns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const tag = e.currentTarget.getAttribute('data-tag') || 'all';
+          applyFilter(tag, true);
+        });
       });
-    });
+
+      container.addEventListener('click', (e) => {
+        const target = e.target instanceof Element ? e.target : null;
+        if (!target) return;
+        const folderCard = target.closest('[data-folder-item]');
+        if (folderCard) {
+          const folderName = folderCard.getAttribute('data-folder-item');
+          if (folderName) {
+            e.preventDefault();
+            applyFilter(folderName, true);
+          }
+        }
+      });
+
+      function syncFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        const folderParam = params.get('folder');
+        if (folderParam) {
+          const normalizedFolder = folderParam.endsWith('/') ? folderParam : folderParam + '/';
+          applyFilter(normalizedFolder, false);
+        } else {
+          const hasFolderItems = container.querySelector('[data-folder], [data-folder-item]');
+          if (hasFolderItems) {
+            applyFilter('all', false);
+          }
+        }
+      }
+
+      window.addEventListener('popstate', syncFromUrl);
+      syncFromUrl();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initFilterBar);
+    } else {
+      initFilterBar();
+    }
   })();
 </script>

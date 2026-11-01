@@ -22,4 +22,14 @@ test.describe('Badges and Curator Notes', () => {
     const firstNoteGroup = curatorNotes.first();
     await expect(firstNoteGroup.locator('.curator-note').first()).toBeVisible();
   });
+
+  test('Project detail view renders inside a full-width card without side graph', async ({ page }) => {
+    await page.goto('/projects/bmad-showcase');
+
+    const card = page.locator('.container article.project-case-study.article-card');
+    await expect(card).toBeVisible();
+    await expect(card.locator('.project-header h1')).toBeVisible();
+    await expect(card.locator('.curator-notes')).toBeVisible();
+    await expect(page.locator('#graph-container')).toHaveCount(0);
+  });
 });

@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import { getCollection, render } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 
 import { siteConfig } from '../../../site.config';
 
@@ -9,36 +9,56 @@ import BacklinksList from '../../../components/BacklinksList.astro';
 
 import { generateGraphData } from '../../../utils/graph';
 
+function buildBacklinksForEntry(entryId: string, graphData: { nodes?: any[]; links?: any[] }) {
+  const nodeMap = new Map((graphData?.nodes || []).map((n: any) => [n.id, n]));
+  const rawBacklinks = (graphData?.links || [])
+    .filter((l: any) => l.target === entryId)
+    .map((l: any) => nodeMap.get(l.source))
+    .filter(Boolean);
+
+  return rawBacklinks.map((bl: any) => {
+    const blParts = bl.id.split('/');
+    const blLang = blParts[0];
+    const blRelativeSlug = blParts.slice(1).join('/').replace(/\.(md|mdx)$/i, '');
+    const slugUrl = (blLang === siteConfig.locale.default ? '' : `/${blLang}`) + `/garden/${blRelativeSlug}`;
+    return { title: bl.title, url: slugUrl };
+  });
+}
+
 export async function getStaticPaths() {
   const gardenEntries = await getCollection('garden', ({ data, id }) => {
-    return data.draft !== true && !id.includes('/_');
+    const parts = id.split('/');
+    if (!siteConfig.locale.supported.includes(parts[0]) || parts.length < 2) {
+      return false;
+    }
+    return data.draft !== true && !id.includes('/_') && !parts[parts.length - 1]?.startsWith('_');
   });
   const graphData = await generateGraphData();
+  const nodeMap = new Map((graphData?.nodes || []).map((n: any) => [n.id, n]));
 
   return gardenEntries.map(entry => {
     const parts = entry.id.split('/');
-    const isLang = siteConfig.locale.supported.includes(parts[0]);
-    const langDir = isLang ? parts[0] : siteConfig.locale.default;
-    const slugParts = isLang ? parts.slice(1) : parts;
-    
-    const rawBacklinks = graphData.links
+    const langDir = parts[0];
+    const slugParts = parts.slice(1);
+    const cleanSlug = slugParts.join('/').replace(/\.(md|mdx)$/i, '');
+
+    const rawBacklinks = (graphData?.links || [])
       .filter((l: any) => l.target === entry.id)
-      .map((l: any) => graphData.nodes.find((n: any) => n.id === l.source))
+      .map((l: any) => nodeMap.get(l.source))
       .filter(Boolean);
 
     const backlinks = rawBacklinks.map((bl: any) => {
       const blParts = bl.id.split('/');
-      const blIsLang = siteConfig.locale.supported.includes(blParts[0]);
-      const slugUrl = blIsLang 
-        ? (blParts[0] === siteConfig.locale.default ? '' : `/${blParts[0]}`) + `/garden/${blParts.slice(1).join('/')}`
-        : `/garden/${bl.id}`;
+      const blLang = blParts[0];
+      const blRelativeSlug = blParts.slice(1).join('/').replace(/\.(md|mdx)$/i, '');
+      const slugUrl = (blLang === siteConfig.locale.default ? '' : `/${blLang}`) + `/garden/${blRelativeSlug}`;
       return { title: bl.title, url: slugUrl };
     });
 
     return {
       params: { 
         lang: langDir === siteConfig.locale.default ? undefined : langDir, 
-        slug: slugParts.join('/').replace(/\.(md|mdx)$/, '') 
+        slug: cleanSlug 
       },
       props: { entry, backlinks }
     };
@@ -47,7 +67,13 @@ export async function getStaticPaths() {
 
 import { getLangFromUrl, useTranslations } from '../../../i18n/utils';
 
-const { entry, backlinks } = Astro.props;
+const { entry: propEntry, backlinks: propBacklinks } = Astro.props;
+const entry = (import.meta.env.DEV && propEntry?.id)
+  ? ((await getEntry('garden', propEntry.id)) ?? propEntry)
+  : propEntry;
+const backlinks = (import.meta.env.DEV && entry?.id)
+  ? buildBacklinksForEntry(entry.id, await generateGraphData())
+  : propBacklinks;
 const { Content } = await render(entry);
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang as any);
