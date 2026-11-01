@@ -27,76 +27,112 @@ const { project } = Astro.props;
 const t = useTranslations((Astro.params.lang as 'en' | 'pt-br') || 'en');
 ---
 <BaseLayout>
-  <article class="project-case-study">
-    <header class="project-header">
-      <h1>{project.title}</h1>
-      <p class="description">{project.description}</p>
-      <div class="links">
-        {project.liveUrl && <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">Live URL ↗</a>}
-        {project.githubUrl && <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">GitHub ↗</a>}
-      </div>
-    </header>
-    
-    <section class="curator-notes">
-      <div class="section-header">{t("curator.tag")} (MONOCHROME)</div>
-      
-      {project.curatorNotes?.context && (
-        <div class="curator-box curator-context">
-          <div class="curator-tag">{t("curator.context")}</div>
-          <div class="callout-body" set:html={marked.parse(project.curatorNotes.context)}></div>
+  <div class="container">
+    <article class="project-case-study article-card">
+      <header class="project-header">
+        {project.tags && project.tags.length > 0 && (
+          <div class="badge-row">
+            {project.tags.map((tag: string) => (
+              <span class="badge badge-evergreen" aria-hidden="true">[{tag.toUpperCase()}]</span>
+            ))}
+          </div>
+        )}
+        <h1 class="note-title">{project.title}</h1>
+        <p class="description">{project.description}</p>
+        <div class="links">
+          {project.liveUrl && <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">Live URL ↗</a>}
+          {project.githubUrl && <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">GitHub ↗</a>}
         </div>
-      )}
+      </header>
       
-      {project.curatorNotes?.architecture && (
-        <div class="curator-box curator-architecture">
-          <div class="curator-tag">{t("curator.architecture")}</div>
-          <div class="callout-body" set:html={marked.parse(project.curatorNotes.architecture)}></div>
-        </div>
-      )}
-      
-      {project.curatorNotes?.tradeOffs && (
-        <div class="curator-box curator-tradeoffs">
-          <div class="curator-tag">{t("curator.tradeOffs")}</div>
-          <div class="callout-body" set:html={marked.parse(project.curatorNotes.tradeOffs)}></div>
-        </div>
-      )}
-      
-      {project.curatorNotes?.lessonsLearned && (
-        <div class="curator-box curator-lessons">
-          <div class="curator-tag">{t("curator.lessons")}</div>
-          <div class="callout-body" set:html={marked.parse(project.curatorNotes.lessonsLearned)}></div>
-        </div>
-      )}
-    </section>
-  </article>
+      <section class="curator-notes">
+        <div class="section-header">{t("curator.tag")} (MONOCHROME)</div>
+        
+        {project.curatorNotes?.context && (
+          <div class="curator-box curator-context">
+            <div class="curator-tag">{t("curator.context")}</div>
+            <div class="callout-body" set:html={marked.parse(project.curatorNotes.context)}></div>
+          </div>
+        )}
+        
+        {project.curatorNotes?.architecture && (
+          <div class="curator-box curator-architecture">
+            <div class="curator-tag">{t("curator.architecture")}</div>
+            <div class="callout-body" set:html={marked.parse(project.curatorNotes.architecture)}></div>
+          </div>
+        )}
+        
+        {project.curatorNotes?.tradeOffs && (
+          <div class="curator-box curator-tradeoffs">
+            <div class="curator-tag">{t("curator.tradeOffs")}</div>
+            <div class="callout-body" set:html={marked.parse(project.curatorNotes.tradeOffs)}></div>
+          </div>
+        )}
+        
+        {project.curatorNotes?.lessonsLearned && (
+          <div class="curator-box curator-lessons">
+            <div class="curator-tag">{t("curator.lessons")}</div>
+            <div class="callout-body" set:html={marked.parse(project.curatorNotes.lessonsLearned)}></div>
+          </div>
+        )}
+      </section>
+    </article>
+  </div>
 </BaseLayout>
 
 <style>
-  .project-header {
-    border-bottom: 4px solid var(--text-color);
-    padding-bottom: 2rem;
-    margin-bottom: 2rem;
+  .article-card {
+    background: var(--surface-color);
+    border: var(--border-width) solid var(--border);
+    padding: 32px;
+    border-radius: 2px;
   }
-  .project-header h1 {
-    font-size: 3rem;
+  .badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .badge-row .badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 6px;
+  }
+  .project-header {
+    border-bottom: var(--border-width) dashed var(--border);
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .project-header h1.note-title {
+    font-family: var(--font-mono);
+    font-size: 22px;
     text-transform: uppercase;
-    margin-bottom: 0;
+    margin: 0 0 12px 0;
+    color: var(--text-color);
   }
   .project-header .description {
-    font-size: 1.25rem;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    margin: 0;
   }
   .project-header .links {
     display: flex;
     gap: 1rem;
     margin-top: 1rem;
     font-family: var(--font-mono, monospace);
+    font-size: 12px;
+  }
+  .project-header .links a {
+    text-decoration: underline;
   }
   .section-header {
-    margin-top: 2rem;
+    margin-top: 1.5rem;
     margin-bottom: 1rem;
   }
   .curator-box {
-    background: var(--surface-color);
+    background: var(--surface-panel);
     border: var(--border-width) solid var(--border);
     border-radius: 2px;
     padding: 18px;

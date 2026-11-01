@@ -1,7 +1,11 @@
+import { existsSync, promises as fs } from 'node:fs';
+import path from 'node:path';
 import { z, defineCollection } from 'astro:content';
 import { loadEnv } from 'vite';
 import matter from 'gray-matter';
 import { siteConfig } from '../site.config';
+import { clearGardenRegistry, registerGardenNote, setCurrentGardenLang } from '../plugins/remark-wikilinks.js';
+import type { LoaderContext } from 'astro/loaders';
 
 const profileCollection = defineCollection({
   type: 'data',
@@ -51,7 +55,6 @@ function githubReposLoader() {
         'User-Agent': 'Astro-Loader'
       };
 
-      
       for (const repoSlug of siteConfig.githubRepositories) {
         try {
           const res = await fetch(`https://api.github.com/repos/${repoSlug}`, { headers });
@@ -96,93 +99,308 @@ const repositoriesCollection = defineCollection({
   })
 });
 
-import type { LoaderContext } from 'astro/loaders';
+interface RawVaultEntry {
+  id: string;
+  lang: string;
+  data: Record<string, any>;
+  content: string;
+  rawMarkdown: string;
+}
+
+let remotePollTimer: ReturnType<typeof setInterval> | null = null;
 
 function githubGardenLoader({ repo, basePath }: { repo: string, basePath: string }) {
   return {
     name: 'github-garden-loader',
     load: async (context: LoaderContext) => {
-      const { store, logger, generateDigest, renderMarkdown } = context;
+      const { store, logger, generateDigest, renderMarkdown, parseData, watcher } = context;
       
       const env = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), '');
       const pat = env.GH_PAT;
-      
-      if (!pat) {
-        throw new Error("GH_PAT is required for githubGardenLoader but was not found in the environment.");
+      const configuredLocalVault = env.LOCAL_VAULT_PATH
+        ? path.resolve(process.cwd(), env.LOCAL_VAULT_PATH)
+        : path.resolve(process.cwd(), '../vault-obsidian');
+      const useLocalVault = env.USE_REMOTE_VAULT !== 'true' && existsSync(configuredLocalVault);
+
+      function parseVaultEntry(relPath: string, rootSegment: string, rawMarkdown: string): RawVaultEntry | null {
+        const normalizedRelPath = relPath.replace(/\\/g, '/');
+        const id = normalizedRelPath.replace(/\.mdx?$/i, '');
+
+        let parsed;
+        try {
+          parsed = matter(rawMarkdown);
+        } catch (e) {
+          logger.warn(`Failed to parse frontmatter for ${normalizedRelPath}`);
+          return null;
+        }
+
+        const fallbackTitle = id.split('/').pop() || id;
+        const rawStatus = parsed.data?.status;
+        const validStatus = ['sprout', 'growing', 'evergreen'].includes(rawStatus) ? rawStatus : 'sprout';
+
+        const data = {
+          ...parsed.data,
+          title: parsed.data?.title ? String(parsed.data.title) : fallbackTitle,
+          status: validStatus,
+          draft: Boolean(parsed.data?.draft),
+        };
+
+        return {
+          id,
+          lang: rootSegment,
+          data,
+          content: parsed.content,
+          rawMarkdown
+        };
       }
-      
-      const headers = {
-        'Authorization': `Bearer ${pat}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'User-Agent': 'Astro-Loader'
-      };
-      
-      async function fetchContents(path: string) {
-        const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, { headers });
-        if (res.status === 403) {
-           throw new Error("GitHub API rate limit exceeded or access forbidden (403).");
+
+      async function applyEntriesToStore(rawEntries: RawVaultEntry[]) {
+        try {
+          const untouchedEntries = new Set<string>(store.keys());
+          clearGardenRegistry();
+
+          for (const entry of rawEntries) {
+            registerGardenNote({
+              id: entry.id,
+              title: entry.data.title,
+              status: entry.data.status,
+              draft: entry.data.draft,
+              content: entry.content
+            });
+          }
+
+          const registrySignature = rawEntries
+            .map(e => `${e.id}:${e.data.title}:${e.data.status}:${e.data.draft}`)
+            .sort()
+            .join('|');
+
+          for (const entry of rawEntries) {
+            untouchedEntries.delete(entry.id);
+            setCurrentGardenLang(entry.lang);
+            const rendered = renderMarkdown ? await renderMarkdown(entry.content) : undefined;
+            const validatedData = parseData
+              ? await parseData({ id: entry.id, data: entry.data })
+              : entry.data;
+            const digestInput = `${entry.rawMarkdown}::${registrySignature}`;
+            store.set({
+              id: entry.id,
+              data: validatedData,
+              body: entry.content,
+              rendered,
+              digest: generateDigest ? generateDigest(digestInput) : digestInput
+            });
+          }
+
+          for (const oldId of untouchedEntries) {
+            store.delete(oldId);
+          }
+        } finally {
+          setCurrentGardenLang(null);
         }
-        if (res.status === 404) {
-           logger.warn(`GitHub path not found: ${path}. The repository or folder might be empty.`);
-           return;
-        }
-        if (!res.ok) {
-           throw new Error(`Failed to fetch from GitHub: ${res.statusText}`);
-        }
-        
-        let items = await res.json();
-        if (!Array.isArray(items)) {
-           items = [items];
-        }
-        
-        for (const item of items) {
-          if (item.type === 'dir') {
-             await fetchContents(item.path);
-          } else if (item.type === 'file' && item.name.toLowerCase().match(/\.mdx?$/)) {
-             if (!item.download_url) continue;
-             
-             const fileRes = await fetch(item.download_url, { headers });
-             if (!fileRes.ok) {
-               logger.warn(`Failed to download file ${item.path}: ${fileRes.status}`);
-               continue;
-             }
-             
-             const rawMarkdown = await fileRes.text();
-             
-             let id = item.path;
-             if (basePath && id.startsWith(basePath + '/')) {
-               id = id.substring(basePath.length + 1);
-             }
-             id = id.replace(/\.mdx?$/i, '');
-             
-             let parsed;
-             try {
-               parsed = matter(rawMarkdown);
-             } catch (e) {
-               logger.warn(`Failed to parse frontmatter for ${item.path}`);
-               continue;
-             }
-             
-             const data = {
-               title: parsed.data.title || id.split('/').pop(),
-               status: parsed.data.status || 'sprout',
-               draft: parsed.data.draft || false,
-               ...parsed.data
-             };
-             
-             store.set({
-               id,
-               data,
-               body: parsed.content,
-               rendered: renderMarkdown ? await renderMarkdown(parsed.content) : undefined,
-               digest: generateDigest ? generateDigest(rawMarkdown) : id
-             });
+      }
+
+      async function collectLocalVaultEntries(vaultRoot: string): Promise<RawVaultEntry[]> {
+        const entries: RawVaultEntry[] = [];
+        const baseDir = basePath ? path.join(vaultRoot, basePath) : vaultRoot;
+
+        async function walkDir(currentDir: string) {
+          let dirItems;
+          try {
+            dirItems = await fs.readdir(currentDir, { withFileTypes: true });
+          } catch {
+            return;
+          }
+
+          for (const item of dirItems) {
+            if (item.name === '.git' || item.name === '.obsidian' || item.name === 'node_modules') {
+              continue;
+            }
+            const fullPath = path.join(currentDir, item.name);
+            const relPath = path.relative(baseDir, fullPath).replace(/\\/g, '/');
+            const parts = relPath.split('/');
+            const rootSegment = parts[0];
+
+            if (item.isDirectory()) {
+              if (!siteConfig.locale.supported.includes(rootSegment)) {
+                continue;
+              }
+              await walkDir(fullPath);
+            } else if (item.isFile() && /\.mdx?$/i.test(item.name)) {
+              if (!siteConfig.locale.supported.includes(rootSegment) || parts.length < 2) {
+                continue;
+              }
+              const rawMarkdown = await fs.readFile(fullPath, 'utf-8');
+              const parsedEntry = parseVaultEntry(relPath, rootSegment, rawMarkdown);
+              if (parsedEntry) {
+                entries.push(parsedEntry);
+              }
+            }
           }
         }
+
+        await walkDir(baseDir);
+        return entries;
       }
-      
-      try {
+
+      async function collectRemoteGitHubEntries(): Promise<RawVaultEntry[]> {
+        if (!pat) {
+          throw new Error("GH_PAT is required for githubGardenLoader but was not found in the environment.");
+        }
+
+        const headers = {
+          'Authorization': `Bearer ${pat}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Cache-Control': 'no-cache',
+          'User-Agent': 'Astro-Loader'
+        };
+
+        const rawHeaders = {
+          'Authorization': `Bearer ${pat}`,
+          'Accept': 'application/vnd.github.raw+json',
+          'Cache-Control': 'no-cache',
+          'User-Agent': 'Astro-Loader'
+        };
+
+        const rawEntries: RawVaultEntry[] = [];
+
+        async function fetchContents(currentPath: string) {
+          const encodedPath = currentPath.split('/').filter(Boolean).map(encodeURIComponent).join('/');
+          const res = await fetch(`https://api.github.com/repos/${repo}/contents/${encodedPath}`, { headers });
+          if (res.status === 403) {
+            throw new Error("GitHub API rate limit exceeded or access forbidden (403).");
+          }
+          if (res.status === 404) {
+            logger.warn(`GitHub path not found: ${currentPath}. The repository or folder might be empty.`);
+            return;
+          }
+          if (!res.ok) {
+            throw new Error(`Failed to fetch from GitHub: ${res.statusText}`);
+          }
+
+          let items = await res.json();
+          if (!Array.isArray(items)) {
+            items = [items];
+          }
+
+          for (const item of items) {
+            let relPath = item.path;
+            if (basePath && relPath.startsWith(basePath + '/')) {
+              relPath = relPath.substring(basePath.length + 1);
+            }
+            const parts = relPath.split('/');
+            const rootSegment = parts[0];
+
+            if (item.type === 'dir') {
+              if (!siteConfig.locale.supported.includes(rootSegment)) {
+                continue;
+              }
+              await fetchContents(item.path);
+            } else if (item.type === 'file' && item.name.toLowerCase().match(/\.mdx?$/)) {
+              if (!siteConfig.locale.supported.includes(rootSegment) || parts.length < 2) {
+                continue;
+              }
+              const rawApiUrl = item.url || `https://api.github.com/repos/${repo}/contents/${item.path.split('/').map(encodeURIComponent).join('/')}`;
+              const fileRes = await fetch(rawApiUrl, { headers: rawHeaders });
+              if (!fileRes.ok) {
+                logger.warn(`Failed to download file ${item.path}: ${fileRes.status}`);
+                continue;
+              }
+
+              const rawMarkdown = await fileRes.text();
+              const parsedEntry = parseVaultEntry(relPath, rootSegment, rawMarkdown);
+              if (parsedEntry) {
+                rawEntries.push(parsedEntry);
+              }
+            }
+          }
+        }
+
         await fetchContents(basePath);
+        return rawEntries;
+      }
+
+      try {
+        if (useLocalVault) {
+          const localEntries = await collectLocalVaultEntries(configuredLocalVault);
+          await applyEntriesToStore(localEntries);
+          logger.info(`Synced ${localEntries.length} garden notes from local vault (${configuredLocalVault})`);
+
+          if (watcher) {
+            watcher.add(configuredLocalVault);
+            let syncTimeout: ReturnType<typeof setTimeout> | null = null;
+            const normalizedVaultRoot = configuredLocalVault.replace(/\\/g, '/').toLowerCase();
+
+            const handleVaultFsEvent = (changedPath: string) => {
+              const normalizedChanged = changedPath.replace(/\\/g, '/');
+              if (!normalizedChanged.toLowerCase().startsWith(normalizedVaultRoot)) {
+                return;
+              }
+              if (normalizedChanged.includes('/.obsidian/') || normalizedChanged.includes('/.git/')) {
+                return;
+              }
+              if (!/\.mdx?$/i.test(normalizedChanged)) {
+                return;
+              }
+              if (syncTimeout) clearTimeout(syncTimeout);
+              syncTimeout = setTimeout(async () => {
+                try {
+                  const updatedEntries = await collectLocalVaultEntries(configuredLocalVault);
+                  await applyEntriesToStore(updatedEntries);
+                  logger.info(`Reloaded garden notes after vault change: ${path.relative(configuredLocalVault, changedPath)}`);
+                } catch (err: any) {
+                  logger.error(`Failed to reload local vault notes: ${err.message}`);
+                }
+              }, 150);
+            };
+
+            watcher.on('change', handleVaultFsEvent);
+            watcher.on('add', handleVaultFsEvent);
+            watcher.on('unlink', handleVaultFsEvent);
+          }
+        } else {
+          const remoteEntries = await collectRemoteGitHubEntries();
+          await applyEntriesToStore(remoteEntries);
+
+          if (watcher && pat) {
+            if (remotePollTimer) {
+              clearInterval(remotePollTimer);
+            }
+            let lastCommitSha: string | null = null;
+            const shaHeaders = {
+              'Authorization': `Bearer ${pat}`,
+              'Accept': 'application/vnd.github.sha',
+              'Cache-Control': 'no-cache',
+              'User-Agent': 'Astro-Loader'
+            };
+
+            try {
+              const shaRes = await fetch(`https://api.github.com/repos/${repo}/commits/HEAD`, { headers: shaHeaders });
+              if (shaRes.ok) {
+                lastCommitSha = (await shaRes.text()).trim();
+              }
+            } catch {
+              // Ignore initial SHA fetch failure
+            }
+
+            remotePollTimer = setInterval(async () => {
+              try {
+                const shaRes = await fetch(`https://api.github.com/repos/${repo}/commits/HEAD`, { headers: shaHeaders });
+                if (!shaRes.ok) return;
+                const currentSha = (await shaRes.text()).trim();
+                if (lastCommitSha && currentSha && currentSha !== lastCommitSha) {
+                  lastCommitSha = currentSha;
+                  const updatedEntries = await collectRemoteGitHubEntries();
+                  await applyEntriesToStore(updatedEntries);
+                  logger.info(`Reloaded garden notes from remote commit ${currentSha.slice(0, 7)}`);
+                } else if (!lastCommitSha && currentSha) {
+                  lastCommitSha = currentSha;
+                }
+              } catch {
+                // Ignore transient network errors during dev polling
+              }
+            }, 15000);
+          }
+        }
       } catch (err: unknown) {
         if (err instanceof Error) {
           logger.error(`Error loading GitHub content: ${err.message}`);
