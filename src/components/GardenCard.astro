@@ -1,14 +1,19 @@
 ---
 import BaseCard from './BaseCard.astro';
-const { note, t, prefix } = Astro.props;
-const rawSlug = note.id.split('/').slice(1).join('/').replace(/\.(md|mdx)$/, '');
-const url = `${prefix}/garden/${rawSlug}`;
+const { note, t, prefix = '' } = Astro.props;
+const rawSlug = note.id.split('/').slice(1).join('/').replace(/\.(md|mdx)$/i, '').replace(/^\/+/, '');
+const slugSegments = rawSlug.split('/');
+const folder = slugSegments.length > 1 ? `${slugSegments.slice(0, -1).join('/')}/` : '';
+const normalizedPrefix = prefix ? `/${prefix.replace(/^\/+|\/+$/g, '')}` : '';
+const url = `${normalizedPrefix}/garden/${rawSlug}`;
 const status = note.data.status || 'sprout';
 const safeStatus = status.replace(/[^a-z0-9-]/gi, '-');
 const icon = status === 'evergreen' ? '●' : status === 'growing' ? '◐' : '◌';
 const translatedStatus = t ? t(`status.${status}`) : status;
+const tagsAttr = folder ? `${status}|${folder}` : status;
+const initialStyle = folder ? 'display: none;' : '';
 ---
-<BaseCard href={url} class={`base-card garden-card filterable-item status-${safeStatus}`} data-tags={status}>
+<BaseCard href={url} class={`base-card garden-card filterable-item status-${safeStatus}`} data-tags={tagsAttr} data-folder={folder} style={initialStyle}>
   <div class="curator-tag" style="font-family: var(--font-mono); font-size: 11px; font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; color: var(--text-color);">
     // {prefix}: <span class={`badge badge-${safeStatus}`}>{status.toUpperCase()}{translatedStatus ? ` // ${translatedStatus}` : ''} <span aria-hidden="true">{icon}</span></span>
   </div>

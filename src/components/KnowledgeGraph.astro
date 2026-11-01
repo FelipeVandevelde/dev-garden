@@ -43,7 +43,7 @@ const { localNodeId, height } = Astro.props;
     try {
       if (!dataCache) {
         const baseUrl = import.meta.env.BASE_URL.replace(/\/+$/, '');
-        const res = await fetch(baseUrl + '/graph-data.json');
+        const res = await fetch(baseUrl + '/graph-data.json', { cache: 'no-store' });
         if (!res.ok) throw new Error('Failed to fetch graph data');
         dataCache = await res.json();
       }
@@ -149,9 +149,6 @@ const { localNodeId, height } = Astro.props;
       };
 
       document.addEventListener('theme-changed', updateColors);
-      
-      // Cleanup previous listener if needed (handled by astro unmount typically, but we can't easily remove without reference)
-      // Since it's a client script, we keep it simple.
 
     } catch(e: any) {
       console.error("Graph init failed:", e);

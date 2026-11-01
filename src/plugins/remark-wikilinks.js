@@ -1,9 +1,6 @@
 import { visit } from 'unist-util-visit';
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
 
-function slugify(text) {
+export function slugify(text) {
   return text.toString().toLowerCase()
     .replace(/\s+/g, '-')
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w\-]+/g, '')
@@ -25,93 +22,115 @@ function escapeHTML(str) {
   });
 }
 
-function walk(dir, fileList = []) {
-  if (!fs.existsSync(dir)) return fileList;
-  const files = fs.readdirSync(dir);
-  for (const file of files) {
-    const stat = fs.statSync(path.join(dir, file));
-    if (stat.isDirectory()) {
-      walk(path.join(dir, file), fileList);
-    } else {
-      fileList.push(path.join(dir, file));
-    }
+function getGlobalState() {
+  if (!globalThis.__DEV_GARDEN_WIKILINKS__) {
+    globalThis.__DEV_GARDEN_WIKILINKS__ = {
+      publicSlugs: new Map(),
+      privateSlugs: new Set(),
+      currentLang: null
+    };
   }
-  return fileList;
+  return globalThis.__DEV_GARDEN_WIKILINKS__;
 }
 
-let cachedRegistries = null;
+export function clearGardenRegistry() {
+  const state = getGlobalState();
+  state.publicSlugs.clear();
+  state.privateSlugs.clear();
+  state.currentLang = null;
+}
 
-function buildRegistries() {
-  if (cachedRegistries) return cachedRegistries;
-  
-  const gardenDir = path.resolve(process.cwd(), 'src/content/garden');
-  const publicSlugs = new Map();
-  const privateSlugs = new Set();
-  
-  if (fs.existsSync(gardenDir)) {
-    const files = walk(gardenDir);
-    for (const file of files) {
-      if (file.match(/\.mdx?$/)) {
-        const relativePath = path.relative(gardenDir, file);
-        const normalizedPath = relativePath.replace(/\\/g, '/');
-        const filename = path.basename(file);
-        const langDir = normalizedPath.split('/')[0];
-        const slugParts = normalizedPath.split('/').slice(1);
-        
-        const isPrivatePath = slugParts.join('/').includes('_private/') || normalizedPath.startsWith('_') || filename.startsWith('_');
-        
-        const rawContent = fs.readFileSync(file, 'utf8');
-        let parsed;
-        try {
-          parsed = matter(rawContent);
-        } catch (err) {
-          continue;
-        }
-        
-        const fullSlug = slugParts.join('/').replace(/\.mdx?$/, '');
-        const flatSlug = slugify(filename.replace(/\.mdx?$/, ''));
-        const publicSlugKey = `${langDir}/${flatSlug}`;
-        
-        if (isPrivatePath || parsed.data.draft === true) {
-          privateSlugs.add(publicSlugKey);
-        } else {
-          let body = parsed.content
-            .replace(/\[!.*?\]/g, '')
-            .replace(/#+\s/g, '')
-            .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')
-            .replace(/[*_~`]/g, '')
-            .replace(/\n/g, ' ')
-            .trim();
-          
-          body = body.replace(/\[\[(.*?)\]\]/g, '$1'); 
-          
-          let excerpt = body;
-          if (excerpt.length > 120) {
-            const cut = excerpt.substring(0, 120);
-            const lastSpace = cut.lastIndexOf(' ');
-            excerpt = (lastSpace > 0 ? cut.substring(0, lastSpace) : cut) + '...';
-          }
+export function setCurrentGardenLang(lang) {
+  const state = getGlobalState();
+  state.currentLang = lang;
+}
 
-          publicSlugs.set(publicSlugKey, {
-            title: parsed.data.title || filename.replace(/\.mdx?$/, ''),
-            status: parsed.data.status || 'sprout',
-            excerpt: excerpt,
-            fullSlug: fullSlug
-          });
-        }
-      }
+export function createExcerpt(rawMarkdownBody = '') {
+  let body = rawMarkdownBody
+    .replace(/\[!.*?\]/g, '')
+    .replace(/#+\s/g, '')
+    .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')
+    .replace(/[*_~`]/g, '')
+    .replace(/\n/g, ' ')
+    .trim();
+
+  body = body.replace(/\[\[(?:[^\]|]+\|)?([^\]]+)\]\]/g, '$1');
+
+  let excerpt = body;
+  if (excerpt.length > 120) {
+    const cut = excerpt.substring(0, 120);
+    const lastSpace = cut.lastIndexOf(' ');
+    excerpt = (lastSpace > 0 ? cut.substring(0, lastSpace) : cut) + '...';
+  }
+  return excerpt;
+}
+
+export function registerGardenNote({ id, title, status = 'sprout', draft = false, content = '' }) {
+  if (!id || typeof id !== 'string') return;
+  const state = getGlobalState();
+  const normalizedId = id.replace(/\\/g, '/').replace(/\.mdx?$/i, '');
+  const parts = normalizedId.split('/');
+  if (parts.length < 2) return;
+
+  const langDir = parts[0];
+  const slugParts = parts.slice(1);
+  const fullSlug = slugParts.join('/');
+  const baseName = slugParts[slugParts.length - 1];
+
+  const isPrivatePath = parts.some(p => p.startsWith('_'));
+  const isPrivate = isPrivatePath || draft === true;
+
+  const fullRawKey = `${langDir}/${fullSlug.toLowerCase()}`;
+  const fullSlugifiedKey = `${langDir}/${slugParts.map(slugify).join('/')}`;
+  const baseRawKey = `${langDir}/${baseName.toLowerCase()}`;
+  const baseSlugifiedKey = `${langDir}/${slugify(baseName)}`;
+
+  if (isPrivate) {
+    state.privateSlugs.add(fullRawKey);
+    state.privateSlugs.add(fullSlugifiedKey);
+    state.privateSlugs.add(baseRawKey);
+    state.privateSlugs.add(baseSlugifiedKey);
+  } else {
+    const noteRecord = {
+      title: title || baseName,
+      status: status || 'sprout',
+      excerpt: createExcerpt(content),
+      fullSlug
+    };
+
+    state.publicSlugs.set(fullRawKey, noteRecord);
+    state.publicSlugs.set(fullSlugifiedKey, noteRecord);
+    if (!state.publicSlugs.has(baseRawKey)) {
+      state.publicSlugs.set(baseRawKey, noteRecord);
+    }
+    if (!state.publicSlugs.has(baseSlugifiedKey)) {
+      state.publicSlugs.set(baseSlugifiedKey, noteRecord);
     }
   }
-  cachedRegistries = { publicSlugs, privateSlugs };
-  return cachedRegistries;
+}
+
+function resolveCandidateKeys(currentLang, target) {
+  let cleanTarget = target.trim().replace(/\\/g, '/').replace(/\.mdx?$/i, '').replace(/^\/+/, '');
+  if (cleanTarget.toLowerCase().startsWith(currentLang.toLowerCase() + '/')) {
+    cleanTarget = cleanTarget.substring(currentLang.length + 1);
+  }
+  const targetParts = cleanTarget.split('/').filter(Boolean);
+  const baseTarget = targetParts[targetParts.length - 1] || cleanTarget;
+
+  return [
+    `${currentLang}/${cleanTarget.toLowerCase()}`,
+    `${currentLang}/${targetParts.map(slugify).join('/')}`,
+    `${currentLang}/${baseTarget.toLowerCase()}`,
+    `${currentLang}/${slugify(baseTarget)}`
+  ];
 }
 
 export default function remarkWikilinks() {
   return (tree, file) => {
-    const { publicSlugs, privateSlugs } = buildRegistries();
-    const filePath = file.history[0] ? file.history[0].replace(/\\/g, '/') : '';
-    const matchLang = filePath.match(/content\/garden\/([^\/]+)/);
-    const currentLang = matchLang ? matchLang[1] : 'en';
+    const { publicSlugs, privateSlugs, currentLang: activeLang } = getGlobalState();
+    const filePath = file?.history?.[0] ? file.history[0].replace(/\\/g, '/') : (file?.path ? String(file.path).replace(/\\/g, '/') : '');
+    const matchLang = filePath.match(/(?:^|\/)(en|pt-br)\//);
+    const currentLang = activeLang || (matchLang ? matchLang[1] : 'en');
     
     visit(tree, 'text', (node, index, parent) => {
       if (parent && (parent.type === 'code' || parent.type === 'inlineCode' || parent.type === 'link')) {
@@ -142,13 +161,14 @@ export default function remarkWikilinks() {
           label = fullMatch;
         }
 
-        const baseSlug = slugify(target.split('/').pop());
-        const slugKey = `${currentLang}/${baseSlug}`;
-        
+        const candidateKeys = resolveCandidateKeys(currentLang, target);
         const safeLabel = escapeHTML(label);
 
-        if (publicSlugs.has(slugKey)) {
-          const data = publicSlugs.get(slugKey);
+        const matchedPublicKey = candidateKeys.find(k => publicSlugs.has(k));
+        const matchedPrivateKey = candidateKeys.find(k => privateSlugs.has(k));
+
+        if (matchedPublicKey) {
+          const data = publicSlugs.get(matchedPublicKey);
           const safeTitle = escapeHTML(data.title);
           const safeExcerpt = escapeHTML(data.excerpt);
           const prefix = currentLang === 'en' ? '' : '/' + currentLang;
@@ -157,7 +177,7 @@ export default function remarkWikilinks() {
             type: 'html',
             value: `<a href="${prefix}/garden/${data.fullSlug}" class="wikilink" data-preview-title="${safeTitle}" data-preview-status="${data.status}" data-preview-excerpt="${safeExcerpt}">${safeLabel}</a>`
           });
-        } else if (privateSlugs.has(slugKey)) {
+        } else if (matchedPrivateKey) {
           newChildren.push({
             type: 'html',
             value: `<span class="wikilink-stub wikilink-private" title="Private or work-in-progress note">[? ${safeLabel} ?]</span>`
