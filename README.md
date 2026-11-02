@@ -1,6 +1,28 @@
 # DevGarden
 
+> 🇧🇷 [Leia em Português (pt-BR)](./README-pt-br.md)
+
 A portfolio and content project using Astro and Preact. Supports English and Portuguese (`en`/`pt-br`) locales, with custom Markdown plugins (wikilinks, callouts).
+
+## Using as a Portfolio Template
+
+If you want to use **DevGarden** as a clean starting point for your own portfolio and digital garden, use the **`template`** branch. It contains a clean, starter structure without personal portfolio data so you can easily plug in your own information.
+
+1. **Clone the `template` branch directly:**
+   ```bash
+   git clone -b template https://github.com/FelipeVandevelde/dev-garden.git my-portfolio
+   cd my-portfolio
+   npm install
+   ```
+   *(Or switch to it in an existing clone with `git checkout template`)*
+
+2. **Customize your information:**
+   - **`src/site.config.ts`**: Update `author`, `siteUrl`, `social` links, navigation, and `githubRepositories`.
+   - **`astro.config.mjs`**: Update the `site` URL to match your production domain.
+   - **`src/content/profile/en.json` & `src/content/profile/pt-br.json`**: Add your name, title, bio, and engineering principles.
+   - **`src/content/projects/en/` & `src/content/projects/pt-br/`**: Replace the sample JSON files with your own projects and curator notes.
+   - **`src/data/skills.ts`**: Customize the nodes and links for the interactive skills constellation.
+   - **`src/content/config.ts`**: Point `githubGardenLoader` (`repo`) to your own Obsidian vault repository on GitHub (or use `LOCAL_VAULT_PATH` in `.env`).
 
 ## Local Development Setup
 
