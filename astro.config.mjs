@@ -4,7 +4,7 @@ import remarkWikilinks from './src/plugins/remark-wikilinks.js';
 import remarkCallouts from './src/plugins/remark-callouts.js';
 
 export default defineConfig({
-  site: 'https://felipevandevelde.github.io',
+  site: 'https://portifolio-garden.netlify.app/garden',
   output: 'static',
   integrations: [preact()],
   markdown: {

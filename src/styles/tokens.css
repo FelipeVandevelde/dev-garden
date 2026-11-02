@@ -593,6 +593,8 @@ h1.display-title { font-family: var(--font-mono); font-size: 26px; margin: 0 0 1
 
 [data-theme^="HC-"] .base-card:hover .proj-title,
 [data-theme^="HC-"] .base-card:focus-visible .proj-title,
+[data-theme^="HC-"] .base-card:hover .curator-note-title,
+[data-theme^="HC-"] .base-card:focus-visible .curator-note-title,
 [data-theme^="HC-"] .base-card:hover .proj-meta,
 [data-theme^="HC-"] .base-card:focus-visible .proj-meta,
 [data-theme^="HC-"] .base-card:hover .curator-tag,

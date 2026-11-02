@@ -33,14 +33,13 @@ export type SiteConfig = z.infer<typeof siteConfigSchema>;
 
 const unvalidatedConfig = {
   author: {
-    name: 'Your Name',
+    name: 'Felipe Vandevelde',
     bio: 'A passionate developer.',
     githubUsername: 'octocat',
   },
   siteUrl: 'https://felipevandevelde.github.io',
   social: [
-    { name: 'GitHub', url: 'https://github.com' },
-    { name: 'Twitter', url: 'https://twitter.com' }
+    { name: 'GitHub', url: 'https://github.com/FelipeVandevelde' }
   ],
   nav: [
     { label: 'About', href: '/' },

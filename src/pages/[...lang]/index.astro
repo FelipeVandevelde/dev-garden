@@ -8,13 +8,18 @@ export async function getStaticPaths() {
   }));
 }
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getEntry } from 'astro:content';
+import { getEntry, getCollection } from 'astro:content';
 import Constellation from '../../components/Constellation.astro';
 import CommitStream from '../../components/CommitStream';
 
 const lang = Astro.params.lang || siteConfig.locale.default;
 const t = useTranslations(lang as 'en' | 'pt-br');
-const profile = await getEntry('profile', lang === 'pt-br' ? 'pt-br' : 'en');
+const langDir = lang === 'pt-br' ? 'pt-br' : 'en';
+const profile = await getEntry('profile', langDir);
+const gardenNotes = await getCollection('garden', ({ data, id }) => {
+  if (!id.startsWith(langDir + '/')) return false;
+  return data.draft !== true && !id.includes('/_');
+});
 ---
 <BaseLayout>
   <div class="container">
@@ -27,10 +32,10 @@ const profile = await getEntry('profile', lang === 'pt-br' ? 'pt-br' : 'en');
         </div>
       </div>
       <div class="metrics-card">
-        <div class="metric-item"><span>{t('metrics.depth')}</span><span class="metric-val">10+ YEARS</span></div>
-        <div class="metric-item"><span>{t('metrics.production')}</span><span class="metric-val">14 DEPLOYED</span></div>
-        <div class="metric-item"><span>{t('metrics.garden')}</span><span class="metric-val">42 NOTES</span></div>
-        <div class="metric-item"><span>{t('metrics.lighthouse')}</span><span class="metric-val">100 / 100</span></div>
+        <div class="metric-item"><span>{t('metrics.depth')}</span><span class="metric-val">5 YEARS</span></div>
+        <div class="metric-item"><span>{t('metrics.production')}</span><span class="metric-val">1 DEPLOYED</span></div>
+        <div class="metric-item"><span>{t('metrics.garden')}</span><span class="metric-val">{gardenNotes.length} {lang === 'pt-br' ? 'NOTAS' : 'NOTES'}</span></div>
+        <div class="metric-item"><span>{t('metrics.lighthouse')}</span><span class="metric-val">95,5 / 100</span></div>
       </div>
     </div>
 
