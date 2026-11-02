@@ -1,10 +1,11 @@
 {
-  "name": "Jane Doe",
-  "title": "Engenheira de Software Sênior",
-  "bio": "Sou uma construtora especializada em arquiteturas altamente disponíveis, acessíveis e intensamente testadas. Prefiro sistemas simples e brutalistas que escalem de forma limpa.",
+  "name": "Felipe Vandevelde",
+  "title": "Tech Lead & Software Engineer",
+  "bio": "Sou graduando em Ciência da Computação, desenvolvedor de software, entusiasta de sistemas distribuídos, computação quântica e inteligência artificial. Focado em engenharia de ponta a ponta, arquiteturas escaláveis, automação e criação de produtos que unem rigor técnico e impacto prático.",
   "principles": [
-    "Simplicidade sobre complexidade",
-    "Acessibilidade não é negociável",
-    "Entregue estático por padrão"
+    "Aprendizado contínuo e pragmatismo",
+    "Acessibilidade e segurança não são negociáveis",
+    "Organização e planejamento estratégico",
+    "Rigor técnico e profundidade"
   ]
 }
