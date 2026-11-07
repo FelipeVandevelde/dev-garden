@@ -5,8 +5,9 @@
     "type": "module",
     "scripts": {
         "dev": "astro dev",
-        "start": "npm run build && astro preview",
-        "build": "astro check && astro build && pagefind --site dist",
+        "start": "node scripts/vault-sync-server.mjs",
+        "build": "astro check && astro build && pagefind --site dist && node scripts/vault-sync-server.mjs --stamp-dist",
+        "sync:vault": "node scripts/vault-sync-server.mjs --once",
         "preview": "astro preview",
         "astro": "astro"
     },

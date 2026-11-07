@@ -42,7 +42,7 @@ function githubReposLoader() {
       const { store, logger } = context;
       
       const env = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), '');
-      const pat = env.GH_PAT;
+      const pat = process.env.GH_PAT || env.GH_PAT;
       
       if (!pat) {
         logger.warn("GH_PAT is missing. Skipping githubReposLoader.");
@@ -107,20 +107,47 @@ interface RawVaultEntry {
   rawMarkdown: string;
 }
 
+export const DEFAULT_VAULT_SYNC_INTERVAL_MS = 60_000;
+const VAULT_HEAD_SHA_FILE = path.resolve(process.cwd(), '.astro', 'vault-head.sha');
+
 let remotePollTimer: ReturnType<typeof setInterval> | null = null;
 
-function githubGardenLoader({ repo, basePath }: { repo: string, basePath: string }) {
+export function clearRemotePollTimer() {
+  if (remotePollTimer) {
+    clearInterval(remotePollTimer);
+    remotePollTimer = null;
+  }
+}
+
+async function persistVaultHeadSha(sha: string) {
+  if (!sha) return;
+  try {
+    await fs.mkdir(path.dirname(VAULT_HEAD_SHA_FILE), { recursive: true });
+    await fs.writeFile(VAULT_HEAD_SHA_FILE, `${sha.trim()}\n`, 'utf-8');
+  } catch {
+    // Ignore write failures in read-only or virtual environments
+  }
+}
+
+export function githubGardenLoader({ repo, basePath }: { repo: string, basePath: string }) {
   return {
     name: 'github-garden-loader',
     load: async (context: LoaderContext) => {
       const { store, logger, generateDigest, renderMarkdown, parseData, watcher } = context;
       
       const env = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), '');
-      const pat = env.GH_PAT;
-      const configuredLocalVault = env.LOCAL_VAULT_PATH
-        ? path.resolve(process.cwd(), env.LOCAL_VAULT_PATH)
+      const pat = process.env.GH_PAT || env.GH_PAT;
+      const rawLocalVaultPath = process.env.LOCAL_VAULT_PATH || env.LOCAL_VAULT_PATH;
+      const configuredLocalVault = rawLocalVaultPath
+        ? path.resolve(process.cwd(), rawLocalVaultPath)
         : path.resolve(process.cwd(), '../vault-obsidian');
-      const useLocalVault = env.USE_REMOTE_VAULT !== 'true' && existsSync(configuredLocalVault);
+      const useRemoteVault = (process.env.USE_REMOTE_VAULT || env.USE_REMOTE_VAULT) === 'true';
+      const useLocalVault = !useRemoteVault && existsSync(configuredLocalVault);
+
+      const rawSyncInterval = Number(process.env.VAULT_SYNC_INTERVAL_MS || env.VAULT_SYNC_INTERVAL_MS);
+      const pollIntervalMs = Number.isFinite(rawSyncInterval) && rawSyncInterval > 0
+        ? rawSyncInterval
+        : DEFAULT_VAULT_SYNC_INTERVAL_MS;
 
       function parseVaultEntry(relPath: string, rootSegment: string, rawMarkdown: string): RawVaultEntry | null {
         const normalizedRelPath = relPath.replace(/\\/g, '/');
@@ -361,44 +388,76 @@ function githubGardenLoader({ repo, basePath }: { repo: string, basePath: string
           const remoteEntries = await collectRemoteGitHubEntries();
           await applyEntriesToStore(remoteEntries);
 
-          if (watcher && pat) {
-            if (remotePollTimer) {
-              clearInterval(remotePollTimer);
-            }
-            let lastCommitSha: string | null = null;
-            const shaHeaders = {
+          let lastCommitSha: string | null = null;
+          let lastEtag: string | null = null;
+
+          async function fetchVaultHeadCommit(etag: string | null) {
+            const shaHeaders: Record<string, string> = {
               'Authorization': `Bearer ${pat}`,
               'Accept': 'application/vnd.github.sha',
               'Cache-Control': 'no-cache',
               'User-Agent': 'Astro-Loader'
             };
+            if (etag) {
+              shaHeaders['If-None-Match'] = etag;
+            }
+            const shaRes = await fetch(`https://api.github.com/repos/${repo}/commits/HEAD`, { headers: shaHeaders });
+            if (shaRes.status === 304) {
+              return { sha: null, etag: shaRes.headers?.get?.('etag') || etag, notModified: true };
+            }
+            if (!shaRes.ok) {
+              return { sha: null, etag, notModified: false };
+            }
+            const sha = (await shaRes.text()).trim();
+            const nextEtag = shaRes.headers?.get?.('etag') || etag;
+            return { sha: sha || null, etag: nextEtag, notModified: false };
+          }
 
+          if (pat) {
             try {
-              const shaRes = await fetch(`https://api.github.com/repos/${repo}/commits/HEAD`, { headers: shaHeaders });
-              if (shaRes.ok) {
-                lastCommitSha = (await shaRes.text()).trim();
+              const initialHead = await fetchVaultHeadCommit(null);
+              if (initialHead.sha) {
+                lastCommitSha = initialHead.sha;
+                await persistVaultHeadSha(lastCommitSha);
+              }
+              if (initialHead.etag) {
+                lastEtag = initialHead.etag;
               }
             } catch {
               // Ignore initial SHA fetch failure
             }
+          }
+
+          if (watcher && pat) {
+            clearRemotePollTimer();
+            let isPolling = false;
 
             remotePollTimer = setInterval(async () => {
+              if (isPolling) return;
+              isPolling = true;
               try {
-                const shaRes = await fetch(`https://api.github.com/repos/${repo}/commits/HEAD`, { headers: shaHeaders });
-                if (!shaRes.ok) return;
-                const currentSha = (await shaRes.text()).trim();
-                if (lastCommitSha && currentSha && currentSha !== lastCommitSha) {
-                  lastCommitSha = currentSha;
+                const head = await fetchVaultHeadCommit(lastEtag);
+                lastEtag = head.etag;
+                if (head.notModified) return;
+
+                if (lastCommitSha && head.sha && head.sha !== lastCommitSha) {
+                  lastCommitSha = head.sha;
+                  await persistVaultHeadSha(lastCommitSha);
                   const updatedEntries = await collectRemoteGitHubEntries();
                   await applyEntriesToStore(updatedEntries);
-                  logger.info(`Reloaded garden notes from remote commit ${currentSha.slice(0, 7)}`);
-                } else if (!lastCommitSha && currentSha) {
-                  lastCommitSha = currentSha;
+                  logger.info(`Reloaded garden notes from remote commit ${head.sha.slice(0, 7)}`);
+                } else if (!lastCommitSha && head.sha) {
+                  lastCommitSha = head.sha;
+                  await persistVaultHeadSha(lastCommitSha);
                 }
               } catch {
-                // Ignore transient network errors during dev polling
+                // Ignore transient network errors during polling
+              } finally {
+                isPolling = false;
               }
-            }, 15000);
+            }, pollIntervalMs);
+
+            remotePollTimer.unref?.();
           }
         }
       } catch (err: unknown) {
