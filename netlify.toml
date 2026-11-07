@@ -1,0 +1,8 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  USE_REMOTE_VAULT = "true"
+  VAULT_SYNC_INTERVAL_MS = "60000"
+  SECRETS_SCAN_OMIT_KEYS = "USE_REMOTE_VAULT,VAULT_SYNC_INTERVAL_MS,LOCAL_VAULT_PATH,VAULT_REPO"
