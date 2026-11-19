@@ -20,6 +20,7 @@ const gardenNotes = await getCollection('garden', ({ data, id }) => {
   if (!id.startsWith(langDir + '/')) return false;
   return data.draft !== true && !id.includes('/_');
 });
+const metrics = profile?.data.metrics ?? {};
 ---
 <BaseLayout>
   <div class="container">
@@ -32,10 +33,10 @@ const gardenNotes = await getCollection('garden', ({ data, id }) => {
         </div>
       </div>
       <div class="metrics-card">
-        <div class="metric-item"><span>{t('metrics.depth')}</span><span class="metric-val">5 YEARS</span></div>
-        <div class="metric-item"><span>{t('metrics.production')}</span><span class="metric-val">1 DEPLOYED</span></div>
+        {metrics.experience && <div class="metric-item"><span>{t('metrics.depth')}</span><span class="metric-val">{metrics.experience}</span></div>}
+        {metrics.deployed && <div class="metric-item"><span>{t('metrics.production')}</span><span class="metric-val">{metrics.deployed}</span></div>}
         <div class="metric-item"><span>{t('metrics.garden')}</span><span class="metric-val">{gardenNotes.length} {lang === 'pt-br' ? 'NOTAS' : 'NOTES'}</span></div>
-        <div class="metric-item"><span>{t('metrics.lighthouse')}</span><span class="metric-val">95,5 / 100</span></div>
+        {metrics.lighthouse && <div class="metric-item"><span>{t('metrics.lighthouse')}</span><span class="metric-val">{metrics.lighthouse}</span></div>}
       </div>
     </div>
 

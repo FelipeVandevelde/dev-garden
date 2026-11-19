@@ -14,6 +14,12 @@ const profileCollection = defineCollection({
     title: z.string(),
     bio: z.string(),
     principles: z.array(z.string()).default([]),
+    // Home page metric values; any metric left out is hidden
+    metrics: z.object({
+      experience: z.string().optional(),
+      deployed: z.string().optional(),
+      lighthouse: z.string().optional(),
+    }).default({}),
   }),
 });
 
@@ -129,14 +135,16 @@ async function persistVaultHeadSha(sha: string) {
   }
 }
 
-export function githubGardenLoader({ repo, basePath }: { repo: string, basePath: string }) {
+export function githubGardenLoader({ repo: repoOverride, basePath }: { repo?: string, basePath: string }) {
   return {
     name: 'github-garden-loader',
     load: async (context: LoaderContext) => {
       const { store, logger, generateDigest, renderMarkdown, parseData, watcher } = context;
-      
+
       const env = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), '');
       const pat = process.env.GH_PAT || env.GH_PAT;
+      // GitHub "owner/repo" of the Obsidian vault; set VAULT_REPO in the environment
+      const repo = (repoOverride || process.env.VAULT_REPO || env.VAULT_REPO || '').trim();
       const rawLocalVaultPath = process.env.LOCAL_VAULT_PATH || env.LOCAL_VAULT_PATH;
       const configuredLocalVault = rawLocalVaultPath
         ? path.resolve(process.cwd(), rawLocalVaultPath)
@@ -384,6 +392,9 @@ export function githubGardenLoader({ repo, basePath }: { repo: string, basePath:
             watcher.on('add', handleVaultFsEvent);
             watcher.on('unlink', handleVaultFsEvent);
           }
+        } else if (!repo) {
+          logger.warn('VAULT_REPO is not set and no local vault was found. The digital garden will be empty.');
+          await applyEntriesToStore([]);
         } else {
           const remoteEntries = await collectRemoteGitHubEntries();
           await applyEntriesToStore(remoteEntries);
@@ -472,7 +483,7 @@ export function githubGardenLoader({ repo, basePath }: { repo: string, basePath:
 }
 
 const gardenCollection = defineCollection({
-  loader: githubGardenLoader({ repo: 'FelipeVandevelde/vault-obsidian', basePath: '' }),
+  loader: githubGardenLoader({ basePath: '' }),
   schema: z.object({
     title: z.string(),
     draft: z.boolean().optional().default(false),
