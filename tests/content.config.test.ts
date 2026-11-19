@@ -226,6 +226,7 @@ describe('Content Collections Zod Schemas', () => {
       const cfg = resolveVaultSyncConfig(process.cwd(), {
         NODE_ENV: 'production',
         GH_PAT: 'server-pat',
+        VAULT_REPO: 'test/vault',
         DEPLOY_HOOK_URL: 'https://deploy-hooks.example.com/test-hook'
       });
       expect(cfg.intervalMs).toBe(60_000);
