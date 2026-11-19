@@ -1,6 +1,7 @@
 ---
 import { getLangFromUrl, useTranslations, getRouteWithLang } from '../i18n/utils';
 import { defaultLang } from '../i18n/ui';
+import { siteConfig } from '../site.config';
 
 const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
@@ -8,7 +9,7 @@ const enUrl = getRouteWithLang(Astro.url, 'en');
 const ptUrl = getRouteWithLang(Astro.url, 'pt-br');
 ---
 <header class="terminal-nav">
-  <div class="nav-brand">~/felipe-dev [MONOCHROME_TERMINAL]</div>
+  <div class="nav-brand">{siteConfig.brand} [MONOCHROME_TERMINAL]</div>
   <nav class="nav-links">
     {[
       { label: t('nav.home'), href: '/' },
