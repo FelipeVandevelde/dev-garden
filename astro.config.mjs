@@ -2,9 +2,11 @@ import { defineConfig } from 'astro/config';
 import preact from '@astrojs/preact';
 import remarkWikilinks from './src/plugins/remark-wikilinks.js';
 import remarkCallouts from './src/plugins/remark-callouts.js';
+import { siteConfig } from './src/site.config.ts';
 
 export default defineConfig({
-  site: 'https://portifolio-garden.netlify.app/garden',
+  // Single source of truth: edit siteUrl in src/site.config.ts
+  site: siteConfig.siteUrl,
   output: 'static',
   integrations: [preact()],
   markdown: {
