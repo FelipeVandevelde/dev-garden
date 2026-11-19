@@ -19,9 +19,6 @@ import {
   resolveVaultSyncConfig,
   checkAndSyncOnce
 } from '../scripts/vault-sync-server.mjs';
-import netlifyVaultSyncHandler, {
-  config as netlifyScheduleConfig
-} from '../netlify/functions/vault-sync.mjs';
 
 describe('Content Collections Zod Schemas', () => {
   it('profileCollection schema should validate default principles', () => {
@@ -229,7 +226,7 @@ describe('Content Collections Zod Schemas', () => {
       const cfg = resolveVaultSyncConfig(process.cwd(), {
         NODE_ENV: 'production',
         GH_PAT: 'server-pat',
-        DEPLOY_HOOK_URL: 'https://api.netlify.com/build_hooks/test-hook'
+        DEPLOY_HOOK_URL: 'https://deploy-hooks.example.com/test-hook'
       });
       expect(cfg.intervalMs).toBe(60_000);
 
@@ -239,7 +236,7 @@ describe('Content Collections Zod Schemas', () => {
 
       const mockFetch = vi.fn(async (input: any, init?: any) => {
         const url = String(input);
-        if (url === 'https://api.netlify.com/build_hooks/test-hook') {
+        if (url === 'https://deploy-hooks.example.com/test-hook') {
           expect(init?.method).toBe('POST');
           hookCalls.push(url);
           return new Response('{}', { status: 200 });
@@ -265,36 +262,6 @@ describe('Content Collections Zod Schemas', () => {
       expect(updated.sha).toBe(currentSha);
       expect(hookCalls).toHaveLength(1);
       expect(rebuildFn).toHaveBeenCalledTimes(1);
-    });
-
-    it('Netlify scheduled function runs once per minute (* * * * *) and triggers DEPLOY_HOOK_URL when vault advances', async () => {
-      expect(netlifyScheduleConfig.schedule).toBe('* * * * *');
-
-      process.env.GH_PAT = 'netlify-pat';
-      process.env.DEPLOY_HOOK_URL = 'https://api.netlify.com/build_hooks/live-hook';
-      process.env.URL = 'https://portifolio-garden.netlify.app';
-
-      let hookTriggered = 0;
-      vi.stubGlobal('fetch', vi.fn(async (input: any) => {
-        const url = String(input);
-        if (url.endsWith('/commits/HEAD')) {
-          return new Response('cccccccccccccccccccccccccccccccccccccccc', { status: 200 });
-        }
-        if (url.includes('/vault-sync.json')) {
-          return new Response(JSON.stringify({ commitSha: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' }), { status: 200 });
-        }
-        if (url === 'https://api.netlify.com/build_hooks/live-hook') {
-          hookTriggered++;
-          return new Response('{}', { status: 200 });
-        }
-        return new Response('Not Found', { status: 404 });
-      }));
-
-      const res = await netlifyVaultSyncHandler();
-      const body = await res.json();
-      expect(body.ok).toBe(true);
-      expect(body.synced).toBe(true);
-      expect(hookTriggered).toBe(1);
     });
   });
 });
