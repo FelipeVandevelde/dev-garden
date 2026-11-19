@@ -6,6 +6,8 @@ export const siteConfigSchema = z.object({
     bio: z.string().optional(),
     githubUsername: z.string().optional(),
   }),
+  // Terminal-style label shown at the top left of the header
+  brand: z.string().min(1).default('~/dev-garden'),
   siteUrl: z.string().url().transform(val => val.replace(/\/+$/, '')),
   social: z.array(z.object({
     name: z.string().min(1),
@@ -37,6 +39,7 @@ const unvalidatedConfig = {
     bio: 'A passionate developer.',
     githubUsername: 'octocat',
   },
+  brand: '~/felipe-dev',
   siteUrl: 'https://felipevandevelde.github.io',
   social: [
     { name: 'GitHub', url: 'https://github.com/FelipeVandevelde' }
