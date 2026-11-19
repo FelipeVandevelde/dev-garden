@@ -14,6 +14,12 @@ const profileCollection = defineCollection({
     title: z.string(),
     bio: z.string(),
     principles: z.array(z.string()).default([]),
+    // Home page metric values; any metric left out is hidden
+    metrics: z.object({
+      experience: z.string().optional(),
+      deployed: z.string().optional(),
+      lighthouse: z.string().optional(),
+    }).default({}),
   }),
 });
 
