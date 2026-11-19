@@ -4,7 +4,6 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { loadEnv } from 'vite';
 
-export const DEFAULT_VAULT_REPO = 'FelipeVandevelde/vault-obsidian';
 export const DEFAULT_VAULT_SYNC_INTERVAL_MS = 60_000;
 
 export function resolveVaultSyncConfig(cwd = process.cwd(), envOverrides = process.env) {
@@ -19,7 +18,7 @@ export function resolveVaultSyncConfig(cwd = process.cwd(), envOverrides = proce
   return {
     cwd,
     pat: getVar('GH_PAT').trim(),
-    repo: getVar('VAULT_REPO').trim() || DEFAULT_VAULT_REPO,
+    repo: getVar('VAULT_REPO').trim(),
     intervalMs,
     deployHookUrl: getVar('DEPLOY_HOOK_URL').trim(),
     shaFilePath: path.resolve(cwd, '.astro', 'vault-head.sha'),
@@ -70,7 +69,7 @@ export async function stampDistVaultMetadata(config, targetDistDir = config.dist
   if (!existsSync(targetDistDir)) return null;
   let commitSha = explicitSha;
 
-  if (!commitSha && config.pat) {
+  if (!commitSha && config.pat && config.repo) {
     try {
       const head = await fetchRemoteVaultHead(config, null);
       if (head.sha) {
@@ -108,6 +107,9 @@ export async function stampDistVaultMetadata(config, targetDistDir = config.dist
 export async function fetchRemoteVaultHead(config, etag = null, fetchImpl = fetch) {
   if (!config.pat) {
     throw new Error('GH_PAT is required to check remote vault commits.');
+  }
+  if (!config.repo) {
+    throw new Error('VAULT_REPO is required to check remote vault commits.');
   }
 
   const headers = {
@@ -267,7 +269,7 @@ async function runServer(config, previewArgs = []) {
     lastEtag: null
   };
 
-  if (config.pat) {
+  if (config.pat && config.repo) {
     try {
       await checkAndSyncOnce(config, state);
     } catch (err) {
@@ -291,7 +293,7 @@ async function runServer(config, previewArgs = []) {
   let isSyncing = false;
   let timer = null;
 
-  if (config.pat) {
+  if (config.pat && config.repo) {
     console.log(`[vault-sync] Watching ${config.repo} every ${Math.round(config.intervalMs / 1000)}s...`);
     timer = setInterval(async () => {
       if (isSyncing) return;
@@ -305,7 +307,7 @@ async function runServer(config, previewArgs = []) {
       }
     }, config.intervalMs);
   } else {
-    console.warn('[vault-sync] GH_PAT is not set; periodic remote vault sync is disabled.');
+    console.warn('[vault-sync] GH_PAT or VAULT_REPO is not set; periodic remote vault sync is disabled.');
   }
 
   const shutdown = (signal) => {

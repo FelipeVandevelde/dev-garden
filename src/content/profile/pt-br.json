@@ -7,5 +7,10 @@
     "Acessibilidade e segurança não são negociáveis",
     "Organização e planejamento estratégico",
     "Rigor técnico e profundidade"
-  ]
+  ],
+  "metrics": {
+    "experience": "5 YEARS",
+    "deployed": "1 DEPLOYED",
+    "lighthouse": "95,5 / 100"
+  }
 }

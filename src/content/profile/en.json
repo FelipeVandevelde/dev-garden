@@ -7,5 +7,10 @@
     "Accessibility and security are non-negotiable",
     "Organization and strategic planning",
     "Technical rigor and depth"
-  ]
+  ],
+  "metrics": {
+    "experience": "5 YEARS",
+    "deployed": "1 DEPLOYED",
+    "lighthouse": "95,5 / 100"
+  }
 }
