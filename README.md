@@ -2,103 +2,173 @@
 
 > 🇧🇷 [Leia em Português (pt-BR)](./README-pt-br.md)
 
-A portfolio and content project using Astro and Preact. Supports English and Portuguese (`en`/`pt-br`) locales, with custom Markdown plugins (wikilinks, callouts).
+A portfolio and digital garden template built with Astro and Preact. It ships in English and Portuguese (`en`/`pt-br`) and includes Obsidian-style wikilinks and callouts, an interactive knowledge graph, a command palette, and monochrome WCAG AAA themes.
 
-## Using as a Portfolio Template
+**Live demo:** [dev-garden.vercel.app](https://dev-garden.vercel.app). It shows the fictional "Jane Doe" profile and the notes in `sample-vault/`.
 
-If you want to use **DevGarden** as a clean starting point for your own portfolio and digital garden, use the **`template`** branch. It contains a clean, starter structure without personal portfolio data so you can easily plug in your own information.
+## Getting started
 
-1. **Clone the `template` branch directly:**
+1. Create your copy:
+   - **Use this template** on GitHub gives you a clean repository with a fresh history. You can't pull later template updates into it with a normal merge.
+   - **Clone or fork** keeps the history, so you can pull updates later (see [Keeping your copy up to date](#keeping-your-copy-up-to-date)):
+     ```bash
+     git clone https://github.com/FelipeVandevelde/dev-garden.git my-portfolio
+     ```
+2. Install and run:
    ```bash
-   git clone -b template https://github.com/FelipeVandevelde/dev-garden.git my-portfolio
    cd my-portfolio
    npm install
-   ```
-   *(Or switch to it in an existing clone with `git checkout template`)*
-
-2. **Customize your information:**
-   - **`src/site.config.ts`**: Update `author`, `siteUrl`, `social` links, navigation, and `githubRepositories`.
-   - **`astro.config.mjs`**: Update the `site` URL to match your production domain.
-   - **`src/content/profile/en.json` & `src/content/profile/pt-br.json`**: Add your name, title, bio, and engineering principles.
-   - **`src/content/projects/en/` & `src/content/projects/pt-br/`**: Replace the sample JSON files with your own projects and curator notes.
-   - **`src/data/skills.ts`**: Customize the nodes and links for the interactive skills constellation.
-   - **`src/content/config.ts`**: Point `githubGardenLoader` (`repo`) to your own Obsidian vault repository on GitHub (or use `LOCAL_VAULT_PATH` in `.env`).
-
-## Local Development Setup
-
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-2. **Configure Environment Variables:**
-   Copy `.env.example` to `.env`:
-   ```bash
    cp .env.example .env
-   ```
-   Open `.env` and configure your `GH_PAT`.
-
-3. **Start the development server:**
-   ```bash
    npm run dev
    ```
+   The default `.env` reads the notes in `sample-vault/`, so the garden isn't empty on first run.
 
-## Configuring the Obsidian Vault (Remote Content)
+## Make it yours
 
-This project uses a custom Astro loader (`githubGardenLoader`) to fetch your digital garden notes directly from a remote GitHub repository containing your Obsidian vault.
+All personal data lives in these files, so code changes from the template merge into your copy without touching them:
 
-### 1. GitHub Personal Access Token (GH_PAT)
+| File | What to change |
+|---|---|
+| `src/site.config.ts` | `author.name`, `author.githubUsername` (shows your latest public commits on the home page), `brand` (header label), `siteUrl` (also Astro's `site`), `social`, `githubRepositories` |
+| `src/content/profile/en.json`, `pt-br.json` | Name, title, bio, principles, and the home page `metrics` |
+| `src/content/projects/en/`, `pt-br/` | Project case studies, one JSON file per project |
+| `src/data/skills.ts` | Nodes and links of the skills constellation |
+| `src/data/github-mock.json` | Sample commits, shown while `githubUsername` is unset or GitHub is unreachable |
+| `sample-vault/` | Sample notes; point `VAULT_REPO` or `LOCAL_VAULT_PATH` at your own vault instead |
 
-To avoid GitHub API rate limits and to access private repositories, you must provide a GitHub Personal Access Token.
+## Commands
 
-1. Go to your GitHub account settings > Developer settings > Personal access tokens > Tokens (classic) or Fine-grained tokens.
-2. **For public repositories:** A token with no scopes is sufficient (it just increases your rate limit).
-3. **For private repositories:** Generate a token with the `repo` scope (Classic) or read-only access to `Contents` (Fine-grained).
-4. Add the token to your local `.env` file:
-   ```env
-   GH_PAT=github_pat_1234567890
-   ```
+| Command | What it does |
+|---|---|
+| `npm run dev` | Dev server with live reload of local vault notes |
+| `npm run build` | Type checks (`astro check`), builds to `dist/`, indexes search with Pagefind, and writes `dist/vault-sync.json` |
+| `npm run preview` | Serves `dist/` locally |
+| `npx vitest run` | Unit tests |
+| `npx playwright test` | End-to-end tests against `dist/`. Build with the sample vault first: `LOCAL_VAULT_PATH=sample-vault USE_REMOTE_VAULT=false npm run build` |
 
-### 2. Vault Structure & Localization
+## Environment variables
 
-The remote loader expects your Obsidian vault to be organized by locale at the root level. The supported locales are `en` (English) and `pt-br` (Portuguese).
+| Variable | Purpose |
+|---|---|
+| `GH_PAT` | GitHub token for a remote vault and the repositories page. Public repositories need no scopes; a private vault needs read-only `Contents` (fine-grained) or `repo` (classic). |
+| `VAULT_REPO` | `owner/repo` of the GitHub repository that holds your Obsidian vault |
+| `LOCAL_VAULT_PATH` | Local vault folder, used instead of `VAULT_REPO` when it exists (defaults to `../vault-obsidian`) |
+| `USE_REMOTE_VAULT` | `true` forces `VAULT_REPO` even when the local folder exists |
+| `VAULT_SYNC_INTERVAL_MS` | How often `npm run dev` and `npm start` check the remote vault for new commits (default `60000`) |
+| `DEPLOY_HOOK_URL` | Optional deploy hook that `npm start` and `npm run sync:vault` call when the vault changes |
 
-Example Vault Structure:
+With neither a local vault nor `VAULT_REPO`, the build still works; the garden is just empty.
+
+## Writing notes
+
+The vault is organized by language at the root. Subfolders become folder cards in the garden:
+
 ```text
 /
 ├── en/
-│   ├── my-first-note.md
-│   └── web-development/
-│       └── css-tricks.md
-├── pt-br/
-│   ├── minha-primeira-nota.md
-│   └── web-development/
-│       └── dicas-de-css.md
+│   ├── digital-gardening.md
+│   └── guides/
+│       └── writing-notes.md
+└── pt-br/
+    ├── jardim-digital.md
+    └── guias/
+        └── escrevendo-notas.md
 ```
 
-### 3. Note Formatting (Frontmatter)
+**Frontmatter:**
 
-Notes should contain valid YAML frontmatter. The loader uses this metadata to build the knowledge graph and render the pages.
+- `title` (string): shown on cards and previews; defaults to the file name
+- `status` (string): `sprout`, `growing` or `evergreen`; anything else counts as `sprout`
+- `draft` (boolean): `true` keeps the note out of the build
+- `date`, `updated` (dates, optional)
 
-**Supported Frontmatter Properties:**
-- `title` (string): The title of the note. If omitted, the filename is used.
-- `status` (string): The maturity status of the note. Accepts `sprout`, `seedling`, or `evergreen`. Defaults to `sprout`.
-- `draft` (boolean): Set to `true` to exclude the note from production builds. Defaults to `false`.
-
-**Example:**
 ```yaml
 ---
-title: "My First Note"
-status: "seedling"
-draft: false
+title: "Digital Gardening"
+status: "evergreen"
+date: 2026-01-12
 ---
-
-# Hello World
-
-This is a digital garden note. I can link to other notes using wikilinks like [[CSS Tricks]].
 ```
 
-### 4. Wikilinks & Connections
+**Wikilinks:** `[[Note Name]]`, `[[folder/note-name]]` or `[[Note Name|custom label]]`. Links match file names, ignoring case and accents, so `[[Sites Estáticos]]` finds `sites-estaticos.md`. A link to a missing note renders as a stub. The knowledge graph is built from these links at build time (`src/utils/graph.ts`).
 
-You can use standard Obsidian wikilinks (`[[Note Name]]` or `[[Folder/Note Name]]`) to link notes together. 
-During the build step, the `generate-graph.js` script maps these connections to build the interactive 2D Knowledge Graph.
+**Callouts:** Obsidian syntax, such as `> [!note]`, `> [!tip] Title` or `> [!warning]`.
+
+## Deploy to Vercel
+
+The site is fully static, so it needs no Astro adapter.
+
+1. Import the repository at [vercel.com/new](https://vercel.com/new). Vercel detects Astro, and `vercel.json` sets the build command and output folder.
+2. Add the environment variables: `GH_PAT`, `VAULT_REPO` and `USE_REMOTE_VAULT=true`. For a demo with the sample notes, set `LOCAL_VAULT_PATH=sample-vault` instead.
+3. Set `siteUrl` in `src/site.config.ts` to your Vercel URL.
+4. To rebuild when you push notes, create a Deploy Hook (Project → Settings → Git → Deploy Hooks). Save it as the `VERCEL_DEPLOY_HOOK_URL` secret in your vault repository, and add this workflow there as `.github/workflows/trigger-vercel-deploy.yml`:
+
+   ```yaml
+   name: Trigger portfolio rebuild
+
+   on:
+     push:
+       branches: [main]
+       paths:
+         - '**.md'
+     workflow_dispatch:
+
+   jobs:
+     deploy-hook:
+       runs-on: ubuntu-latest
+       timeout-minutes: 2
+       steps:
+         - name: Call Vercel Deploy Hook
+           env:
+             HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+           run: |
+             if [ -z "$HOOK_URL" ]; then
+               echo "VERCEL_DEPLOY_HOOK_URL secret is not set; skipping."
+               exit 0
+             fi
+             curl -fsS -X POST "$HOOK_URL"
+   ```
+
+   A push hook is used because Vercel's free plan runs cron jobs at most once a day.
+
+### Self-hosting
+
+`npm start` builds the site if needed, serves it with `astro preview`, and checks `VAULT_REPO` every `VAULT_SYNC_INTERVAL_MS`. When the vault has a new commit, it rebuilds and calls `DEPLOY_HOOK_URL` if set. `npm run sync:vault` runs that check once.
+
+## Keeping your copy up to date
+
+If you cloned or forked the template, add it as a remote:
+
+```bash
+git remote add upstream https://github.com/FelipeVandevelde/dev-garden.git
+git fetch upstream
+```
+
+The first time you merge, keep your own personal files so the template's sample data doesn't replace them:
+
+```bash
+git merge --no-commit upstream/main
+git checkout HEAD -- src/content/profile src/site.config.ts README.md README-pt-br.md
+git commit
+```
+
+After that, `git merge upstream/main` only brings in new template changes.
+
+## Project structure
+
+```text
+src/
+├── content/      # profile and projects (JSON) + collection loaders (config.ts)
+├── pages/        # routes for both languages
+├── components/   # Astro and Preact components
+├── plugins/      # remark plugins: wikilinks, callouts
+├── data/         # skills constellation, sample commits
+└── site.config.ts
+sample-vault/     # fictional notes used by the demo and the e2e tests
+scripts/          # vault-sync-server.mjs (self-hosting and build stamp)
+tests/, e2e/      # Vitest unit tests, Playwright end-to-end tests
+```
+
+## License
+
+[MIT](./LICENSE)
