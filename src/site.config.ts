@@ -35,14 +35,17 @@ export type SiteConfig = z.infer<typeof siteConfigSchema>;
 
 const unvalidatedConfig = {
   author: {
-    name: 'Felipe Vandevelde',
+    name: 'Jane Doe',
     bio: 'A passionate developer.',
-    githubUsername: 'octocat',
+    // Set your GitHub username to show your latest public commits on the home page.
+    // Left unset, the activity section shows the sample commits in src/data/github-mock.json.
+    // githubUsername: 'your-username',
   },
-  brand: '~/felipe-dev',
-  siteUrl: 'https://portifolio-garden.netlify.app',
+  brand: '~/jane-dev',
+  siteUrl: 'https://dev-garden.vercel.app',
   social: [
-    { name: 'GitHub', url: 'https://github.com/FelipeVandevelde' }
+    { name: 'GitHub', url: 'https://github.com' },
+    { name: 'Twitter', url: 'https://twitter.com' }
   ],
   nav: [
     { label: 'About', href: '/' },
@@ -56,8 +59,7 @@ const unvalidatedConfig = {
   },
   githubRepositories: [
     'withastro/astro',
-    'preactjs/preact',
-    'FelipeVandevelde/dev-garden'
+    'preactjs/preact'
   ],
   theme: {
     default: 'Dark',
