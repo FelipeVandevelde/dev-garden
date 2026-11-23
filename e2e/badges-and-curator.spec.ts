@@ -4,7 +4,8 @@ test.describe('Badges and Curator Notes', () => {
   test('Garden cards have badges with aria-hidden icons', async ({ page }) => {
     await page.goto('/garden');
     
-    const badges = page.locator('.badge');
+    // Status badges live on note cards; folder cards show a "FOLDER (n)" badge without an icon
+    const badges = page.locator('.garden-card:not(.folder-card) .badge');
     await expect(badges.first()).toBeVisible();
     
     // Verify at least the first badge has the aria-hidden span
