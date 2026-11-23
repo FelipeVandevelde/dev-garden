@@ -4,7 +4,7 @@
 
 Um template de portfólio e jardim digital feito com Astro e Preact. Ele vem em inglês e português (`en`/`pt-br`) e inclui wikilinks e callouts no estilo do Obsidian, um grafo de conhecimento interativo, uma paleta de comandos e temas monocromáticos WCAG AAA.
 
-**Demo:** [dev-garden.vercel.app](https://dev-garden.vercel.app). Ela mostra o perfil fictício "Jane Doe" e as notas de `sample-vault/`.
+**Veja funcionando:** [dev-garden-portfolio.vercel.app](https://dev-garden-portfolio.vercel.app) é um portfólio real feito a partir deste template ([código](https://github.com/FelipeVandevelde/dev-garden-portfolio)), com as notas vindas de um vault do Obsidian no GitHub. Este repositório traz um perfil fictício "Jane Doe" e as notas de exemplo de `sample-vault/`; rode localmente para vê-las.
 
 ## Primeiros passos
 
@@ -164,7 +164,7 @@ src/
 ├── plugins/      # plugins remark: wikilinks, callouts
 ├── data/         # constelação de habilidades, commits de exemplo
 └── site.config.ts
-sample-vault/     # notas fictícias usadas pela demo e pelos testes e2e
+sample-vault/     # notas fictícias para o desenvolvimento local e os testes e2e
 scripts/          # vault-sync-server.mjs (hospedagem própria e carimbo do build)
 tests/, e2e/      # testes unitários (Vitest) e end-to-end (Playwright)
 ```
