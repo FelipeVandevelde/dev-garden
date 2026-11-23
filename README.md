@@ -4,7 +4,7 @@
 
 A portfolio and digital garden template built with Astro and Preact. It ships in English and Portuguese (`en`/`pt-br`) and includes Obsidian-style wikilinks and callouts, an interactive knowledge graph, a command palette, and monochrome WCAG AAA themes.
 
-**Live demo:** [dev-garden.vercel.app](https://dev-garden.vercel.app). It shows the fictional "Jane Doe" profile and the notes in `sample-vault/`.
+**See it live:** [dev-garden-portfolio.vercel.app](https://dev-garden-portfolio.vercel.app) is a real portfolio built from this template ([source](https://github.com/FelipeVandevelde/dev-garden-portfolio)), with its notes coming from an Obsidian vault on GitHub. This repository ships a fictional "Jane Doe" profile and the sample notes in `sample-vault/`; run it locally to see them.
 
 ## Getting started
 
@@ -164,7 +164,7 @@ src/
 ├── plugins/      # remark plugins: wikilinks, callouts
 ├── data/         # skills constellation, sample commits
 └── site.config.ts
-sample-vault/     # fictional notes used by the demo and the e2e tests
+sample-vault/     # fictional notes for local development and the e2e tests
 scripts/          # vault-sync-server.mjs (self-hosting and build stamp)
 tests/, e2e/      # Vitest unit tests, Playwright end-to-end tests
 ```

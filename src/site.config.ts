@@ -42,7 +42,8 @@ const unvalidatedConfig = {
     // githubUsername: 'your-username',
   },
   brand: '~/jane-dev',
-  siteUrl: 'https://dev-garden.vercel.app',
+  // Replace with your site's URL (also used as Astro's `site` for RSS and canonical links)
+  siteUrl: 'https://example.com',
   social: [
     { name: 'GitHub', url: 'https://github.com' },
     { name: 'Twitter', url: 'https://twitter.com' }
